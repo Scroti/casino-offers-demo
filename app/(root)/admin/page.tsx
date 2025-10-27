@@ -8,6 +8,13 @@ import { QuickActionsSection } from '@/components/admin/quick-actions-section';
 import { RecentBonusesPreview } from '@/components/admin/recent-bonuses-preview';
 
 export default function AdminDashboard() {
+  const [currentTime, setCurrentTime] = React.useState<string>('');
+
+  React.useEffect(() => {
+    // Set time only on client side to avoid hydration mismatch
+    setCurrentTime(new Date().toLocaleString());
+  }, []);
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -20,7 +27,7 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center space-x-2">
           <div className="text-sm text-muted-foreground">
-            Last updated: {new Date().toLocaleString()}
+            Last updated: {currentTime || 'Loading...'}
           </div>
         </div>
       </div>
