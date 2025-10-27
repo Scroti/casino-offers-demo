@@ -1,0 +1,17 @@
+{
+  "name": "casino-offers-dev",
+  "version": "1.0.0",
+  "description": "Development scripts for Casino Offers",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev",
+    "dev:backend": "cd server && npm run start:dev",
+    "install:all": "npm install && cd server && npm install && cd ..",
+    "build:all": "npm run build && cd server && npm run build && cd ..",
+    "start:all": "concurrently \"npm run start\" \"npm run start:backend\"",
+    "start:backend": "cd server && npm run start:prod"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

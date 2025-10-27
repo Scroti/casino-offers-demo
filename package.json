@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
+    "dev:backend": "cd server && npm run start:dev",
+    "install:all": "npm install && cd server && npm install && cd ..",
+    "build:all": "npm run build && cd server && npm run build && cd .."
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -42,6 +46,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.6",
     "tailwindcss": "^4",
