@@ -51,7 +51,7 @@ export function HeroSection() {
               {' '}casinos
             </h1>
             <p className="text-muted-foreground text-lg">
-              Since 1995, we've been helping players find their perfect casinos.
+              Since 1995, we&apos;ve been helping players find their perfect casinos.
               Explore our expert reviews, smart tools, and trusted guides, and
               play with confidence.
             </p>
