@@ -33,7 +33,7 @@ jobs:
             --region us-central1 \
             --allow-unauthenticated \
             --port 3000 \
-            --set-env-vars="NODE_ENV=production,APP_PORT=3000,APP_ENVIRONMENT=production" \
+            --set-env-vars="NODE_ENV=production,APP_PORT=3000,APP_ENVIRONMENT=production,APP_VERSIONING_DEFAULT_VERSION=v1,JWT_SECRET=your-super-secret-jwt-key-for-production-change-this" \
             --timeout=900 \
             --max-instances=10
           echo "✅ Backend deployed!"

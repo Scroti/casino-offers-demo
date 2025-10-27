@@ -18,7 +18,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Expose port
-EXPOSE 3003
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "run", "start:prod"]
