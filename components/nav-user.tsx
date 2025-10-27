@@ -1,8 +1,12 @@
 "use client";
 
+import React from "react";
+import { authApi, useLogoutMutation } from "@/app/lib/data-access/configs/auth.config";
+import { useAuth } from "@/context/auth.context";
 import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,23 +16,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useDispatch } from "react-redux";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+import { UserProfile } from "@/app/lib/data-access/models/user-profile.model";
+import { useRouter } from "next/navigation";
+
+export function NavUser({ user }: { user: UserProfile | null }) {
   const { isMobile } = useSidebar();
+  const [logoutApi, { isLoading }] = useLogoutMutation();
+  const { logoutUser } = useAuth();
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch {
+      // Handle error if needed
+    } finally {
+      dispatch(authApi.util.resetApiState());
+      logoutUser();
+      router.push("/");
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -40,15 +57,15 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-full">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user?.profileImageUrl} alt={user?.name} />
                 <AvatarFallback className="rounded-lg">
-                  {user.name?.[0]?.toUpperCase() || "?"}
+                  {user?.name?.[0]?.toUpperCase() || "?"}
                 </AvatarFallback>
               </Avatar>
               {isMobile ? null : (
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               )}
             </SidebarMenuButton>
@@ -63,14 +80,14 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={user?.profileImageUrl} alt={user?.name} />
                   <AvatarFallback className="rounded-lg">
-                    {user.name?.[0]?.toUpperCase() || "?"}
+                    {user?.name?.[0]?.toUpperCase() || "?"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -103,7 +120,7 @@ export function NavUser({
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
               <LogOut />
               Log out
             </DropdownMenuItem>

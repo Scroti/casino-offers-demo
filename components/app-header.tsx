@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { SidebarTrigger, useSidebar } from "./ui/sidebar";
-import { NavUser } from "./nav-user";
-import { ModeToggle } from "./ui/mode-toggle";
-import { feAppConfig } from "@/public/configs/app.config";
-import { appConfig as data } from "@/components/configs/appConfig";
+import Image from 'next/image';
+import Link from 'next/link';
+import { SidebarTrigger, useSidebar } from './ui/sidebar';
+import { NavUser } from './nav-user';
+import { ModeToggle } from './ui/mode-toggle';
+import { feAppConfig } from '@/public/configs/app.config';
+import { useAuth } from '@/context/auth.context';
+import { Button } from './ui/button';
 
 export function AppHeader() {
   const { isMobile } = useSidebar();
+  const { hydrated, accessToken, user } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
       <div className="flex h-14 items-center justify-between px-4">
-        {/* Left section */}
         <div className="flex items-center gap-2">
           {isMobile ? <SidebarTrigger /> : null}
-
-          {/* 🔥 Add logo here */}
           <Image
             src="/assets/images/logo.png"
             alt="Casino Offers Logo"
@@ -25,23 +25,23 @@ export function AppHeader() {
             height={50}
             className="rounded-md"
           />
-
           <h1 className="text-lg font-semibold">{feAppConfig.branding.AppName}</h1>
         </div>
 
-        {/* Center section */}
-        {/* <div className="hidden md:flex flex-1 justify-center">
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="w-[300px] max-w-sm"
-          />
-        </div> */}
-
-        {/* Right section */}
         <div className="flex items-center gap-2">
           <ModeToggle />
-          <NavUser user={data.user} />
+          {!hydrated ? null : accessToken ? (
+            <NavUser user={user} />
+          ) : (
+            <>
+              <Link href="/login" className="btn btn-outline">
+                <Button variant="outline">Login</Button>
+              </Link>
+              <Link href="/signup" className="btn btn-primary">
+                <Button>Sign Up</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

@@ -120,3 +120,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes grayscalePulse {
+  0% {
+    filter: grayscale(100%);
+  }
+  50% {
+    filter: grayscale(0%);
+  }
+  100% {
+    filter: grayscale(100%);
+  }
+}
+
+.animate-grayscalePulse {
+  animation: grayscalePulse 1.2s ease-in-out infinite;
+}

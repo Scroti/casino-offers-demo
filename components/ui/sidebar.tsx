@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
@@ -24,6 +25,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { usePathname } from "next/navigation";
+
+function useSidebarDropdownState() {
+  const [openMenus, setOpenMenus] = React.useState<Record<string, boolean>>({});
+
+  const toggleMenu = (title: string) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
+
+  const isMenuOpen = (title: string) => !!openMenus[title];
+
+  return { isMenuOpen, toggleMenu };
+}
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -31,7 +48,7 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
-const HEADER_HEIGHT_CLASS = "top-14"
+const HEADER_HEIGHT_CLASS = "top-14";
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -220,7 +237,7 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-           'mt-14',
+          "mt-14",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -229,20 +246,19 @@ function Sidebar({
         )}
       />
       <div
-  data-slot="sidebar-container"
-  className={cn(
-    // was: "fixed inset-y-0 ..."
-    "fixed bottom-0 z-10 hidden h-[calc(100vh-56px)] w-(--sidebar-width) md:flex", // 56px = header
-    HEADER_HEIGHT_CLASS, // 👈 equals top-14
-    side === "left"
-      ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-      : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-    variant === "floating" || variant === "inset"
-      ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-      : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
-    className
-  )}
-
+        data-slot="sidebar-container"
+        className={cn(
+          // was: "fixed inset-y-0 ..."
+          "fixed bottom-0 z-10 hidden h-[calc(100vh-56px)] w-(--sidebar-width) md:flex", // 56px = header
+          HEADER_HEIGHT_CLASS, // 👈 equals top-14
+          side === "left"
+            ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+            : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+          variant === "floating" || variant === "inset"
+            ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
+            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+          className
+        )}
         {...props}
       >
         <div
@@ -515,7 +531,6 @@ function SidebarMenuButton({
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const Comp = asChild ? Slot : "button";
   const { isMobile, state } = useSidebar();
-
   const button = (
     <Comp
       data-slot="sidebar-menu-button"
@@ -526,26 +541,22 @@ function SidebarMenuButton({
       {...props}
     />
   );
-
   if (!tooltip) {
     return button;
   }
-
   if (typeof tooltip === "string") {
-    tooltip = {
-      children: tooltip,
-    };
+    tooltip = { children: tooltip };
   }
-
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      {" "}
+      <TooltipTrigger asChild>{button}</TooltipTrigger>{" "}
       <TooltipContent
         side="right"
         align="center"
         hidden={state !== "collapsed" || isMobile}
         {...tooltip}
-      />
+      />{" "}
     </Tooltip>
   );
 }

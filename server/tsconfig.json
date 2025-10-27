@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@offers/commons": ["src/shared/commons/src"],
+      "@offers/auth": ["src/shared/auth"],
+      "offers/health-check":["src/projects/health/src"],
+      "offers/newsletter":["src/projects/casino-offers/newsletter/src"],
+      "offers/admin-dashboard":["src/projects/admin-dashboard/src"]
+      
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*mock.ts", "node_modules", "dist"]
+}

@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.DS_Store
+*.log
+npm-debug.log*
+.env
+.env.local
+coverage
+.cache
+test
+*.spec.ts
+*.e2e-spec.ts
+
+
