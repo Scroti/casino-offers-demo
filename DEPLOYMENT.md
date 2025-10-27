@@ -95,15 +95,26 @@ You need to configure these in the Cloud Run console or via CLI:
 gcloud run services update casino-offers-backend \
   --set-env-vars="
     NODE_ENV=production,
+    APP_PORT=3000,
+    APP_ENVIRONMENT=production,
+    APP_VERSIONING_DEFAULT_VERSION=v1,
     JWT_SECRET=your-super-secret-jwt-key-here,
     JWT_EXPIRES=15m,
-    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/casino-offers
+    MONGO_DB_USER=your-mongodb-username,
+    MONGO_DB_PASSWORD=your-mongodb-password,
+    MONGO_DB_SERVER=your-mongodb-server.mongodb.net,
+    MONGO_DB_NAME=casino-offers,
+    APP_NAME=Casino Offers API,
+    APP_SWAGGER_TAG=casino-offers,
+    APP_SWAGGER_VERSION=1.0.0,
+    APP_SWAGGER_SERVER=https://casino-offers-backend-xxxxx-uc.a.run.app
   "
 ```
 
 **Important:** Replace with your actual values:
-- `JWT_SECRET`: Use a strong secret key
-- `MONGODB_URI`: Get from MongoDB Atlas
+- `JWT_SECRET`: Use a strong secret key (32+ characters)
+- `MONGO_DB_*`: Get from MongoDB Atlas
+- `APP_SWAGGER_SERVER`: Update with your actual backend URL
 
 ### Frontend Environment Variables
 

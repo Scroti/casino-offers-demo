@@ -37,7 +37,7 @@ jobs:
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
             --port 3000 \
-            --set-env-vars="NODE_ENV=production"
+            --set-env-vars="NODE_ENV=production,APP_PORT=3000,APP_ENVIRONMENT=production"
       
       - name: Get Backend URL
         id: backend-url
