@@ -56,7 +56,7 @@ export type BulkChangeStatusDto = {
   status: 'active' | 'inactive' | 'banned' | 'pending';
 };
 
-const baseUrl = 'http://localhost:3003/api/v1';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1';
 
 const baseQuery = fetchBaseQuery({
   baseUrl,

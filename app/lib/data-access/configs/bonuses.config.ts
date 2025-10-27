@@ -18,7 +18,7 @@ export type Bonus = {
 export const bonusesApi = createApi({
   reducerPath: 'bonusesApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3003/api/v1',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1',
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth.accessToken;
       if (token) {

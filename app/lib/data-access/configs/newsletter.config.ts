@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const newsletterApi = createApi({
   reducerPath: 'newsletterApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3003/api/v1',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1',
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth.accessToken;
       if (token) {

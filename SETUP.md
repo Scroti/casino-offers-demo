@@ -100,14 +100,17 @@ npm run start:dev
 ✅ Everything pushed to GitHub  
 ✅ Added parallel development scripts
 
-## Troubleshooting
+## 🔧 Environment Variables
 
-If you encounter any issues:
+Create a `.env.local` file in the root directory:
 
-1. **Node modules**: Run `npm run install:all` to install dependencies for both projects
-2. **Port conflicts**: Adjust ports in `.env` files if needed
-3. **Git**: Everything is already committed and pushed to GitHub
-4. **Scripts**: Make sure scripts are executable (`chmod +x dev.sh` on Linux/Mac)
+```bash
+# Copy the template
+cp env.template .env.local
 
-Everything should work exactly as before! 🚀
+# Edit with your settings
+NEXT_PUBLIC_API_URL=http://localhost:3003/api/v1
+```
+
+For production deployment, the API URL will be automatically set by GCP Cloud Run.
 
