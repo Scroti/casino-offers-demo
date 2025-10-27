@@ -23,9 +23,6 @@ jobs:
           echo "Authentication successful!"
           gcloud auth list
       
-      - name: Configure Docker
-        run: gcloud auth configure-docker
-      
       - name: Deploy Backend
         run: |
           echo "🚀 Deploying Backend..."
