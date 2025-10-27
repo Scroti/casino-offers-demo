@@ -45,14 +45,14 @@ fi
 
 # Deploy Backend
 echo -e "${BLUE}🔧 Deploying Backend...${NC}"
-cd ../casino-demo-be
+cd server
 
-gcloud run deploy casino-demo-be \
+gcloud run deploy casino-offers-backend \
   --source . \
   --platform managed \
   --region $REGION \
   --allow-unauthenticated \
-  --port 3003 \
+  --port 3000 \
   --set-env-vars="NODE_ENV=production"
 
 if [ $? -ne 0 ]; then
@@ -62,14 +62,14 @@ fi
 
 # Get Backend URL
 echo -e "${BLUE}📡 Getting Backend URL...${NC}"
-BACKEND_URL=$(gcloud run services describe casino-demo-be --region $REGION --format 'value(status.url)')
+BACKEND_URL=$(gcloud run services describe casino-offers-backend --region $REGION --format 'value(status.url)')
 echo -e "${GREEN}✅ Backend URL: $BACKEND_URL${NC}\n"
 
 # Deploy Frontend
 echo -e "${BLUE}🎨 Deploying Frontend...${NC}"
-cd ../casino-demo
+cd ..
 
-gcloud run deploy casino-demo-fe \
+gcloud run deploy casino-offers-frontend \
   --source . \
   --platform managed \
   --region $REGION \
@@ -84,7 +84,7 @@ fi
 
 # Get Frontend URL
 echo -e "${BLUE}📡 Getting Frontend URL...${NC}"
-FRONTEND_URL=$(gcloud run services describe casino-demo-fe --region $REGION --format 'value(status.url)')
+FRONTEND_URL=$(gcloud run services describe casino-offers-frontend --region $REGION --format 'value(status.url)')
 echo -e "${GREEN}✅ Frontend URL: $FRONTEND_URL${NC}\n"
 
 # Summary

@@ -1,4 +1,4 @@
-# 🚀 Deployment Guide - Google Cloud Run
+# 🚀 GCP Deployment Guide - Google Cloud Run
 
 This guide will help you deploy both the frontend and backend to Google Cloud Run.
 
@@ -7,7 +7,7 @@ This guide will help you deploy both the frontend and backend to Google Cloud Ru
 ### Option 1: Automatic Deployment via GitHub Actions (Recommended)
 - ✅ Deploys automatically on push to `main` branch
 - ✅ No manual commands needed
-- ✅ See [`.github/SETUP.md`](.github/SETUP.md) for detailed setup
+- ✅ See [`.github/workflows/`](.github/workflows/) for workflows
 
 ### Option 2: Manual Deployment via CLI
 - ✅ Full control over deployment
@@ -57,26 +57,26 @@ chmod +x deploy.sh
 #### Deploy Backend
 
 ```bash
-cd ../casino-demo-be
+cd server
 
-gcloud run deploy casino-demo-be \
+gcloud run deploy casino-offers-backend \
   --source . \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
-  --port 3003 \
+  --port 3000 \
   --set-env-vars="NODE_ENV=production"
 ```
 
 #### Deploy Frontend
 
 ```bash
-cd casino-demo
+# From root directory
 
 # Get backend URL first
-BACKEND_URL=$(gcloud run services describe casino-demo-be --region us-central1 --format 'value(status.url)')
+BACKEND_URL=$(gcloud run services describe casino-offers-backend --region us-central1 --format 'value(status.url)')
 
-gcloud run deploy casino-demo-fe \
+gcloud run deploy casino-offers-frontend \
   --source . \
   --platform managed \
   --region us-central1 \
@@ -92,12 +92,12 @@ gcloud run deploy casino-demo-fe \
 You need to configure these in the Cloud Run console or via CLI:
 
 ```bash
-gcloud run services update casino-demo-be \
+gcloud run services update casino-offers-backend \
   --set-env-vars="
     NODE_ENV=production,
     JWT_SECRET=your-super-secret-jwt-key-here,
     JWT_EXPIRES=15m,
-    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/casino-demo
+    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/casino-offers
   "
 ```
 
@@ -110,8 +110,8 @@ gcloud run services update casino-demo-be \
 The frontend URL is automatically set during deployment. If you need to update it:
 
 ```bash
-gcloud run services update casino-demo-fe \
-  --set-env-vars="NEXT_PUBLIC_API_URL=https://casino-demo-be-xxxxx-uc.a.run.app/api/v1"
+gcloud run services update casino-offers-frontend \
+  --set-env-vars="NEXT_PUBLIC_API_URL=https://casino-offers-backend-xxxxx-uc.a.run.app/api/v1"
 ```
 
 ## 📊 Database Setup (MongoDB Atlas)

@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Casino Offers - Full Stack Application
+
+This repository contains the full-stack casino offers application with frontend and backend services.
+
+## Project Structure
+
+- **Root** - Next.js frontend application
+- **server/** - NestJS backend API
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install all dependencies
+npm run install:all
+
+# Run both frontend and backend together
+npm run dev:all
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Individual Services
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Frontend:**
+```bash
+npm install
+npm run dev
+# Available at http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Backend:**
+```bash
+cd server
+npm install
+npm run start:dev
+# Available at http://localhost:3000
+```
 
-## Learn More
+## 🚀 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+### GCP Cloud Run (Recommended)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Quick Deploy:**
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Manual Deploy:**
+```bash
+# Backend
+cd server
+gcloud run deploy casino-offers-backend --source . --region us-central1
 
-## Deploy on Vercel
+# Frontend
+BACKEND_URL=$(gcloud run services describe casino-offers-backend --region us-central1 --format 'value(status.url)')
+gcloud run deploy casino-offers-frontend --source . --region us-central1 --set-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL/api/v1"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### GitHub Actions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Automatic deployment on push to `main` branch. See [`.github/GCP_SETUP.md`](.github/GCP_SETUP.md) for setup.
+
+## 📚 Documentation
+
+- [Setup Guide](SETUP.md) - Detailed setup instructions
+- [Deployment Guide](DEPLOYMENT.md) - GCP deployment instructions
+- [Environment Variables](.env.example) - Environment configuration
+
+## Available Scripts
+
+### Root Directory:
+- `npm run dev` - Start frontend only
+- `npm run dev:all` - Start both frontend and backend together
+- `npm run dev:backend` - Start backend only
+- `npm run install:all` - Install dependencies for both projects
+- `npm run build:all` - Build both projects
+
+### Backend (server/):
+- `npm run start:dev` - Start development server with watch
+- `npm run build` - Build for production
+- `npm run start:prod` - Start production server
+- `npm run test` - Run tests
+
+## License
+
+Private - UNLICENSED
