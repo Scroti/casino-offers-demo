@@ -22,9 +22,12 @@ jobs:
       
       - name: Enable Required APIs
         run: |
+          echo "Enabling required Google Cloud APIs..."
+          gcloud services enable cloudresourcemanager.googleapis.com
           gcloud services enable run.googleapis.com
           gcloud services enable cloudbuild.googleapis.com
           gcloud services enable artifactregistry.googleapis.com
+          echo "APIs enabled successfully!"
       
       - name: Configure Docker
         run: gcloud auth configure-docker
