@@ -1,0 +1,74 @@
+name: Deploy to GCP Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        run: |
+          echo "Creating service account key file..."
+          echo '${{ secrets.GCP_SA_KEY }}' | base64 -d > gcp-sa-key.json
+          echo "Activating service account..."
+          gcloud auth activate-service-account --key-file=gcp-sa-key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          echo "Authentication successful!"
+          gcloud auth list
+      
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+      
+      - name: Deploy Backend
+        run: |
+          echo "🚀 Deploying Backend..."
+          cd server
+          gcloud run deploy casino-offers-backend \
+            --source . \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --port 3000 \
+            --set-env-vars="NODE_ENV=production,APP_PORT=3000,APP_ENVIRONMENT=production" \
+            --timeout=900 \
+            --max-instances=10
+          echo "✅ Backend deployed!"
+      
+      - name: Get Backend URL
+        id: backend-url
+        run: |
+          BACKEND_URL=$(gcloud run services describe casino-offers-backend --region us-central1 --format 'value(status.url)')
+          echo "url=$BACKEND_URL" >> $GITHUB_OUTPUT
+          echo "Backend URL: $BACKEND_URL"
+      
+      - name: Deploy Frontend
+        run: |
+          echo "🎨 Deploying Frontend..."
+          gcloud run deploy casino-offers-frontend \
+            --source . \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --port 3000 \
+            --set-env-vars="NEXT_PUBLIC_API_URL=${{ steps.backend-url.outputs.url }}/api/v1" \
+            --timeout=900 \
+            --max-instances=10
+          echo "✅ Frontend deployed!"
+      
+      - name: Get Service URLs
+        run: |
+          echo "========================================="
+          echo "🚀 Deployment Complete!"
+          echo "========================================="
+          echo "Backend URL:"
+          gcloud run services describe casino-offers-backend --region us-central1 --format 'value(status.url)'
+          echo "Frontend URL:"
+          gcloud run services describe casino-offers-frontend --region us-central1 --format 'value(status.url)'
+          echo "========================================="
