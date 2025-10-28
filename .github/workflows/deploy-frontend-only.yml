@@ -1,0 +1,161 @@
+name: Deploy Frontend Only to GCP Cloud Run
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'hooks/**'
+      - 'context/**'
+      - 'middleware.ts'
+      - 'next.config.ts'
+      - 'package.json'
+      - 'Dockerfile'
+      - 'tsconfig.json'
+      - 'tailwind.config.js'
+      - 'postcss.config.mjs'
+      - 'components.json'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: us-central1
+  BACKEND_SERVICE_NAME: casino-offers-backend
+  FRONTEND_SERVICE_NAME: casino-offers-frontend
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend-url: ${{ steps.get-frontend-url.outputs.url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          export_default_credentials: true
+      
+      - name: Configure Docker for GCP
+        run: |
+          gcloud auth configure-docker
+      
+      - name: Get Backend URL
+        id: get-backend-url
+        run: |
+          echo "🔍 Getting backend URL..."
+          BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE_NAME }} \
+            --region ${{ env.GCP_REGION }} \
+            --format 'value(status.url)')
+          
+          if [ -z "$BACKEND_URL" ]; then
+            echo "❌ Backend service not found!"
+            exit 1
+          fi
+          
+          echo "url=$BACKEND_URL" >> $GITHUB_OUTPUT
+          echo "Backend URL: $BACKEND_URL"
+          
+          # Test if backend is accessible
+          if curl -f "$BACKEND_URL/health" > /dev/null 2>&1; then
+            echo "✅ Backend is healthy and accessible!"
+          else
+            echo "⚠️ Backend is not responding to health checks"
+          fi
+      
+      - name: Build and Deploy Frontend
+        run: |
+          echo "🎨 Building and deploying frontend..."
+          
+          # Set backend URL for frontend
+          BACKEND_URL="${{ steps.get-backend-url.outputs.url }}"
+          echo "Using backend URL: $BACKEND_URL"
+          
+          # Build and deploy to Cloud Run
+          gcloud run deploy ${{ env.FRONTEND_SERVICE_NAME }} \
+            --source . \
+            --platform managed \
+            --region ${{ env.GCP_REGION }} \
+            --allow-unauthenticated \
+            --port 3000 \
+            --memory 512Mi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 10 \
+            --timeout 900 \
+            --concurrency 100 \
+            --set-env-vars="
+              NODE_ENV=production,
+              NEXT_PUBLIC_API_URL=$BACKEND_URL/api/v1,
+              NEXT_PUBLIC_APP_NAME=Casino Offers,
+              NEXT_PUBLIC_APP_VERSION=1.0.0
+            " \
+            --quiet
+          
+          echo "✅ Frontend deployment completed!"
+      
+      - name: Wait for Frontend to be Ready
+        run: |
+          echo "⏳ Waiting for frontend service to be ready..."
+          sleep 30
+          
+          # Get the service URL
+          FRONTEND_URL=$(gcloud run services describe ${{ env.FRONTEND_SERVICE_NAME }} \
+            --region ${{ env.GCP_REGION }} \
+            --format 'value(status.url)')
+          
+          echo "Frontend URL: $FRONTEND_URL"
+          
+          # Wait for health check
+          for i in {1..10}; do
+            if curl -f "$FRONTEND_URL" > /dev/null 2>&1; then
+              echo "✅ Frontend is healthy!"
+              break
+            else
+              echo "⏳ Frontend not ready yet, waiting... (attempt $i/10)"
+              sleep 10
+            fi
+          done
+      
+      - name: Get Frontend URL
+        id: get-frontend-url
+        run: |
+          FRONTEND_URL=$(gcloud run services describe ${{ env.FRONTEND_SERVICE_NAME }} \
+            --region ${{ env.GCP_REGION }} \
+            --format 'value(status.url)')
+          echo "url=$FRONTEND_URL" >> $GITHUB_OUTPUT
+          echo "Frontend URL: $FRONTEND_URL"
+      
+      - name: Test Frontend
+        run: |
+          FRONTEND_URL="${{ steps.get-frontend-url.outputs.url }}"
+          echo "🧪 Testing frontend..."
+          
+          # Test main page
+          curl -f "$FRONTEND_URL" || exit 1
+          
+          echo "✅ Frontend tests passed!"
+      
+      - name: Summary
+        run: |
+          echo "========================================="
+          echo "🎨 Frontend Deployment Complete!"
+          echo "========================================="
+          echo "Frontend URL: ${{ steps.get-frontend-url.outputs.url }}"
+          echo "Backend URL: ${{ steps.get-backend-url.outputs.url }}"
+          echo "========================================="
