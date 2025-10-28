@@ -37,7 +37,7 @@ RUN addgroup -g 1001 -S nodejs && \
 USER nestjs
 
 # Expose port (Cloud Run uses PORT env var)
-EXPOSE $PORT
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

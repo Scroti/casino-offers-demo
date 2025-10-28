@@ -33,9 +33,12 @@ jobs:
             --region us-central1 \
             --allow-unauthenticated \
             --port 3000 \
-            --set-env-vars="NODE_ENV=production,APP_PORT=3000,APP_ENVIRONMENT=production,APP_VERSIONING_DEFAULT_VERSION=v1,JWT_SECRET=${{ secrets.JWT_SECRET }},JWT_EXPIRES=${{ secrets.JWT_EXPIRES }},MONGO_DB_USER=${{ secrets.MONGO_DB_USER }},MONGO_DB_PASSWORD=${{ secrets.MONGO_DB_PASSWORD }},MONGO_DB_SERVER=${{ secrets.MONGO_DB_SERVER }},MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }},APP_NAME=Casino Offers API,APP_SWAGGER_TAG=casino-offers,APP_SWAGGER_VERSION=1.0.0" \
+            --set-env-vars="PORT=3000,NODE_ENV=production,APP_PORT=3000,APP_ENVIRONMENT=production,APP_VERSIONING_DEFAULT_VERSION=v1,JWT_SECRET=${{ secrets.JWT_SECRET }},JWT_EXPIRES=${{ secrets.JWT_EXPIRES }},MONGO_DB_USER=${{ secrets.MONGO_DB_USER }},MONGO_DB_PASSWORD=${{ secrets.MONGO_DB_PASSWORD }},MONGO_DB_SERVER=${{ secrets.MONGO_DB_SERVER }},MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }},APP_NAME=Casino Offers API,APP_SWAGGER_TAG=casino-offers,APP_SWAGGER_VERSION=1.0.0" \
             --timeout=900 \
-            --max-instances=10
+            --max-instances=10 \
+            --cpu=1 \
+            --memory=1Gi \
+            --min-instances=0
           echo "✅ Backend deployed!"
       
       - name: Get Backend URL
