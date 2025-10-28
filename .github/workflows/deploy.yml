@@ -51,15 +51,20 @@ jobs:
       - name: Deploy Frontend
         run: |
           echo "🎨 Deploying Frontend..."
+          BACKEND_URL="${{ steps.backend-url.outputs.url }}"
+          echo "Using backend URL: $BACKEND_URL"
           gcloud run deploy casino-offers-frontend \
             --source . \
             --platform managed \
             --region us-central1 \
             --allow-unauthenticated \
             --port 3000 \
-            --set-env-vars="NEXT_PUBLIC_API_URL=${{ steps.backend-url.outputs.url }}/api/v1" \
+            --set-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL/api/v1,NODE_ENV=production,NEXT_PUBLIC_APP_NAME=Casino Offers,NEXT_PUBLIC_APP_VERSION=1.0.0" \
             --timeout=900 \
-            --max-instances=10
+            --max-instances=10 \
+            --cpu=1 \
+            --memory=512Mi \
+            --min-instances=0
           echo "✅ Frontend deployed!"
       
       - name: Get Service URLs
