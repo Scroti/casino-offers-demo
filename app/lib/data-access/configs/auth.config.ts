@@ -8,7 +8,7 @@ import {
 import { authSlice } from "../slices/auth.slice";
 import { UserProfile } from "../models/user-profile.model";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003/api/v1/auth";
+const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth` || "http://localhost:3003/api/v1/auth";
 
 const baseQuery = fetchBaseQuery({
   baseUrl,

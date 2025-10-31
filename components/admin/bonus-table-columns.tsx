@@ -57,9 +57,11 @@ export function createBonusTableColumns({
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => (
-        <div className="text-sm max-w-xs truncate">{row.getValue('description')}</div>
-      ),
+      cell: ({ row }) => {
+        const val = row.getValue('description') as any;
+        const text = typeof val === 'string' ? val : (val?.title || val?.content || '');
+        return <div className="text-sm max-w-xs truncate">{text}</div>;
+      },
     },
     {
       accessorKey: 'price',
@@ -77,11 +79,11 @@ export function createBonusTableColumns({
       cell: ({ row }) => row.getValue('type'),
     },
     {
-      accessorKey: 'image',
+      accessorKey: 'casinoImage',
       header: 'Image',
       cell: ({ row }) => {
-        const imageUrl = row.getValue('image') as string;
-        return <BonusTableImage imageUrl={imageUrl} />;
+        const image = row.getValue('casinoImage') as string;
+        return <BonusTableImage imageUrl={image} />;
       },
     },
     {

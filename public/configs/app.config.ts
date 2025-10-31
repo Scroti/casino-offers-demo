@@ -1,5 +1,5 @@
 export const feAppConfig = {
     branding:{
-        AppName: "Casino Offers",
+        AppName: "Playwise Guru",
     }
 };

@@ -19,11 +19,6 @@ import {
 import { title } from "process";
 
 export const userAppConfig = {
-  // appName: {
-  //   name: "Casino Offers",
-  //   logo: GalleryVerticalEnd,
-  // },
-
   navMain: [
     {
       title: "Home",
@@ -33,42 +28,13 @@ export const userAppConfig = {
     },
     {
       title: "Online Casinos",
-      url: "#",
+      url: "/casinos",
       icon: Coins,
-
-      items: [
-        {
-          title: "Best online casinos",
-          url: "#",
-        },
-        {
-          title: "New online casinos",
-          url: "#",
-        },
-        {
-          title: "Safest online casinos",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Bonuses",
       url: "/bonuses",
       icon: Gift,
-      items: [
-        {
-          title: "No deposit bonuses",
-          url: "/bonuses/no-deposit",
-        },
-        {
-          title: "Deposit bonuses",
-          url: "/bonuses/deposit",
-        },
-        {
-          title: "Cashback bonuses",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Games",
@@ -148,20 +114,7 @@ export const adminAppConfig = {
       title: "User Management",
       url: "/admin/user-management",
       icon: UserCog,
-      items: [
-        {
-          title: "No deposit bonuses",
-          url: "/bonuses/no-deposit",
-        },
-        {
-          title: "Deposit bonuses",
-          url: "/bonuses/deposit",
-        },
-        {
-          title: "Cashback bonuses",
-          url: "#",
-        },
-      ],
+      // No nested bonus-type links; types are filtered within Bonuses page
     },
     {
       title: "Content Management",

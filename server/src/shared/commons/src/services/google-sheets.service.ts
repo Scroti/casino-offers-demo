@@ -23,6 +23,8 @@ export class GoogleSheetsService {
   }
 
   async updateNewsletterSheet(subscribers: any[]) {
+    const syncEnabled = this.configService.get<boolean>('GOOGLE_SHEETS_SYNC_ENABLED');
+    if (!syncEnabled) return;
     try {
       // Clear existing data
       await this.sheets.spreadsheets.values.clear({
@@ -60,9 +62,7 @@ export class GoogleSheetsService {
         requestBody: { values },
       });
 
-      console.log(
-        `Updated Google Sheet with ${subscribers.length} subscribers`,
-      );
+      console.log(`Updated Google Sheet with count=${subscribers.length}`);
     } catch (error) {
       console.error('Error updating Google Sheet:', error);
       throw error;
@@ -70,6 +70,8 @@ export class GoogleSheetsService {
   }
 
   async appendSubscriber(subscriber: any) {
+    const syncEnabled = this.configService.get<boolean>('GOOGLE_SHEETS_SYNC_ENABLED');
+    if (!syncEnabled) return;
     try {
       const values = [
         [
@@ -89,7 +91,7 @@ export class GoogleSheetsService {
         requestBody: { values },
       });
 
-      console.log(`Appended subscriber to Google Sheet: ${subscriber.email}`);
+      console.log(`Appended subscriber to Google Sheet`);
     } catch (error) {
       console.error('Error appending to Google Sheet:', error);
     }

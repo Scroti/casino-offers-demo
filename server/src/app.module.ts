@@ -2,18 +2,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HealthModule } from 'offers/health-check';
-import { Cat, CatSchema } from './shared/cat.schema';
-import { CatController } from './shared/cat.controller';
-import { CatService } from './shared/cat.service';
 import { AuthModule } from '@offers/auth';
 import { NewsletterModule } from 'offers/newsletter';
 import { AdminModule } from './projects/admin-dashboard/src/admin.module';
 import { CommonsModule } from '@offers/commons';
+import { envValidationSchema } from './config/validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: envValidationSchema,
     }),
     HealthModule,
     AuthModule,
@@ -28,9 +27,8 @@ import { CommonsModule } from '@offers/commons';
       }),
       inject: [ConfigService],
     }),
-    MongooseModule.forFeature([{ name: Cat.name, schema: CatSchema }]),
   ],
-  controllers: [CatController],
-  providers: [CatService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

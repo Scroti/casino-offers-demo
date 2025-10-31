@@ -2,6 +2,8 @@ import { Logger, VersioningType } from '@nestjs/common'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import helmet from 'helmet'
+import compression from 'compression'
 
 import { bootstrapSwagger } from '@offers/commons'
 
@@ -15,9 +17,9 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      enableDebugMessages: true,
+      forbidNonWhitelisted: process.env.NODE_ENV !== 'production',
+      forbidUnknownValues: process.env.NODE_ENV !== 'production',
+      enableDebugMessages: process.env.NODE_ENV !== 'production',
     })
   )
 
@@ -29,15 +31,17 @@ async function bootstrap() {
     type: VersioningType.URI,
   })
 
-  app.use((req, res, next) => {
-  console.log(`Request: ${req.method} ${req.url}`);
-  console.log(`Headers:`, req.headers);
-  next();
-});
+  // Security middlewares
+  app.use(helmet())
+  app.use(compression())
 
   app.setGlobalPrefix('api')
 
-  app.enableCors()
+  const corsOrigins = (config.get<string>('CORS_ORIGINS') || '').split(',').map(s => s.trim()).filter(Boolean)
+  app.enableCors({
+    origin: corsOrigins.length ? corsOrigins : true,
+    credentials: true,
+  })
 
   bootstrapSwagger(app)
 

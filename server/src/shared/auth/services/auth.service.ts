@@ -6,12 +6,14 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../data-access/dtos/create-user.dto';
 import { LoginUserDto } from '../data-access/dtos/login-user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async signUp(
@@ -59,7 +61,8 @@ export class AuthService {
     refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string } | null> {
     try {
-      const payload = this.jwtService.verify(refreshToken);
+      const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || this.configService.get<string>('JWT_SECRET');
+      const payload = this.jwtService.verify(refreshToken, { secret: refreshSecret as any });
       const user = await this.userModel.findById(payload.id);
       if (!user || !user.refreshTokenHash) return null;
 
@@ -81,13 +84,17 @@ export class AuthService {
     userId: string,
     role: string, // ✅ Add role parameter
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const accessToken = this.jwtService.sign(
-      { id: userId, role }, // ✅ Include role in payload
-      { expiresIn: '15m' },
+    const accessExpires = this.configService.get<string>('JWT_EXPIRES') || '15m';
+    const refreshExpires = this.configService.get<string>('JWT_REFRESH_EXPIRES') || '7d';
+    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || this.configService.get<string>('JWT_SECRET');
+
+    const accessToken = await this.jwtService.signAsync(
+      { id: userId, role },
+      { expiresIn: accessExpires as any },
     );
-    const refreshToken = this.jwtService.sign(
-      { id: userId, role }, // ✅ Include role in payload
-      { expiresIn: '7d' },
+    const refreshToken = await this.jwtService.signAsync(
+      { id: userId, role },
+      { expiresIn: refreshExpires as any, secret: refreshSecret },
     );
     return { accessToken, refreshToken };
   }
