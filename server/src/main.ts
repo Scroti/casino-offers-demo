@@ -43,28 +43,43 @@ async function bootstrap() {
     Logger.warn('CORS_ORIGINS not set - CORS with credentials requires specific origins!', 'CORS')
   }
   
+  // Configure CORS origin function to match what NestJS expects
+  const corsOriginFunction = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like direct browser access or curl)
+    if (!origin) {
+      return callback(null, true)
+    }
+    
+    // If no origins configured, allow all
+    if (corsOrigins.length === 0) {
+      return callback(null, true)
+    }
+    
+    // Check if origin is in allowed list
+    const normalizedOrigin = origin.replace(/\/+$/, '')
+    const isAllowed = corsOrigins.some(allowedOrigin => {
+      const normalizedAllowed = allowedOrigin.replace(/\/+$/, '')
+      return normalizedOrigin === normalizedAllowed
+    })
+    
+    if (isAllowed) {
+      Logger.log(`CORS: Allowing origin: ${origin}`, 'CORS')
+      return callback(null, true)
+    } else {
+      Logger.warn(`CORS: Blocking origin: ${origin}`, 'CORS')
+      return callback(null, false)
+    }
+  }
+  
   // Enable CORS with credentials
   app.enableCors({
-    origin: corsOrigins.length > 0 ? corsOrigins : true, // Will fail if credentials:true and wildcard
+    origin: corsOrigins.length > 0 ? corsOriginFunction : true, // Use function to properly check origins
     credentials: true, // Required for cookies/auth tokens - sends Access-Control-Allow-Credentials: true
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     maxAge: 86400,
     optionsSuccessStatus: 204,
-  })
-  
-  // Explicitly ensure Access-Control-Allow-Credentials header is set for all responses
-  app.use((req, res, next) => {
-    const origin = req.headers.origin
-    if (origin) {
-      // Check if origin is allowed
-      const isAllowed = corsOrigins.length === 0 || corsOrigins.includes(origin)
-      if (isAllowed) {
-        res.header('Access-Control-Allow-Credentials', 'true')
-      }
-    }
-    next()
   })
   
   Logger.log(`CORS configured - Origins: ${corsOrigins.length ? corsOrigins.join(', ') : 'WILDCARD (will fail with credentials)'}, Credentials: true`, 'CORS')
