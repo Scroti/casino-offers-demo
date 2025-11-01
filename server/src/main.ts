@@ -24,7 +24,7 @@ async function bootstrap() {
   )
 
   const config: ConfigService = app.get(ConfigService)
-  const port: number = Number(process.env.PORT || config.get<number>('APP_PORT') || 3000)
+  const port: number = Number(process.env.PORT || config.get<number>('PORT') || 3000)
 
   app.enableVersioning({
     defaultVersion: config.get<string>('APP_VERSIONING_DEFAULT_VERSION'),

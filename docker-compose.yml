@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: casino-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: casino_offers
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - casino-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/casino_offers --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS Backend
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: casino-backend
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_VERSIONING_DEFAULT_VERSION: '1'
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+      
+      # MongoDB Configuration
+      MONGO_DB_USER: admin
+      MONGO_DB_PASSWORD: admin123
+      MONGO_DB_SERVER: mongodb:27017
+      MONGO_DB_NAME: casino_offers
+      
+      # JWT Configuration
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-in-production
+      JWT_EXPIRES: 15m
+      JWT_REFRESH_EXPIRES: 7d
+      
+      # App Configuration
+      APP_NAME: Casino Offers API
+      APP_ENVIRONMENT: production
+      APP_SWAGGER_TAG: Casino Offers API
+      APP_SWAGGER_VERSION: 1.0.0
+      APP_SWAGGER_SERVER: http://localhost:3003
+      
+      # Google Sheets (Optional)
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: ""
+      GOOGLE_PRIVATE_KEY: ""
+      GOOGLE_SHEETS_SPREADSHEET_ID: ""
+      GOOGLE_SHEETS_SPREADSHEET_SHEET_NAME: ""
+      GOOGLE_SHEETS_SYNC_ENABLED: false
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - casino-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3003/api/v1
+    container_name: casino-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_URL: http://localhost:3003/api/v1
+      NEXT_PUBLIC_USE_MOCK_CASINOS: "false"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - casino-network
+
+networks:
+  casino-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+
+
