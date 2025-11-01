@@ -63,15 +63,8 @@ const baseQuery = fetchBaseQuery({
   baseUrl,
   credentials: 'include', // Required for CORS with credentials
   prepareHeaders(headers, { getState }) {
-    // Set Accept header - tells server we expect JSON response
-    headers.set('Accept', 'application/json');
-    // Set Content-Type - RTK Query sets this automatically for JSON bodies, but being explicit
-    headers.set('Content-Type', 'application/json');
-    // Set Authorization if token exists
     const token = (getState() as any).auth.accessToken;
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
+    if (token) headers.set('Authorization', `Bearer ${token}`);
     return headers;
   },
 });
