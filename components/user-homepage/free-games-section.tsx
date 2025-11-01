@@ -1,10 +1,11 @@
 "use client";
 
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
-export function FreeGamesSection() {
+export const FreeGamesSection = memo(function FreeGamesSection() {
   const games = [
     {
       name: "Sweet Bonanza",
@@ -54,4 +55,4 @@ export function FreeGamesSection() {
       </div>
     </section>
   );
-}
+});

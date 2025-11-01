@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { SidebarTrigger, useSidebar } from './ui/sidebar';
 import { NavUser } from './nav-user';
 import { ModeToggle } from './ui/mode-toggle';
-import { feAppConfig } from '@/public/configs/app.config';
+import { appConfig } from '@/components/configs/appConfig';
 import { useAuth } from '@/context/auth.context';
 import { Button } from './ui/button';
 
@@ -25,7 +25,7 @@ export function AppHeader() {
             height={50}
             className="rounded-md"
           />
-          <h1 className="text-lg font-semibold">{feAppConfig.branding.AppName}</h1>
+          <h1 className="text-lg font-semibold">{appConfig.branding.AppName}</h1>
         </div>
 
         <div className="flex items-center gap-2">

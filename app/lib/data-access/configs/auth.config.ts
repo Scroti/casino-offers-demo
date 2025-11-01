@@ -1,4 +1,3 @@
-// src/store/authApi.ts
 import {
   BaseQueryApi,
   createApi,
@@ -7,8 +6,9 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { authSlice } from "../slices/auth.slice";
 import { UserProfile } from "../models/user-profile.model";
+import { ENV } from "@/lib/constants/env";
 
-const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth` || "http://localhost:3003/api/v1/auth";
+const baseUrl = `${ENV.API_URL}/auth`;
 
 const baseQuery = fetchBaseQuery({
   baseUrl,

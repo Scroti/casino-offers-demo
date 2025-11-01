@@ -20,6 +20,7 @@ import {
 } from "@/app/lib/data-access/slices/auth.slice";
 import { UserProfile } from "@/app/lib/data-access/models/user-profile.model";
 import { useMeQuery } from "@/app/lib/data-access/configs/auth.config";
+import { ENV } from "@/lib/constants/env";
 
 type AuthContextValue = {
   accessToken: string | null;
@@ -65,20 +66,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (accessToken && refreshToken) {
 
-      // Set access token cookie (expires in 1 hour)
+      // Set access token cookie
       Cookies.set("accessToken", accessToken, {
-        expires: 1 / 24, // 1 hour
-        sameSite: "strict",
-        secure: false, // ✅ Set to false for localhost testing
-        path: "/", // ✅ Make sure it's available across all paths
+        expires: ENV.COOKIE_CONFIG.ACCESS_TOKEN_EXPIRES,
+        sameSite: ENV.COOKIE_CONFIG.SAME_SITE,
+        secure: ENV.COOKIE_CONFIG.SECURE,
+        path: ENV.COOKIE_CONFIG.PATH,
       });
 
-      // Set refresh token cookie (expires in 7 days)
+      // Set refresh token cookie
       Cookies.set("refreshToken", refreshToken, {
-        expires: 7, // 7 days
-        sameSite: "strict",
-        secure: false, // ✅ Set to false for localhost testing
-        path: "/", // ✅ Make sure it's available across all paths
+        expires: ENV.COOKIE_CONFIG.REFRESH_TOKEN_EXPIRES,
+        sameSite: ENV.COOKIE_CONFIG.SAME_SITE,
+        secure: ENV.COOKIE_CONFIG.SECURE,
+        path: ENV.COOKIE_CONFIG.PATH,
       });
 
       // Verify cookies were set

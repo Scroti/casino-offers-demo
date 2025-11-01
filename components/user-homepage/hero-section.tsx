@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,7 @@ import {
   Coins 
 } from 'lucide-react';
 
-export function HeroSection() {
+export const HeroSection = memo(function HeroSection() {
   const features = [
     {
       icon: Dices,
@@ -94,4 +95,4 @@ export function HeroSection() {
       </div>
     </section>
   );
-}
+});

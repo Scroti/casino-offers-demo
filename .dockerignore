@@ -1,14 +1,73 @@
+# Dependencies
 node_modules
+npm-debug.log*
+package-lock.json
+
+# Build outputs
 .next
 out
 dist
-.git
-.DS_Store
-*.log
-npm-debug.log*
+.turbo
+.cache
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
 .env.local
 .env.*.local
+!.env.example
+
+# Testing & Coverage
 coverage
-.cache
-.
+*.spec.ts
+*.spec.tsx
+*.test.ts
+*.test.tsx
+
+# IDE & Editors
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Documentation
+README.md
+*.md
+!CHANGELOG.md
+
+# Misc
+.editorconfig
+.eslintrc*
+.prettierrc*
+jest.config.*
+tsconfig.json
+!tsconfig.json
+
+# Server directory (handled separately)
+server
+
+# Other
+debug.log
+dev.bat
+dev.sh
+deploy.sh
+*.pdf
+base64.txt
+casino-offers-*-*.json
+public/config
 

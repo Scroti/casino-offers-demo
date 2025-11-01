@@ -1,18 +1,17 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { Casino } from '../models/casino.model';
 import { mockCasinos } from './casinos.mock';
+import { ENV } from '@/lib/constants/env';
 
 // Helper to determine if we should use mock data
 const shouldUseMock = () => {
-  // Use mock if API URL is not set or if we're in development without backend
-  return !process.env.NEXT_PUBLIC_API_URL || 
-         process.env.NEXT_PUBLIC_USE_MOCK_CASINOS === 'true';
+  return ENV.USE_MOCK_CASINOS;
 };
 
 export const casinosApi = createApi({
   reducerPath: 'casinosApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1',
+    baseUrl: ENV.API_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) {
@@ -36,7 +35,7 @@ export const casinosApi = createApi({
         // Try to fetch from API
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1'}/casinos`,
+            `${ENV.API_URL}/casinos`,
             {
               method: 'GET',
               headers: {
@@ -76,7 +75,7 @@ export const casinosApi = createApi({
         // Try to fetch from API
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1'}/casinos/${id}`,
+            `${ENV.API_URL}/casinos/${id}`,
             {
               method: 'GET',
               headers: {

@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ function SimplePieChart({ data }: { data: { name: string, value: number, color: 
   );
 }
 
-export function AnalyticsCharts() {
+export const AnalyticsCharts = memo(function AnalyticsCharts() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* Revenue Chart */}
@@ -91,7 +91,7 @@ export function AnalyticsCharts() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Monthly Revenue</CardTitle>
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-green-600">
+            <Badge variant="outline" className="text-green-600 dark:text-green-400">
               <TrendingUp className="w-3 h-3 mr-1" />
               +12.5%
             </Badge>
@@ -113,7 +113,7 @@ export function AnalyticsCharts() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>User Growth</CardTitle>
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-blue-600">
+            <Badge variant="outline" className="text-blue-600 dark:text-blue-400">
               <TrendingUp className="w-3 h-3 mr-1" />
               +8.2%
             </Badge>
@@ -172,4 +172,4 @@ export function AnalyticsCharts() {
       </Card>
     </div>
   );
-}
+});

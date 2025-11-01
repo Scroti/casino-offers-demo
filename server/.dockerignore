@@ -1,15 +1,60 @@
+# Dependencies
 node_modules
-dist
-.git
-.DS_Store
-*.log
 npm-debug.log*
+package-lock.json
+
+# Environment
 .env
+.env.*
 .env.local
+.env.*.local
+!.env.example
+
+# Testing & Coverage
 coverage
-.cache
 test
 *.spec.ts
 *.e2e-spec.ts
+*.test.ts
+
+# IDE & Editors
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+
+# Documentation
+README.md
+*.md
+
+# Build artifacts (will be generated during build)
+dist
+
+# Cache
+.cache
+.eslintcache
+
+# Misc
+.editorconfig
+.eslintrc*
+.prettierrc*
+jest.config.*
+tsconfig.json
+tsconfig.build.json
+nest-cli.json
+*.pdf
 
 

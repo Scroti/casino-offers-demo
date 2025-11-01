@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -106,32 +106,32 @@ const mockBonuses: Bonus[] = [
 const getTypeColor = (type: Bonus['type']) => {
   switch (type) {
     case 'no-deposit':
-      return 'bg-green-100 text-green-800';
+      return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
     case 'welcome':
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400';
     case 'reload':
-      return 'bg-purple-100 text-purple-800';
+      return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400';
     case 'cashback':
-      return 'bg-orange-100 text-orange-800';
+      return 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-muted text-muted-foreground';
   }
 };
 
 const getStatusColor = (status: Bonus['status']) => {
   switch (status) {
     case 'active':
-      return 'bg-green-100 text-green-800';
+      return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
     case 'pending':
-      return 'bg-yellow-100 text-yellow-800';
+      return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400';
     case 'expired':
-      return 'bg-red-100 text-red-800';
+      return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-muted text-muted-foreground';
   }
 };
 
-export function RecentBonusesPreview() {
+export const RecentBonusesPreview = memo(function RecentBonusesPreview() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -187,7 +187,7 @@ export function RecentBonusesPreview() {
               </div>
               
               <div className="text-right">
-                <div className="text-lg font-bold text-green-600">{bonus.amount}</div>
+                <div className="text-lg font-bold text-green-600 dark:text-green-400">{bonus.amount}</div>
                 <div className="text-sm text-muted-foreground">{bonus.casino}</div>
               </div>
             </div>
@@ -198,12 +198,12 @@ export function RecentBonusesPreview() {
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+                <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
                 <span className="text-muted-foreground">Total Revenue:</span>
                 <span className="font-medium">$7,700</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-blue-600" />
+                <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <span className="text-muted-foreground">Total Claims:</span>
                 <span className="font-medium">3,352</span>
               </div>
@@ -216,4 +216,4 @@ export function RecentBonusesPreview() {
       </CardContent>
     </Card>
   );
-}
+});

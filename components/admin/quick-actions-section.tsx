@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -109,17 +109,17 @@ const pendingTasks = [
 const getPriorityColor = (priority: string) => {
   switch (priority) {
     case 'high':
-      return 'text-red-600 bg-red-100';
+      return 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30';
     case 'medium':
-      return 'text-yellow-600 bg-yellow-100';
+      return 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30';
     case 'low':
-      return 'text-green-600 bg-green-100';
+      return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
     default:
-      return 'text-gray-600 bg-gray-100';
+      return 'text-muted-foreground bg-muted';
   }
 };
 
-export function QuickActionsSection() {
+export const QuickActionsSection = memo(function QuickActionsSection() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* Quick Actions */}
@@ -207,4 +207,4 @@ export function QuickActionsSection() {
       </Card>
     </div>
   );
-}
+});

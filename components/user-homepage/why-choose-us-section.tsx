@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -13,10 +14,10 @@ import {
   DollarSign,
   Star as StarIcon
 } from 'lucide-react';
-import { feAppConfig } from '@/public/configs/app.config';
+import { appConfig } from '@/components/configs/appConfig';
 
-export function WhyChooseUsSection() {
-  const appName = feAppConfig.branding.AppName;
+export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
+  const appName = appConfig.branding.AppName;
 
   const features = [
     {
@@ -116,5 +117,5 @@ export function WhyChooseUsSection() {
       </div>
     </section>
   );
-}
+});
 

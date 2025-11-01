@@ -8,9 +8,13 @@ import { useGetAllBonusesQuery } from "@/app/lib/data-access/configs/bonuses.con
 import type { Bonus } from "@/app/lib/data-access/models/bonus.model";
 import { Filter, CheckCircle2 } from "lucide-react";
 
-export default function BonusesPage() {
+interface BonusesPageProps {
+  filter?: string;
+}
+
+export default function BonusesPage({ filter }: BonusesPageProps) {
   const { data: bonuses = [], isLoading } = useGetAllBonusesQuery();
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [selectedFilter, setSelectedFilter] = useState(filter || "all");
   const [sortBy, setSortBy] = useState("recommended");
 
   const filteredByType = (() => {

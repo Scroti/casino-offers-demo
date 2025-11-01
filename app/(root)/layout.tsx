@@ -5,16 +5,19 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/context/auth.context";
 import { adminAppConfig, userAppConfig } from "@/components/configs/appConfig";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 export default function RootNestedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, accessToken } = useAuth();
+  const { user } = useAuth();
 
-  const sidebarConfig = user?.role === "admin" ? adminAppConfig : userAppConfig;
+  const sidebarConfig = useMemo(
+    () => user?.role === "admin" ? adminAppConfig : userAppConfig,
+    [user?.role]
+  );
 
   return (
     <SidebarProvider>

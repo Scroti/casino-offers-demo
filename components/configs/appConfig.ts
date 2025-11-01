@@ -1,4 +1,3 @@
-import { url } from "inspector";
 import {
   BookOpen,
   GalleryVerticalEnd,
@@ -10,13 +9,17 @@ import {
   Users2,
   Star,
   Newspaper,
-  Users,
   UserCheck,
   UserCog,
   SquareChartGantt,
   ChartCandlestick,
 } from "lucide-react";
-import { title } from "process";
+
+export const appConfig = {
+  branding: {
+    AppName: "Playwise Guru",
+  },
+};
 
 export const userAppConfig = {
   navMain: [
@@ -43,7 +46,7 @@ export const userAppConfig = {
       items: [
         {
           title: "Free casino games",
-          url: "ganes",
+          url: "/games",
         },
         {
           title: "Game providers",
@@ -118,7 +121,7 @@ export const adminAppConfig = {
     },
     {
       title: "Content Management",
-      url:'#',
+      url: '#',
       icon: SquareChartGantt,
       items: [
         {
@@ -136,7 +139,7 @@ export const adminAppConfig = {
       ],
     },
     {
-      title: "Analitics and Reports",
+      title: "Analytics and Reports",
       url: "#",
       icon: ChartCandlestick,
     },

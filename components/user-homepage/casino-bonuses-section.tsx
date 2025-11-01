@@ -1,11 +1,12 @@
 'use client';
 
+import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
-export function CasinoBonusesSection() {
+export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
   const bonuses = [
     {
       casino: 'Slotoslot',
@@ -114,4 +115,4 @@ export function CasinoBonusesSection() {
       </div>
     </section>
   );
-}
+});

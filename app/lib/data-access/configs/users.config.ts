@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery, BaseQueryApi, FetchArgs } from '@reduxjs/toolkit/query/react';
 import { authSlice } from '../slices/auth.slice';
+import { ENV } from '@/lib/constants/env';
 
 // Define the User type for frontend use
 export type User = {
@@ -56,7 +57,7 @@ export type BulkChangeStatusDto = {
   status: 'active' | 'inactive' | 'banned' | 'pending';
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api/v1';
+const baseUrl = ENV.API_URL;
 
 const baseQuery = fetchBaseQuery({
   baseUrl,

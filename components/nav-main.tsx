@@ -82,14 +82,7 @@ export function NavMain({
             const open = isOpen(item.title);
 
             const button = (
-              <div
-                className={cn(
-                  "flex items-center justify-between rounded-md transition-colors",
-                  active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                )}
-              >
+              <div className="flex items-center justify-between rounded-md">
                 {/* Parent link */}
                 <SidebarMenuButton
                   asChild
@@ -121,11 +114,8 @@ export function NavMain({
                       toggleMenu(item.title);
                     }}
                     className={cn(
-                      "p-1 mr-1 rounded-md transition-transform duration-200 ease-in-out",
-                      open && "rotate-180",
-                      active
-                        ? "text-sidebar-accent-foreground"
-                        : "text-muted-foreground hover:text-foreground"
+                      "p-1 mr-1 rounded-md transition-transform duration-200 ease-in-out text-sidebar-foreground/70 hover:text-sidebar-foreground",
+                      open && "rotate-180"
                     )}
                   >
                     <ChevronDown className="size-4" />

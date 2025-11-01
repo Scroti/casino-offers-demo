@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,9 +16,8 @@ import {
   Trophy,
   Coins
 } from 'lucide-react';
-import { useState } from 'react';
 
-export function GameCategoriesSection() {
+export const GameCategoriesSection = memo(function GameCategoriesSection() {
   const [activeTab, setActiveTab] = useState('casino-games');
 
   const tabs = [
@@ -167,4 +167,4 @@ export function GameCategoriesSection() {
       </div>
     </section>
   );
-}
+});
