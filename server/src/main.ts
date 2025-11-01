@@ -31,17 +31,42 @@ async function bootstrap() {
     type: VersioningType.URI,
   })
 
-  // Security middlewares
-  app.use(helmet())
-  app.use(compression())
-
   app.setGlobalPrefix('api')
 
+  // Configure CORS BEFORE Helmet to avoid conflicts
   const corsOrigins = (config.get<string>('CORS_ORIGINS') || '').split(',').map(s => s.trim()).filter(Boolean)
-  app.enableCors({
+  const corsConfig = {
     origin: corsOrigins.length ? corsOrigins : true,
     credentials: true,
-  })
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    maxAge: 86400, // 24 hours
+  }
+  app.enableCors(corsConfig)
+  
+  // Log CORS configuration for debugging
+  if (process.env.NODE_ENV !== 'production') {
+    Logger.log(`CORS configured with origins: ${corsOrigins.length ? corsOrigins.join(', ') : 'ALL (wildcard)'}`, 'CORS')
+  }
+
+  // Security middlewares - Configure Helmet to not interfere with CORS
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
+      },
+    })
+  )
+  app.use(compression())
 
   bootstrapSwagger(app)
 
