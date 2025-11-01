@@ -138,10 +138,9 @@ async function bootstrap() {
 
   bootstrapSwagger(app)
 
-  // Listen on 0.0.0.0 to accept connections from all network interfaces (required for Render, Docker, etc.)
-  await app.listen(port, '0.0.0.0', () => {
-    Logger.log(`Application is running on: http://0.0.0.0:${port}`, 'Bootstrap')
-    Logger.log(`Health check available at: http://0.0.0.0:${port}/api/v1/health`, 'Bootstrap')
+  await app.listen(port, () => {
+    Logger.log(`Application is running on port: ${port}`, 'Bootstrap')
+    Logger.log(`Health check available at: /api/v1/health`, 'Bootstrap')
   })
 }
 
