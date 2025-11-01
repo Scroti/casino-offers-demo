@@ -12,7 +12,6 @@ export const casinosApi = createApi({
   reducerPath: 'casinosApi',
   baseQuery: fetchBaseQuery({
     baseUrl: ENV.API_URL,
-    credentials: 'include', // Required for CORS with credentials
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.accessToken;
       if (token) {
@@ -39,7 +38,6 @@ export const casinosApi = createApi({
             `${ENV.API_URL}/casinos`,
             {
               method: 'GET',
-              credentials: 'include', // Required for CORS with credentials
               headers: {
                 'Content-Type': 'application/json',
               },
@@ -80,7 +78,6 @@ export const casinosApi = createApi({
             `${ENV.API_URL}/casinos/${id}`,
             {
               method: 'GET',
-              credentials: 'include', // Required for CORS with credentials
               headers: {
                 'Content-Type': 'application/json',
               },
