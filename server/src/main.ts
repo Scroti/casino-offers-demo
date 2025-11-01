@@ -34,9 +34,17 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
 
   // Configure CORS - Must be BEFORE other middleware
-  const corsOrigins = (config.get<string>('CORS_ORIGINS') || '').split(',').map(s => s.trim()).filter(Boolean)
+  const corsOriginsString = config.get<string>('CORS_ORIGINS') || ''
+  const corsOrigins = corsOriginsString.split(',').map(s => s.trim()).filter(Boolean)
+  
+  // IMPORTANT: When credentials: true, origin CANNOT be wildcard (*)
+  // It MUST be specific origin(s) - browser will reject wildcard with credentials
+  if (corsOrigins.length === 0) {
+    Logger.warn('CORS_ORIGINS not set - CORS with credentials requires specific origins!', 'CORS')
+  }
+  
   app.enableCors({
-    origin: corsOrigins.length ? corsOrigins : true,
+    origin: corsOrigins.length > 0 ? corsOrigins : true, // Will fail if credentials:true and wildcard
     credentials: true, // Required for cookies/auth tokens
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
@@ -44,6 +52,8 @@ async function bootstrap() {
     maxAge: 86400,
     optionsSuccessStatus: 204,
   })
+  
+  Logger.log(`CORS configured - Origins: ${corsOrigins.length ? corsOrigins.join(', ') : 'WILDCARD (will fail with credentials)'}, Credentials: true`, 'CORS')
 
   // Security middlewares - Configure Helmet to not interfere with CORS
   app.use(
