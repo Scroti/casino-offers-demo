@@ -34,21 +34,82 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
 
   // Configure CORS BEFORE Helmet to avoid conflicts
-  const corsOrigins = (config.get<string>('CORS_ORIGINS') || '').split(',').map(s => s.trim()).filter(Boolean)
+  const corsOriginsString = config.get<string>('CORS_ORIGINS') || ''
+  const corsOrigins = corsOriginsString.split(',').map(s => s.trim()).filter(Boolean)
+  
+  // Use function-based origin checker for better control and debugging
+  const originChecker = (origin: string | undefined): boolean | string => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return true
+    }
+
+    // If no CORS origins configured, allow all
+    if (corsOrigins.length === 0) {
+      Logger.warn('CORS: No origins configured, allowing all origins', 'CORS')
+      return true
+    }
+
+    // Check if origin is in allowed list
+    const isAllowed = corsOrigins.some(allowedOrigin => {
+      // Exact match
+      if (origin === allowedOrigin) {
+        Logger.log(`CORS: Allowed origin (exact match): ${origin}`, 'CORS')
+        return true
+      }
+      // Wildcard subdomain support (e.g., *.amplifyapp.com)
+      if (allowedOrigin.startsWith('*.')) {
+        const domain = allowedOrigin.substring(2)
+        if (origin.endsWith(domain)) {
+          Logger.log(`CORS: Allowed origin (wildcard match): ${origin}`, 'CORS')
+          return true
+        }
+      }
+      return false
+    })
+
+    if (!isAllowed) {
+      Logger.warn(`CORS: Blocked origin: ${origin}. Allowed origins: ${corsOrigins.join(', ')}`, 'CORS')
+    }
+    
+    return isAllowed ? origin : false
+  }
+
   const corsConfig = {
-    origin: corsOrigins.length ? corsOrigins : true,
+    origin: corsOrigins.length > 0 ? originChecker : true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Accept-Language',
+      'Accept-Encoding',
+      'Origin',
+      'Referer',
+      'User-Agent',
+      'X-Requested-With',
+      'Cache-Control',
+      'Pragma',
+      'If-Modified-Since',
+      'If-None-Match',
+      'X-CSRF-Token',
+    ],
+    exposedHeaders: [
+      'Content-Range',
+      'X-Content-Range',
+      'Content-Length',
+      'Content-Type',
+      'Authorization',
+    ],
     maxAge: 86400, // 24 hours
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   }
   app.enableCors(corsConfig)
   
-  // Log CORS configuration for debugging
-  if (process.env.NODE_ENV !== 'production') {
-    Logger.log(`CORS configured with origins: ${corsOrigins.length ? corsOrigins.join(', ') : 'ALL (wildcard)'}`, 'CORS')
-  }
+  // Always log CORS configuration for debugging (even in production)
+  Logger.log(`CORS configured with ${corsOrigins.length} origin(s): ${corsOrigins.length ? corsOrigins.join(', ') : 'ALL (wildcard)'}`, 'CORS')
 
   // Security middlewares - Configure Helmet to not interfere with CORS
   app.use(
