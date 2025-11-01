@@ -35,7 +35,8 @@ async function bootstrap() {
 
   // Configure CORS BEFORE Helmet to avoid conflicts
   const corsOriginsString = config.get<string>('CORS_ORIGINS') || ''
-  const corsOrigins = corsOriginsString.split(',').map(s => s.trim()).filter(Boolean)
+  // Normalize origins: remove trailing slashes (browsers never send trailing slashes in Origin header)
+  const corsOrigins = corsOriginsString.split(',').map(s => s.trim().replace(/\/+$/, '')).filter(Boolean)
   
   // Use function-based origin checker for better control and debugging
   const originChecker = (origin: string | undefined): boolean | string => {
@@ -50,17 +51,23 @@ async function bootstrap() {
       return true
     }
 
+    // Normalize origin: remove trailing slashes (browsers never send trailing slashes)
+    const normalizedOrigin = origin.replace(/\/+$/, '')
+
     // Check if origin is in allowed list
     const isAllowed = corsOrigins.some(allowedOrigin => {
+      // Normalize allowed origin for comparison
+      const normalizedAllowed = allowedOrigin.replace(/\/+$/, '')
+      
       // Exact match
-      if (origin === allowedOrigin) {
+      if (normalizedOrigin === normalizedAllowed) {
         Logger.log(`CORS: Allowed origin (exact match): ${origin}`, 'CORS')
         return true
       }
       // Wildcard subdomain support (e.g., *.amplifyapp.com)
-      if (allowedOrigin.startsWith('*.')) {
-        const domain = allowedOrigin.substring(2)
-        if (origin.endsWith(domain)) {
+      if (normalizedAllowed.startsWith('*.')) {
+        const domain = normalizedAllowed.substring(2).replace(/\/+$/, '')
+        if (normalizedOrigin.endsWith(domain)) {
           Logger.log(`CORS: Allowed origin (wildcard match): ${origin}`, 'CORS')
           return true
         }
@@ -131,8 +138,10 @@ async function bootstrap() {
 
   bootstrapSwagger(app)
 
-  await app.listen(port, () => {
-    Logger.log(port, 'PORT')
+  // Listen on 0.0.0.0 to accept connections from all network interfaces (required for Render, Docker, etc.)
+  await app.listen(port, '0.0.0.0', () => {
+    Logger.log(`Application is running on: http://0.0.0.0:${port}`, 'Bootstrap')
+    Logger.log(`Health check available at: http://0.0.0.0:${port}/api/v1/health`, 'Bootstrap')
   })
 }
 
