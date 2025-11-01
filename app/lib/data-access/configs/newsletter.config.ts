@@ -5,6 +5,7 @@ export const newsletterApi = createApi({
   reducerPath: 'newsletterApi',
   baseQuery: fetchBaseQuery({
     baseUrl: ENV.API_URL,
+    credentials: 'include', // Required for CORS with credentials
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth.accessToken;
       if (token) {

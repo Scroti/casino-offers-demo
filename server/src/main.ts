@@ -37,7 +37,7 @@ async function bootstrap() {
   const corsOrigins = (config.get<string>('CORS_ORIGINS') || '').split(',').map(s => s.trim()).filter(Boolean)
   app.enableCors({
     origin: corsOrigins.length ? corsOrigins : true,
-    credentials: false, // Set to false since frontend doesn't send credentials
+    credentials: true, // Required for cookies/auth tokens
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],

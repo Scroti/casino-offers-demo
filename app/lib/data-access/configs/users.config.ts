@@ -61,6 +61,7 @@ const baseUrl = ENV.API_URL;
 
 const baseQuery = fetchBaseQuery({
   baseUrl,
+  credentials: 'include', // Required for CORS with credentials
   prepareHeaders(headers, { getState }) {
     const token = (getState() as any).auth.accessToken;
     if (token) headers.set('Authorization', `Bearer ${token}`);
