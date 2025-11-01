@@ -33,15 +33,16 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api')
 
-  // Configure CORS
+  // Configure CORS - Must be BEFORE other middleware
   const corsOrigins = (config.get<string>('CORS_ORIGINS') || '').split(',').map(s => s.trim()).filter(Boolean)
   app.enableCors({
     origin: corsOrigins.length ? corsOrigins : true,
-    credentials: true,
+    credentials: false, // Set to false since frontend doesn't send credentials
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     maxAge: 86400,
+    optionsSuccessStatus: 204,
   })
 
   // Security middlewares - Configure Helmet to not interfere with CORS
