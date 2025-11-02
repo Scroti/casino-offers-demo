@@ -14,7 +14,7 @@ export function AppHeader() {
   const { hydrated, accessToken, user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-sidebar-border bg-sidebar/95 backdrop-blur supports-[backdrop-filter]:bg-sidebar/80">
       <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           {isMobile ? <SidebarTrigger /> : null}
@@ -25,7 +25,7 @@ export function AppHeader() {
             height={50}
             className="rounded-md"
           />
-          <h1 className="text-lg font-semibold">{appConfig.branding.AppName}</h1>
+          <h1 className="text-lg font-semibold text-sidebar-foreground">{appConfig.branding.AppName}</h1>
         </div>
 
         <div className="flex items-center gap-2">
