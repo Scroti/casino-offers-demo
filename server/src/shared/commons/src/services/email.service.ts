@@ -11,6 +11,7 @@ export class EmailService {
 
   constructor(private configService: ConfigService) {
     // Create transporter using SMTP configuration from environment variables
+    // Add connection timeout and pool settings for better reliability in production
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com',
       port: parseInt(this.configService.get<string>('SMTP_PORT') || '587'),
@@ -19,6 +20,10 @@ export class EmailService {
         user: this.configService.get<string>('SMTP_USER'),
         pass: this.configService.get<string>('SMTP_PASSWORD'),
       },
+      connectionTimeout: 5000, // 5 seconds connection timeout
+      greetingTimeout: 5000, // 5 seconds greeting timeout
+      socketTimeout: 10000, // 10 seconds socket timeout
+      pool: false, // Don't pool connections (better for serverless/production)
     });
 
     this.frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
@@ -81,10 +86,20 @@ export class EmailService {
     verificationCode: string,
     userName?: string,
   ): Promise<void> {
-    const fromEmail = this.configService.get<string>('EMAIL_FROM') || this.configService.get<string>('SMTP_USER');
+    const smtpUser = this.configService.get<string>('SMTP_USER');
+    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
+    const fromEmail = this.configService.get<string>('EMAIL_FROM') || smtpUser;
+    
+    // Check if SMTP is properly configured
+    if (!smtpUser || !smtpPassword) {
+      console.warn('⚠️ SMTP not configured properly. Missing SMTP_USER or SMTP_PASSWORD.');
+      console.log(`Verification link for ${email}: ${verificationLink}`);
+      console.log(`Verification code for ${email}: ${verificationCode}`);
+      return;
+    }
     
     if (!fromEmail) {
-      console.warn('SMTP not configured. Email not sent.');
+      console.warn('⚠️ EMAIL_FROM not configured. Using SMTP_USER as fallback.');
       console.log(`Verification link for ${email}: ${verificationLink}`);
       console.log(`Verification code for ${email}: ${verificationCode}`);
       return;
@@ -124,28 +139,56 @@ export class EmailService {
       </p>
     `;
 
-    try {
-      await this.transporter.sendMail({
+    // Send email in a non-blocking way with timeout protection
+    // This prevents email service issues from blocking operations
+    // Note: In production (Render, etc.), Gmail SMTP ports might be blocked
+    // Consider using SendGrid, AWS SES, or Resend instead
+    Promise.race([
+      this.transporter.sendMail({
         from: `${this.appName} <${fromEmail}>`,
         to: email,
         subject: `Welcome to ${this.appName} - Verify your email`,
         html: this.getEmailTemplate(header, content),
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email sending timeout after 10 seconds')), 10000)
+      ),
+    ])
+      .then(() => {
+        console.log(`✅ Verification email sent successfully to ${email}`);
+      })
+      .catch((error) => {
+        console.error('❌ Failed to send verification email:', error);
+        console.error('Error details:', {
+          code: (error as any)?.code,
+          command: (error as any)?.command,
+          message: (error as any)?.message,
+        });
+        // Log the info for development/production debugging
+        console.log(`📧 Verification link for ${email}: ${verificationLink}`);
+        console.log(`🔢 Verification code for ${email}: ${verificationCode}`);
+        // Don't throw - allow the calling operation to complete
+        // If in production, check:
+        // 1. SMTP ports (587/465) might be blocked - use SendGrid/AWS SES instead
+        // 2. Gmail might block connections from cloud providers - use app password
+        // 3. Firewall might block SMTP - check production environment settings
       });
-      console.log(`✅ Verification email sent successfully to ${email}`);
-    } catch (error) {
-      console.error('Failed to send verification email:', error);
-      // Log the info for development purposes even if email fails
-      console.log(`Verification link for ${email}: ${verificationLink}`);
-      console.log(`Verification code for ${email}: ${verificationCode}`);
-      throw error;
-    }
   }
 
   async sendPasswordResetEmail(email: string, resetLink: string, userName?: string): Promise<void> {
-    const fromEmail = this.configService.get<string>('EMAIL_FROM') || this.configService.get<string>('SMTP_USER');
+    const smtpUser = this.configService.get<string>('SMTP_USER');
+    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
+    const fromEmail = this.configService.get<string>('EMAIL_FROM') || smtpUser;
+    
+    // Check if SMTP is properly configured
+    if (!smtpUser || !smtpPassword) {
+      console.warn('⚠️ SMTP not configured properly. Missing SMTP_USER or SMTP_PASSWORD.');
+      console.log(`Password reset link for ${email}: ${resetLink}`);
+      return;
+    }
     
     if (!fromEmail) {
-      console.warn('SMTP not configured. Email not sent.');
+      console.warn('⚠️ EMAIL_FROM not configured. Using SMTP_USER as fallback.');
       console.log(`Password reset link for ${email}: ${resetLink}`);
       return;
     }
@@ -180,20 +223,39 @@ export class EmailService {
       </p>
     `;
 
-    try {
-      await this.transporter.sendMail({
+    // Send email in a non-blocking way with timeout protection
+    // This prevents email service issues from blocking operations
+    // Note: In production (Render, etc.), Gmail SMTP ports might be blocked
+    // Consider using SendGrid, AWS SES, or Resend instead
+    Promise.race([
+      this.transporter.sendMail({
         from: `${this.appName} <${fromEmail}>`,
         to: email,
         subject: `Reset your ${this.appName} password`,
         html: this.getEmailTemplate(header, content),
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email sending timeout after 10 seconds')), 10000)
+      ),
+    ])
+      .then(() => {
+        console.log(`✅ Password reset email sent successfully to ${email}`);
+      })
+      .catch((error) => {
+        console.error('❌ Failed to send password reset email:', error);
+        console.error('Error details:', {
+          code: (error as any)?.code,
+          command: (error as any)?.command,
+          message: (error as any)?.message,
+        });
+        // Log the info for development/production debugging
+        console.log(`📧 Password reset link for ${email}: ${resetLink}`);
+        // Don't throw - allow the calling operation to complete
+        // If in production, check:
+        // 1. SMTP ports (587/465) might be blocked - use SendGrid/AWS SES instead
+        // 2. Gmail might block connections from cloud providers - use app password
+        // 3. Firewall might block SMTP - check production environment settings
       });
-      console.log(`✅ Password reset email sent successfully to ${email}`);
-    } catch (error) {
-      console.error('Failed to send password reset email:', error);
-      // Log the info for development purposes even if email fails
-      console.log(`Password reset link for ${email}: ${resetLink}`);
-      throw error;
-    }
   }
 }
 

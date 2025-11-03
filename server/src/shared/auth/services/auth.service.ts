@@ -45,8 +45,13 @@ export class AuthService {
     });
     const userId = user._id.toString();
 
-    // Generate verification tokens on signup
-    await this.generateVerificationTokens(userId);
+    // Generate verification tokens on signup (non-blocking)
+    // This ensures signup completes immediately even if email service is slow/fails
+    this.generateVerificationTokens(userId).catch((err) => {
+      console.error('Failed to generate/send verification tokens (non-blocking):', err);
+      // Don't throw - signup should succeed even if email fails
+      // User can request a new verification email via resend endpoint
+    });
 
     return {
       message: 'Account created successfully. Please verify your email to continue.',
