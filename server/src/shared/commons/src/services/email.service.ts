@@ -12,13 +12,27 @@ export class EmailService {
   constructor(private configService: ConfigService) {
     // Create transporter using SMTP configuration from environment variables
     // Add connection timeout and pool settings for better reliability in production
+    const smtpHost = this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com';
+    const smtpPort = parseInt(this.configService.get<string>('SMTP_PORT') || '587');
+    const smtpUser = this.configService.get<string>('SMTP_USER');
+    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
+    
+    // Log SMTP configuration for debugging (without exposing password)
+    console.log('📧 SMTP Configuration:', {
+      host: smtpHost,
+      port: smtpPort,
+      user: smtpUser,
+      hasPassword: !!smtpPassword,
+      secure: this.configService.get<string>('SMTP_SECURE') === 'true',
+    });
+    
     const smtpConfig = {
-      host: this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com',
-      port: parseInt(this.configService.get<string>('SMTP_PORT') || '587'),
+      host: smtpHost,
+      port: smtpPort,
       secure: this.configService.get<string>('SMTP_SECURE') === 'true', // true for 465, false for other ports
       auth: {
-        user: this.configService.get<string>('SMTP_USER'),
-        pass: this.configService.get<string>('SMTP_PASSWORD'),
+        user: smtpUser,
+        pass: smtpPassword,
       },
       connectionTimeout: 5000, // 5 seconds connection timeout
       greetingTimeout: 5000, // 5 seconds greeting timeout
