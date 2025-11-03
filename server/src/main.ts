@@ -35,7 +35,14 @@ async function bootstrap() {
 
   // Configure CORS - Must be BEFORE other middleware
   const corsOriginsString = config.get<string>('CORS_ORIGINS') || ''
-  const corsOrigins = corsOriginsString.split(',').map(s => s.trim()).filter(Boolean)
+  let corsOrigins = corsOriginsString.split(',').map(s => s.trim()).filter(Boolean)
+  
+  // In development, add default localhost origins if not specified
+  const nodeEnv = config.get<string>('NODE_ENV') || 'development'
+  if (nodeEnv === 'development' && corsOrigins.length === 0) {
+    corsOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000']
+    Logger.log(`CORS: Using default development origins: ${corsOrigins.join(', ')}`, 'CORS')
+  }
   
   // IMPORTANT: When credentials: true, origin CANNOT be wildcard (*)
   // It MUST be specific origin(s) - browser will reject wildcard with credentials

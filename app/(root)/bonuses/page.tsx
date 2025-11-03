@@ -8,6 +8,10 @@ import { CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterSection } from "@/components/shared/FilterSection";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/context/auth.context";
+import { useI18n } from "@/context/i18n.context";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const extractCasinoName = (title: string) => {
   const parts = title.split("-");
@@ -22,8 +26,12 @@ const extractBonusType = (type: string) => {
 
 function BonusesPage() {
   const { data: bonuses = [], isLoading } = useGetAllBonusesQuery();
+  const { user, accessToken, hydrated } = useAuth();
+  const { t } = useI18n();
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recommended");
+  
+  const isLoggedIn = hydrated && (accessToken || user);
 
   const filteredByType = useMemo(() => {
     if (selectedFilter === "all" || selectedFilter === "recommended" || selectedFilter === "latest") {
@@ -58,9 +66,33 @@ function BonusesPage() {
 
   const activeFilterCount = selectedFilter !== "all" ? 1 : 0;
 
+  // Show login prompt if not logged in
+  if (hydrated && !isLoggedIn) {
+    return (
+      <div className="container py-5 px-5 mx-auto max-w-7xl">
+        <PageHeader title={t('bonuses.title')} />
+        <div className="flex flex-col items-center justify-center py-20 space-y-6">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold text-foreground">
+              {t('bonuses.loginRequired')}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-md">
+              {t('bonuses.loginPrompt')}
+            </p>
+          </div>
+          <Link href="/login">
+            <Button size="lg">
+              {t('bonuses.loginButton')}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-5 px-5 mx-auto max-w-7xl">
-      <PageHeader title="Bonuses" />
+      <PageHeader title={t('bonuses.title')} />
 
       <FilterSection
         activeFilter={selectedFilter}
@@ -83,11 +115,11 @@ function BonusesPage() {
 
       {!isLoading && filteredByType.length === 0 && (
         <div className="w-full text-center text-lg py-12 text-muted-foreground">
-          No bonuses found.
+          {t('bonuses.noBonuses')}
         </div>
       )}
 
-      {!isLoading && filteredByType.length > 0 && (
+      {!isLoading && isLoggedIn && filteredByType.length > 0 && (
         <div className="flex flex-col gap-6">
           {filteredByType.map((bonus: Bonus, index) => (
             <CasinoBonusCard

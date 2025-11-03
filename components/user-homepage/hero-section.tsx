@@ -1,6 +1,7 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState, useEffect, useRef } from 'react';
+import { useI18n } from '@/context/i18n.context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,32 @@ import {
 } from 'lucide-react';
 
 export const HeroSection = memo(function HeroSection() {
+  const { t } = useI18n();
+  const words = ['safe', 'trusted', 'best', 'reliable', 'top-rated', 'casinos'];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        setIsAnimating(false);
+      }, 250); // Half of animation duration
+    }, 3000); // Change word every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [words.length]);
+
+  useEffect(() => {
+    // Measure the actual width of the rendered word
+    if (measureRef.current) {
+      const width = measureRef.current.offsetWidth;
+      setContainerWidth(width);
+    }
+  }, [currentWordIndex]);
   const features = [
     {
       icon: Dices,
@@ -40,56 +67,82 @@ export const HeroSection = memo(function HeroSection() {
   return (
     <section className="relative py-20 px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/5">
       <div className="container mx-auto max-w-7xl">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left side - Text content */}
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:items-center">
+          {/* Hero section - Text content */}
           <div className="space-y-6">
             <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-foreground">
-              Helping you find{' '}
-              <span className="text-primary relative inline-block">
-                safe
-                <span className="absolute -bottom-1 left-0 w-full h-1 bg-primary/30"></span>
+              {t('hero.title')}{' '}
+              <span 
+                className="relative inline-block h-[1.2em] transition-all duration-500 ease-in-out overflow-hidden"
+                style={{ 
+                  width: containerWidth ? `${containerWidth}px` : 'auto',
+                  minWidth: '80px'
+                }}
+              >
+                {/* Hidden span to measure width */}
+                <span 
+                  ref={measureRef}
+                  className="absolute invisible opacity-0 pointer-events-none whitespace-nowrap"
+                  aria-hidden="true"
+                >
+                  {words[currentWordIndex] === 'casinos' ? 'casinos' : `${words[currentWordIndex]} casinos`}
+                </span>
+                {/* Visible animated word */}
+                <span 
+                  className={`inline-block absolute left-0 top-0 transition-all duration-500 ease-in-out whitespace-nowrap ${
+                    words[currentWordIndex] === 'casinos' ? 'text-white' : 'text-primary'
+                  } ${
+                    isAnimating 
+                      ? 'opacity-0 -translate-y-4 scale-95' 
+                      : 'opacity-100 translate-y-0 scale-100'
+                  }`}
+                >
+                  {words[currentWordIndex] === 'casinos' ? 'casinos' : `${words[currentWordIndex]} casinos`}
+                </span>
+                {words[currentWordIndex] !== 'casinos' && (
+                  <span className="absolute -bottom-1 left-0 w-full h-1 bg-primary/30 transition-all duration-500"></span>
+                )}
               </span>
-              {' '}casinos
             </h1>
             <p className="text-muted-foreground text-lg">
-              Since 1995, we&apos;ve been helping players find their perfect casinos.
-              Explore our expert reviews, smart tools, and trusted guides, and
-              play with confidence.
+              {t('hero.subtitle')}
             </p>
           </div>
 
-          {/* Right side - Feature cards */}
-          <div className="grid grid-cols-2 gap-4">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card
-                  key={index}
-                  className="group relative border-2 hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden bg-card"
-                >
-                  <a href={feature.href} className="block">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                          <Icon className="w-6 h-6" />
+          {/* Feature cards - Scrollable on mobile, grid on desktop */}
+          <div className="overflow-x-auto lg:overflow-x-hidden overflow-y-hidden">
+            <div className="flex lg:grid lg:grid-cols-2 gap-4 min-w-max lg:min-w-0 pb-2 lg:pb-0">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <Card
+                    key={index}
+                    className="group relative border-2 hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden bg-card flex-shrink-0 w-[280px] lg:w-auto"
+                  >
+                    <a href={feature.href} className="block">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          {feature.label && (
+                            <Badge variant="default" className="font-bold">
+                              {feature.label}
+                            </Badge>
+                          )}
                         </div>
-                        {feature.label && (
-                          <Badge variant="default" className="font-bold">
-                            {feature.label}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-foreground font-semibold text-sm">
-                          {feature.title}
-                        </h3>
-                        <ArrowRight className="text-muted-foreground w-5 h-5 group-hover:translate-x-1 group-hover:text-primary transition-all" />
-                      </div>
-                    </CardContent>
-                  </a>
-                </Card>
-              );
-            })}
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-foreground font-semibold text-sm">
+                            {feature.title}
+                          </h3>
+                          <ArrowRight className="text-muted-foreground w-5 h-5 group-hover:translate-x-1 group-hover:text-primary transition-all" />
+                        </div>
+                      </CardContent>
+                    </a>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

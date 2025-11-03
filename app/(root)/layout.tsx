@@ -12,12 +12,27 @@ export default function RootNestedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuth();
+  const { user, accessToken, hydrated } = useAuth();
 
-  const sidebarConfig = useMemo(
-    () => user?.role === "admin" ? adminAppConfig : userAppConfig,
-    [user?.role]
-  );
+  const sidebarConfig = useMemo(() => {
+    if (user?.role === "admin") {
+      return adminAppConfig;
+    }
+
+    // Filter out Bonuses from menu if user is not logged in
+    const isLoggedIn = hydrated && (accessToken || user);
+    
+    if (!isLoggedIn) {
+      return {
+        ...userAppConfig,
+        navMain: userAppConfig.navMain.filter(
+          (item) => item.title !== "Bonuses"
+        ),
+      };
+    }
+
+    return userAppConfig;
+  }, [user?.role, user, accessToken, hydrated]);
 
   return (
     <SidebarProvider>

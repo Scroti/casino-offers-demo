@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -188,6 +189,7 @@ export function CasinoBonusCard({
   });
 
   const [openItems, setOpenItems] = useState<Record<number, boolean>>({});
+  const [isMobileDetailsOpen, setIsMobileDetailsOpen] = useState(false);
 
   const toggleItem = (index: number) => {
     setOpenItems((prev) => ({
@@ -213,37 +215,240 @@ export function CasinoBonusCard({
         : "LOW"
       : undefined;
 
+  const isMobile = useIsMobile();
+
   return (
     <Card className="w-full border-border/50 hover:shadow-xl transition-all duration-300 bg-card/90 backdrop-blur-sm overflow-hidden">
       <CardContent className="p-0">
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-border/50">
-          {/* Left Section - Bonus Details */}
-          <div className="flex-1 p-6 lg:pr-4">
-            {/* Header */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {bonusType.replace("-", " ").toUpperCase()} BONUS
-                </div>
-                {countryFlag && (
-                  <span className="text-xl" role="img" aria-label={`${countryCode || 'Country'} flag`}>
-                    {countryFlag}
-                  </span>
+          {/* Mobile: Show Image First, Desktop: Show Image Last */}
+          {isMobile && (
+            <>
+              {/* Right Section - Casino Info & CTA - Mobile: Show First */}
+              <div className="lg:w-[320px] lg:min-w-[320px] flex flex-col order-first">
+                {/* Bonus Image */}
+                {casinoImage && (
+                  <div className="mx-2 h-40 overflow-hidden flex-shrink-0 rounded-t-lg">
+                    {reviewLink ? (
+                      <a href={reviewLink} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={casinoImage}
+                          alt={title}
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </a>
+                    ) : href ? (
+                      <a href={href} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={casinoImage}
+                          alt={title}
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </a>
+                    ) : (
+                      <img
+                        src={casinoImage}
+                        alt={title}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    )}
+                  </div>
                 )}
-              </div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-bold text-foreground">{title}</h3>
-                {isExclusive && (
-                  <Badge variant="default">
-                    <span className="mr-1">💎</span>
-                    Exclusive
-                  </Badge>
-                )}
-              </div>
-            </div>
 
-            {/* Bonus Features List with Accordions */}
-            <div className="space-y-0">
+                {/* Content Card - Mobile: Only Title */}
+                <div className="flex-1 mx-2 bg-card border border-border/50 rounded-b-lg">
+                  <div className="p-4">
+                    {/* Title Only */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-foreground">{title}</h3>
+                      {isExclusive && (
+                        <Badge variant="default" className="text-xs">
+                          <span className="mr-1">💎</span>
+                          Exclusive
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {/* Info Button to Open Dropdown */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsMobileDetailsOpen(!isMobileDetailsOpen)}
+                      className="w-full"
+                    >
+                      <Info className="h-4 w-4 mr-2" />
+                      Bonus Info
+                      {isMobileDetailsOpen ? (
+                        <ChevronUp className="h-4 w-4 ml-2" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      )}
+                    </Button>
+
+                    {/* Get Bonus Button */}
+                    <Button
+                      onClick={onGetBonus}
+                      className="w-full mt-3"
+                      size="lg"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Get Bonus
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Left Section - Bonus Details */}
+          {isMobile ? (
+            <Collapsible open={isMobileDetailsOpen} onOpenChange={setIsMobileDetailsOpen} className="flex-1">
+              <CollapsibleContent className="p-6 border-t border-border">
+                {/* Header */}
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {bonusType.replace("-", " ").toUpperCase()} BONUS
+                    </div>
+                    {countryFlag && (
+                      <span className="text-xl" role="img" aria-label={`${countryCode || 'Country'} flag`}>
+                        {countryFlag}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* How to Get Bonus - Moved to Dropdown */}
+                {promoCode && (
+                  <div className="border border-dashed border-border p-3 rounded-lg space-y-2 mb-4">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                      HOW TO GET BONUS?
+                    </div>
+                    <div className="text-sm text-foreground">{bonusInstructions || "Message live chat with promo code"}</div>
+                    <div className="flex items-center justify-between bg-muted px-3 py-2 rounded-md">
+                      <span className="font-bold text-primary">{promoCode}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(promoCode);
+                          onCopyCode?.();
+                        }}
+                        className="h-6 w-6"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    {bonusInstructions && (
+                      <button className="text-xs text-primary hover:underline">
+                        Show step by step instructions
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Safety Index */}
+                {typeof safetyIndex === 'number' && (
+                  <div className="flex items-center gap-2 text-sm mb-4 pb-4 border-b border-border/50">
+                    <span className="text-muted-foreground font-semibold">SAFETY INDEX:</span>
+                    <span className="font-bold">{safetyIndex}</span>
+                    {safetyLabel && (
+                      <span className={`font-semibold ${safetyColor}`}>{safetyLabel}</span>
+                    )}
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+
+                {/* Review Link */}
+                {reviewLink && (
+                  <div className="mb-4 pb-4 border-b border-border/50">
+                    <button
+                      onClick={onReadReview}
+                      className="text-sm text-foreground hover:underline flex items-center gap-1"
+                    >
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                      Read {casinoName} Casino review
+                    </button>
+                  </div>
+                )}
+
+                {/* Bonus Features List with Accordions */}
+                <div className="space-y-0">
+                  {visibleFeatures.map((feature, index) => {
+                    if (!feature) return null;
+                    
+                    const Icon = 'icon' in feature ? feature.icon : Info;
+                    const featureTitle = 'title' in feature ? feature.title : '';
+                    const featureSubtitle = 'subtitle' in feature ? feature.subtitle : undefined;
+                    const featureContent = 'expandedContent' in feature ? feature.expandedContent : '';
+                    const isOpen = openItems[index] || false;
+                    
+                    return (
+                      <Collapsible
+                        key={index}
+                        open={isOpen}
+                        onOpenChange={() => toggleItem(index)}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <div className="flex items-start gap-3 py-3 group cursor-pointer hover:bg-muted/30 px-2 -mx-2 rounded-md transition-colors w-full">
+                            <Icon className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
+                            <div className="flex-1 min-w-0 text-left">
+                              <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                                {featureTitle}
+                              </div>
+                              {featureSubtitle && (
+                                <div className="text-xs text-muted-foreground mt-0.5">{featureSubtitle}</div>
+                              )}
+                            </div>
+                            {isOpen ? (
+                              <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0 transition-opacity" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
+                            )}
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                          <div className="px-7 pb-4 pt-0">
+                            <div
+                              className="text-sm text-muted-foreground leading-relaxed"
+                              dangerouslySetInnerHTML={{ __html: featureContent }}
+                            />
+                          </div>
+                        </CollapsibleContent>
+                        <div className="border-b border-border/50" />
+                      </Collapsible>
+                    );
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            <div className="flex-1 p-6 lg:pr-4">
+              {/* Header */}
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {bonusType.replace("-", " ").toUpperCase()} BONUS
+                  </div>
+                  {countryFlag && (
+                    <span className="text-xl" role="img" aria-label={`${countryCode || 'Country'} flag`}>
+                      {countryFlag}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-2xl font-bold text-foreground">{title}</h3>
+                  {isExclusive && (
+                    <Badge variant="default">
+                      <span className="mr-1">💎</span>
+                      Exclusive
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Bonus Features List with Accordions */}
+              <div className="space-y-0">
               {visibleFeatures.map((feature, index) => {
                 if (!feature) return null;
                 
@@ -291,9 +496,11 @@ export function CasinoBonusCard({
               })}
             </div>
           </div>
+          )}
 
-          {/* Right Section - Casino Info & CTA */}
-          <div className="lg:w-[320px] lg:min-w-[320px] flex flex-col">
+          {/* Right Section - Casino Info & CTA - Desktop: Show Last, Mobile: Hidden (already shown above) */}
+          {!isMobile && (
+            <div className="lg:w-[320px] lg:min-w-[320px] flex flex-col">
             {/* Bonus Image */}
             {casinoImage && (
               <div className="mx-2  h-40 overflow-hidden flex-shrink-0 rounded-t-lg">
@@ -418,6 +625,7 @@ export function CasinoBonusCard({
               </div>
             </div>
           </div>
+          )}
         </div>
       </CardContent>
     </Card>

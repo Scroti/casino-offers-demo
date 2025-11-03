@@ -27,7 +27,7 @@ export const CasinoActions = memo(function CasinoActions({
           if (visitUrl) window.open(visitUrl, '_blank');
           onVisitCasino?.();
         }}
-        className="flex-1 text-xs sm:text-sm h-11 sm:h-9"
+        className="flex-1 text-xs sm:text-sm h-11 sm:h-9 rounded-md"
         size="sm"
       >
         <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -41,7 +41,7 @@ export const CasinoActions = memo(function CasinoActions({
           }
           onReadReview?.();
         }}
-        className="flex-1 text-xs sm:text-sm h-11 sm:h-9"
+        className="flex-1 text-xs sm:text-sm h-11 sm:h-9 rounded-md"
         size="sm"
       >
         <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />

@@ -7,11 +7,13 @@ import { NavUser } from './nav-user';
 import { ModeToggle } from './ui/mode-toggle';
 import { appConfig } from '@/components/configs/appConfig';
 import { useAuth } from '@/context/auth.context';
+import { useI18n } from '@/context/i18n.context';
 import { Button } from './ui/button';
 
 export function AppHeader() {
   const { isMobile } = useSidebar();
   const { hydrated, accessToken, user } = useAuth();
+  const { t } = useI18n();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-sidebar-border bg-sidebar/95 backdrop-blur supports-[backdrop-filter]:bg-sidebar/80">
@@ -35,10 +37,10 @@ export function AppHeader() {
           ) : (
             <>
               <Link href="/login" className="btn btn-outline">
-                <Button variant="outline">Login</Button>
+                <Button variant="outline">{t('common.login')}</Button>
               </Link>
               <Link href="/signup" className="btn btn-primary">
-                <Button>Sign Up</Button>
+                <Button>{t('common.signup')}</Button>
               </Link>
             </>
           )}
