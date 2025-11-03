@@ -1,0 +1,31 @@
+{
+  "common": {
+    "home": "Acasă",
+    "casinos": "Cazinouri online",
+    "bonuses": "Bonusuri",
+    "games": "Jocuri",
+    "guides": "Ghidaje",
+    "login": "Autentificare",
+    "signup": "Abonare",
+    "logout": "Deconectare",
+    "support": "Asistență",
+    "forum": "Forum"
+  },
+  "hero": {
+    "title": "Te ajutăm să găsești",
+    "casinos": "cazinouri;",
+    "subtitle": "Din 1995, ajutăm jucătorii să-și găsească cazinourile perfecte. Explorează recenziile experților noștri, instrumentele inteligente și ghidurile de încredere și joacă-te cu încredere."
+  },
+  "bonuses": {
+    "title": "Bonusuri",
+    "noBonuses": "Nu s-au găsit bonusuri.",
+    "loginRequired": "Este necesară conectarea",
+    "loginPrompt": "Vă rugăm să vă conectați pentru a vedea bonusurile disponibile și ofertele exclusive.",
+    "loginButton": "Conectați-vă pentru a vedea bonusurile"
+  },
+  "casinos": {
+    "title": "Cazinouri online",
+    "visit": "Vizitează cazinoul",
+    "review": "Citiţi recenzia"
+  }
+}

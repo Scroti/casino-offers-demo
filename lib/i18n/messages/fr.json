@@ -1,0 +1,31 @@
+{
+  "common": {
+    "home": "Accueil",
+    "casinos": "Casinos en ligne ",
+    "bonuses": "Bonus",
+    "games": "Jeux",
+    "guides": "Repères",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "logout": "Déconnexion",
+    "support": "Support",
+    "forum": "Forum"
+  },
+  "hero": {
+    "title": "Vous aider à trouver",
+    "casinos": "casinos",
+    "subtitle": "Depuis 1995, nous aidons les joueurs à trouver leurs casinos parfaits. Explorez nos avis d'experts, nos outils intelligents et nos guides de confiance, et jouez en toute confiance."
+  },
+  "bonuses": {
+    "title": "Bonus",
+    "noBonuses": "Aucun bonus trouvé.",
+    "loginRequired": "Connexion requise",
+    "loginPrompt": "Veuillez vous connecter pour voir les bonus disponibles et les offres exclusives.",
+    "loginButton": "Connectez-vous pour voir les bonus"
+  },
+  "casinos": {
+    "title": "Casinos en ligne ",
+    "visit": "Visiter le casino",
+    "review": "Lire l'avis"
+  }
+}

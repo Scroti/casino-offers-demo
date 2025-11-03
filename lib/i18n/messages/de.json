@@ -1,0 +1,31 @@
+{
+  "common": {
+    "home": "Startseite",
+    "casinos": "Online-Casinos",
+    "bonuses": "Bonuspunkte",
+    "games": "Spiele",
+    "guides": "Hilfslinien",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "logout": "Abmelden",
+    "support": "Support",
+    "forum": "Forum"
+  },
+  "hero": {
+    "title": "Wir helfen Ihnen bei der Suche",
+    "casinos": "Spielkasinos,",
+    "subtitle": "Seit 1995 helfen wir Spielern, ihre perfekten Casinos zu finden. Entdecke unsere Expertenbewertungen, intelligenten Tools und vertrauenswürdigen Ratgeber und spiele mit Zuversicht."
+  },
+  "bonuses": {
+    "title": "Bonuspunkte",
+    "noBonuses": "Keine Boni gefunden.",
+    "loginRequired": "Anmeldung erforderlich",
+    "loginPrompt": "Bitte melden Sie sich an, um verfügbare Boni und exklusive Angebote anzuzeigen.",
+    "loginButton": "Anmelden, um Boni anzuzeigen"
+  },
+  "casinos": {
+    "title": "Online-Casinos",
+    "visit": "Casino besuchen",
+    "review": "Produkttest lesen"
+  }
+}

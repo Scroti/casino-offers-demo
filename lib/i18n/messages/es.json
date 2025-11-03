@@ -1,0 +1,31 @@
+{
+  "common": {
+    "home": "Inicio",
+    "casinos": "Casinos en línea",
+    "bonuses": "Bonificaciones",
+    "games": "Juegos",
+    "guides": "Guías",
+    "login": "Login",
+    "signup": "Regístrate",
+    "logout": "Cerrar sesión",
+    "support": "Soporte",
+    "forum": "Foros"
+  },
+  "hero": {
+    "title": "Te ayudamos a encontrar",
+    "casinos": "casinos",
+    "subtitle": "Desde 1995, hemos estado ayudando a los jugadores a encontrar sus casinos perfectos. Explora nuestras evaluaciones de expertos, herramientas inteligentes y guías de confianza, y juega con confianza."
+  },
+  "bonuses": {
+    "title": "Bonificaciones",
+    "noBonuses": "No se han encontrado bonificaciones.",
+    "loginRequired": "Es necesario iniciar sesión",
+    "loginPrompt": "Inicia sesión para ver los bonos disponibles y las ofertas exclusivas.",
+    "loginButton": "Iniciar sesión para ver los bonos"
+  },
+  "casinos": {
+    "title": "Casinos en línea",
+    "visit": "Visita el casino",
+    "review": "Leer análisis"
+  }
+}

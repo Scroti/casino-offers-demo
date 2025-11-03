@@ -1,0 +1,32 @@
+{
+  "common": {
+    "home": "Home",
+    "casinos": "Online Casinos",
+    "bonuses": "Bonuses",
+    "games": "Games",
+    "guides": "Guides",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "support": "Support",
+    "forum": "Forum"
+  },
+  "hero": {
+    "title": "Helping you find",
+    "casinos": "casinos",
+    "subtitle": "Since 1995, we've been helping players find their perfect casinos. Explore our expert reviews, smart tools, and trusted guides, and play with confidence."
+  },
+  "bonuses": {
+    "title": "Bonuses",
+    "noBonuses": "No bonuses found.",
+    "loginRequired": "Login Required",
+    "loginPrompt": "Please log in to view available bonuses and exclusive offers.",
+    "loginButton": "Login to View Bonuses"
+  },
+  "casinos": {
+    "title": "Online Casinos",
+    "visit": "Visit Casino",
+    "review": "Read Review"
+  }
+}
+
