@@ -1,46 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class EmailService {
-  private transporter: nodemailer.Transporter;
   private readonly appName = 'Playwise Guru';
   private readonly logoUrl: string;
   private readonly frontendUrl: string;
+  private readonly fromEmail: string;
+  private readonly sendGridApiKey: string;
 
   constructor(private configService: ConfigService) {
-    // Create transporter using SMTP configuration from environment variables
-    // Add connection timeout and pool settings for better reliability in production
-    const smtpHost = this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com';
-    const smtpPort = parseInt(this.configService.get<string>('SMTP_PORT') || '587');
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
-    
-    // Log SMTP configuration for debugging (without exposing password)
-    console.log('📧 SMTP Configuration:', {
-      host: smtpHost,
-      port: smtpPort,
-      user: smtpUser,
-      hasPassword: !!smtpPassword,
-      secure: this.configService.get<string>('SMTP_SECURE') === 'true',
-    });
-    
-    const smtpConfig = {
-      host: smtpHost,
-      port: smtpPort,
-      secure: this.configService.get<string>('SMTP_SECURE') === 'true', // true for 465, false for other ports
-      auth: {
-        user: smtpUser,
-        pass: smtpPassword,
-      },
-      connectionTimeout: 5000, // 5 seconds connection timeout
-      greetingTimeout: 5000, // 5 seconds greeting timeout
-      socketTimeout: 10000, // 10 seconds socket timeout
-      pool: false, // Don't pool connections (better for serverless/production)
-    };
-    
-    this.transporter = nodemailer.createTransport(smtpConfig);
+    // Initialize SendGrid API
+    this.sendGridApiKey = this.configService.get<string>('SENDGRID_API_KEY') || this.configService.get<string>('SMTP_PASSWORD') || '';
+    this.fromEmail = this.configService.get<string>('EMAIL_FROM') || '';
+
+    // Set SendGrid API key
+    if (this.sendGridApiKey) {
+      sgMail.setApiKey(this.sendGridApiKey);
+      console.log('📧 SendGrid API initialized successfully');
+    } else {
+      console.warn('⚠️ SendGrid API key not configured. Email sending will be disabled.');
+    }
 
     this.frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
     this.logoUrl = this.configService.get<string>('EMAIL_LOGO_URL') || `${this.frontendUrl}/assets/images/logo.png`;
@@ -102,20 +83,16 @@ export class EmailService {
     verificationCode: string,
     userName?: string,
   ): Promise<void> {
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
-    const fromEmail = this.configService.get<string>('EMAIL_FROM') || smtpUser;
-    
-    // Check if SMTP is properly configured
-    if (!smtpUser || !smtpPassword) {
-      console.warn('⚠️ SMTP not configured properly. Missing SMTP_USER or SMTP_PASSWORD.');
+    // Check if SendGrid is properly configured
+    if (!this.sendGridApiKey) {
+      console.warn('⚠️ SendGrid API key not configured.');
       console.log(`Verification link for ${email}: ${verificationLink}`);
       console.log(`Verification code for ${email}: ${verificationCode}`);
       return;
     }
     
-    if (!fromEmail) {
-      console.warn('⚠️ EMAIL_FROM not configured. Using SMTP_USER as fallback.');
+    if (!this.fromEmail) {
+      console.warn('⚠️ EMAIL_FROM not configured.');
       console.log(`Verification link for ${email}: ${verificationLink}`);
       console.log(`Verification code for ${email}: ${verificationCode}`);
       return;
@@ -155,14 +132,11 @@ export class EmailService {
       </p>
     `;
 
-    // Send email in a non-blocking way with timeout protection
-    // This prevents email service issues from blocking operations
-    // Note: In production (Render, etc.), Gmail SMTP ports might be blocked
-    // Consider using SendGrid, AWS SES, or Resend instead
+    // Send email using SendGrid API (non-blocking with timeout protection)
     Promise.race([
-      this.transporter.sendMail({
-        from: `${this.appName} <${fromEmail}>`,
+      sgMail.send({
         to: email,
+        from: `${this.appName} <${this.fromEmail}>`,
         subject: `Welcome to ${this.appName} - Verify your email`,
         html: this.getEmailTemplate(header, content),
       }),
@@ -177,34 +151,26 @@ export class EmailService {
         console.error('❌ Failed to send verification email:', error);
         console.error('Error details:', {
           code: (error as any)?.code,
-          command: (error as any)?.command,
+          response: (error as any)?.response?.body,
           message: (error as any)?.message,
         });
         // Log the info for development/production debugging
         console.log(`📧 Verification link for ${email}: ${verificationLink}`);
         console.log(`🔢 Verification code for ${email}: ${verificationCode}`);
         // Don't throw - allow the calling operation to complete
-        // If in production, check:
-        // 1. SMTP ports (587/465) might be blocked - use SendGrid/AWS SES instead
-        // 2. Gmail might block connections from cloud providers - use app password
-        // 3. Firewall might block SMTP - check production environment settings
       });
   }
 
   async sendPasswordResetEmail(email: string, resetLink: string, userName?: string): Promise<void> {
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-    const smtpPassword = this.configService.get<string>('SMTP_PASSWORD');
-    const fromEmail = this.configService.get<string>('EMAIL_FROM') || smtpUser;
-    
-    // Check if SMTP is properly configured
-    if (!smtpUser || !smtpPassword) {
-      console.warn('⚠️ SMTP not configured properly. Missing SMTP_USER or SMTP_PASSWORD.');
+    // Check if SendGrid is properly configured
+    if (!this.sendGridApiKey) {
+      console.warn('⚠️ SendGrid API key not configured.');
       console.log(`Password reset link for ${email}: ${resetLink}`);
       return;
     }
     
-    if (!fromEmail) {
-      console.warn('⚠️ EMAIL_FROM not configured. Using SMTP_USER as fallback.');
+    if (!this.fromEmail) {
+      console.warn('⚠️ EMAIL_FROM not configured.');
       console.log(`Password reset link for ${email}: ${resetLink}`);
       return;
     }
@@ -239,14 +205,11 @@ export class EmailService {
       </p>
     `;
 
-    // Send email in a non-blocking way with timeout protection
-    // This prevents email service issues from blocking operations
-    // Note: In production (Render, etc.), Gmail SMTP ports might be blocked
-    // Consider using SendGrid, AWS SES, or Resend instead
+    // Send email using SendGrid API (non-blocking with timeout protection)
     Promise.race([
-      this.transporter.sendMail({
-        from: `${this.appName} <${fromEmail}>`,
+      sgMail.send({
         to: email,
+        from: `${this.appName} <${this.fromEmail}>`,
         subject: `Reset your ${this.appName} password`,
         html: this.getEmailTemplate(header, content),
       }),
@@ -261,16 +224,12 @@ export class EmailService {
         console.error('❌ Failed to send password reset email:', error);
         console.error('Error details:', {
           code: (error as any)?.code,
-          command: (error as any)?.command,
+          response: (error as any)?.response?.body,
           message: (error as any)?.message,
         });
         // Log the info for development/production debugging
         console.log(`📧 Password reset link for ${email}: ${resetLink}`);
         // Don't throw - allow the calling operation to complete
-        // If in production, check:
-        // 1. SMTP ports (587/465) might be blocked - use SendGrid/AWS SES instead
-        // 2. Gmail might block connections from cloud providers - use app password
-        // 3. Firewall might block SMTP - check production environment settings
       });
   }
 }

@@ -30,13 +30,15 @@ export const envValidationSchema = Joi.object({
   // Frontend URL for email links
   FRONTEND_URL: Joi.string().uri().optional().default('http://localhost:3000'),
 
-  // SMTP Configuration for Nodemailer
-  // SMTP_USER can be email (Gmail) or "apikey" (SendGrid) or username (other providers)
+  // Email Configuration (SendGrid API or SMTP)
+  // For SendGrid API: use SENDGRID_API_KEY
+  // For SMTP: use SMTP_* variables
+  SENDGRID_API_KEY: Joi.string().optional(), // SendGrid API key (preferred)
   SMTP_HOST: Joi.string().optional().default('smtp.gmail.com'),
   SMTP_PORT: Joi.string().optional().default('587'),
   SMTP_SECURE: Joi.string().optional().default('false'),
   SMTP_USER: Joi.string().optional(), // Not always an email - can be "apikey" for SendGrid
-  SMTP_PASSWORD: Joi.string().optional(),
+  SMTP_PASSWORD: Joi.string().optional(), // Can also be used as SendGrid API key fallback
   EMAIL_FROM: Joi.string().email().optional(),
   EMAIL_LOGO_URL: Joi.string().uri().optional(), // Optional: custom logo URL for emails
 });
