@@ -12,7 +12,7 @@ export class EmailService {
   constructor(private configService: ConfigService) {
     // Create transporter using SMTP configuration from environment variables
     // Add connection timeout and pool settings for better reliability in production
-    this.transporter = nodemailer.createTransport({
+    const smtpConfig = {
       host: this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com',
       port: parseInt(this.configService.get<string>('SMTP_PORT') || '587'),
       secure: this.configService.get<string>('SMTP_SECURE') === 'true', // true for 465, false for other ports
@@ -24,7 +24,9 @@ export class EmailService {
       greetingTimeout: 5000, // 5 seconds greeting timeout
       socketTimeout: 10000, // 10 seconds socket timeout
       pool: false, // Don't pool connections (better for serverless/production)
-    });
+    };
+    
+    this.transporter = nodemailer.createTransport(smtpConfig);
 
     this.frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
     this.logoUrl = this.configService.get<string>('EMAIL_LOGO_URL') || `${this.frontendUrl}/assets/images/logo.png`;
