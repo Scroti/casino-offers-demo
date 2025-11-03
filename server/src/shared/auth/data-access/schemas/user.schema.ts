@@ -45,6 +45,30 @@ export class User {
 
   @Prop({ default: 0 })
   totalSpent?: number;
+
+  @Prop()
+  country?: string; // Country code (e.g., 'US', 'ES', 'RO')
+
+  @Prop()
+  language?: string; // Language code (e.g., 'en', 'es', 'ro')
+
+  @Prop()
+  passwordResetToken?: string; // Token for password reset
+
+  @Prop()
+  passwordResetTokenExpires?: Date; // Expiration date for password reset token
+
+  @Prop()
+  emailVerificationToken?: string; // Token for email verification
+
+  @Prop()
+  emailVerificationTokenExpires?: Date; // Expiration date for email verification token
+
+  @Prop()
+  emailVerificationCode?: string; // 6-digit code for email verification (alternative to token)
+
+  @Prop()
+  emailVerificationCodeExpires?: Date; // Expiration date for email verification code
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

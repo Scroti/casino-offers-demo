@@ -85,8 +85,8 @@ export const authApi = createApi({
       }),
     }),
     signup: builder.mutation<
-      { accessToken: string; refreshToken: string },
-      { name: string; email: string; password: string }
+      { message: string; requiresVerification: boolean },
+      { name: string; email: string; password: string; country?: string; language?: string }
     >({
       query: (data) => ({
         url: "signup",
@@ -106,8 +106,56 @@ export const authApi = createApi({
         method: "GET",
       }),
     }),
+    forgotPassword: builder.mutation<
+      { message: string },
+      { email: string }
+    >({
+      query: (data) => ({
+        url: "forgot-password",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resetPassword: builder.mutation<
+      { message: string },
+      { token: string; password: string }
+    >({
+      query: (data) => ({
+        url: "reset-password",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    verifyEmail: builder.mutation<
+      { message: string; verified: boolean },
+      { token?: string; code?: string }
+    >({
+      query: (data) => ({
+        url: "verify-email",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resendVerificationEmail: builder.mutation<
+      { message: string },
+      { email: string }
+    >({
+      query: (data) => ({
+        url: "resend-verification",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useSignupMutation, useLogoutMutation, useMeQuery } =
-  authApi;
+export const { 
+  useLoginMutation, 
+  useSignupMutation, 
+  useLogoutMutation, 
+  useMeQuery,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useVerifyEmailMutation,
+  useResendVerificationEmailMutation,
+} = authApi;

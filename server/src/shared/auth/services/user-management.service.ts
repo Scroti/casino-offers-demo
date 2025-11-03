@@ -32,7 +32,7 @@ export class UserManagementService {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const { name, email, password, role } = createUserDto;
+    const { name, email, password, role, country, language } = createUserDto;
 
     // Check if user already exists
     const existingUser = await this.userModel.findOne({ email });
@@ -47,6 +47,8 @@ export class UserManagementService {
       passwordHash: hashedPassword,
       role: role || 'user',
       status: UserStatus.ACTIVE,
+      country,
+      language,
     });
 
     return this.userModel.findById(user._id).select('-passwordHash -refreshTokenHash').lean();

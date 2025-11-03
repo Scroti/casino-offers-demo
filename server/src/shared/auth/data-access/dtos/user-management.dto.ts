@@ -28,6 +28,14 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole = UserRole.USER;
+
+  @IsOptional()
+  @IsString()
+  country?: string; // Country code (e.g., 'US', 'ES', 'RO')
+
+  @IsOptional()
+  @IsString()
+  language?: string; // Language code (e.g., 'en', 'es', 'ro')
 }
 
 export class UpdateUserDto {
@@ -51,6 +59,14 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   profileImageUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsString()
+  language?: string;
 }
 
 export class ChangeUserStatusDto {

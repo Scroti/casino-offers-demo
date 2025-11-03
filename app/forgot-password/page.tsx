@@ -1,12 +1,8 @@
-'use client';
-
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { Gift } from "lucide-react"
+import { ForgotPasswordForm } from "@/components/forgot-password-form"
 
-import { LoginForm } from "@/components/login-form"
-
-function LoginContent() {
+export default function ForgotPasswordPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -20,7 +16,7 @@ function LoginContent() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <ForgotPasswordForm />
           </div>
         </div>
       </div>
@@ -32,17 +28,6 @@ function LoginContent() {
         />
       </div>
     </div>
-  );
+  )
 }
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    }>
-      <LoginContent />
-    </Suspense>
-  );
-}

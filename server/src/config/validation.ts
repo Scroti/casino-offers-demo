@@ -26,5 +26,17 @@ export const envValidationSchema = Joi.object({
   GOOGLE_SHEETS_SPREADSHEET_ID: Joi.string().optional(),
   GOOGLE_SHEETS_SPREADSHEET_SHEET_NAME: Joi.string().optional(),
   GOOGLE_SHEETS_SYNC_ENABLED: Joi.boolean().default(false),
+
+  // Frontend URL for email links
+  FRONTEND_URL: Joi.string().uri().optional().default('http://localhost:3000'),
+
+  // SMTP Configuration for Nodemailer
+  SMTP_HOST: Joi.string().optional().default('smtp.gmail.com'),
+  SMTP_PORT: Joi.string().optional().default('587'),
+  SMTP_SECURE: Joi.string().optional().default('false'),
+  SMTP_USER: Joi.string().email().optional(),
+  SMTP_PASSWORD: Joi.string().optional(),
+  EMAIL_FROM: Joi.string().email().optional(),
+  EMAIL_LOGO_URL: Joi.string().uri().optional(), // Optional: custom logo URL for emails
 });
 

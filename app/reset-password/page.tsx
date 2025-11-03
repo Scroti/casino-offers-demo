@@ -3,10 +3,9 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { Gift } from "lucide-react"
+import { ResetPasswordForm } from "@/components/reset-password-form"
 
-import { LoginForm } from "@/components/login-form"
-
-function LoginContent() {
+function ResetPasswordContent() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -20,7 +19,7 @@ function LoginContent() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <ResetPasswordForm />
           </div>
         </div>
       </div>
@@ -35,14 +34,15 @@ function LoginContent() {
   );
 }
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     }>
-      <LoginContent />
+      <ResetPasswordContent />
     </Suspense>
   );
 }
+

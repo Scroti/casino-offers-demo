@@ -5,14 +5,12 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/context/auth.context";
 import { adminAppConfig, userAppConfig } from "@/components/configs/appConfig";
-import { useMemo } from "react";
+import { useEmailCampaign } from "@/hooks/use-email-campaign";
+import { useMemo, Suspense } from "react";
 
-export default function RootNestedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const { user, accessToken, hydrated } = useAuth();
+  const { isFromCampaign } = useEmailCampaign();
 
   const sidebarConfig = useMemo(() => {
     if (user?.role === "admin") {
@@ -20,9 +18,10 @@ export default function RootNestedLayout({
     }
 
     // Filter out Bonuses from menu if user is not logged in
+    // BUT show it if they came from a valid campaign
     const isLoggedIn = hydrated && (accessToken || user);
     
-    if (!isLoggedIn) {
+    if (!isLoggedIn && !isFromCampaign) {
       return {
         ...userAppConfig,
         navMain: userAppConfig.navMain.filter(
@@ -32,7 +31,7 @@ export default function RootNestedLayout({
     }
 
     return userAppConfig;
-  }, [user?.role, user, accessToken, hydrated]);
+  }, [user?.role, user, accessToken, hydrated, isFromCampaign]);
 
   return (
     <SidebarProvider>
@@ -46,5 +45,21 @@ export default function RootNestedLayout({
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+export default function RootNestedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <LayoutContent>{children}</LayoutContent>
+    </Suspense>
   );
 }

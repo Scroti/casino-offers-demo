@@ -27,4 +27,12 @@ export class CreateUserDto {
   @IsUrl({}, { message: 'Invalid URL format' })
   @IsOptional()
   profileImageUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  country?: string; // Country code (e.g., 'US', 'ES', 'RO')
+
+  @IsString()
+  @IsOptional()
+  language?: string; // Language code (e.g., 'en', 'es', 'ro')
 }

@@ -10,6 +10,7 @@ import { FilterSection } from "@/components/shared/FilterSection";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/auth.context";
 import { useI18n } from "@/context/i18n.context";
+import { useEmailCampaign } from "@/hooks/use-email-campaign";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -28,10 +29,13 @@ function BonusesPage() {
   const { data: bonuses = [], isLoading } = useGetAllBonusesQuery();
   const { user, accessToken, hydrated } = useAuth();
   const { t } = useI18n();
+  const { isFromCampaign } = useEmailCampaign();
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recommended");
   
   const isLoggedIn = hydrated && (accessToken || user);
+  // Allow access if logged in OR from valid campaign
+  const canAccessBonuses = isLoggedIn || isFromCampaign;
 
   const filteredByType = useMemo(() => {
     if (selectedFilter === "all" || selectedFilter === "recommended" || selectedFilter === "latest") {
@@ -66,8 +70,8 @@ function BonusesPage() {
 
   const activeFilterCount = selectedFilter !== "all" ? 1 : 0;
 
-  // Show login prompt if not logged in
-  if (hydrated && !isLoggedIn) {
+  // Show login prompt if not logged in and not from campaign
+  if (hydrated && !canAccessBonuses) {
     return (
       <div className="container py-5 px-5 mx-auto max-w-7xl">
         <PageHeader title={t('bonuses.title')} />
@@ -119,7 +123,7 @@ function BonusesPage() {
         </div>
       )}
 
-      {!isLoading && isLoggedIn && filteredByType.length > 0 && (
+      {!isLoading && canAccessBonuses && filteredByType.length > 0 && (
         <div className="flex flex-col gap-6">
           {filteredByType.map((bonus: Bonus, index) => (
             <CasinoBonusCard

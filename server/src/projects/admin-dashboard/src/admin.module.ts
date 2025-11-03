@@ -7,10 +7,12 @@ import { Module } from '@nestjs/common';
 import { AdminNewsletterService } from './services/admin-newsletter.service';
 import { NewsletterAdminController } from './controllers/admin-newsletter.controller';
 import { BonusesModule } from './bonuses/bonuses.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
 
 @Module({
   imports: [
     BonusesModule,
+    CampaignsModule,
     MongooseModule.forFeature([
       {
         name: NewsletterSubscription.name,

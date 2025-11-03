@@ -5,6 +5,7 @@
 import { bonusesApi } from "../configs/bonuses.config";
 import { casinosApi } from "../configs/casinos.config";
 import { usersApi } from "../configs/users.config";
+import { campaignsApi } from "../configs/campaigns.config";
   export const store = configureStore({
     reducer: {
       auth: authReducer,
@@ -12,10 +13,11 @@ import { usersApi } from "../configs/users.config";
       [authApi.reducerPath]: authApi.reducer,
       [bonusesApi.reducerPath]:bonusesApi.reducer,
       [casinosApi.reducerPath]:casinosApi.reducer,
-      [usersApi.reducerPath]:usersApi.reducer
+      [usersApi.reducerPath]:usersApi.reducer,
+      [campaignsApi.reducerPath]:campaignsApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(newsletterApi.middleware, authApi.middleware,bonusesApi.middleware,casinosApi.middleware,usersApi.middleware),
+      getDefaultMiddleware().concat(newsletterApi.middleware, authApi.middleware,bonusesApi.middleware,casinosApi.middleware,usersApi.middleware,campaignsApi.middleware),
   });
 
   export type RootState = ReturnType<typeof store.getState>;

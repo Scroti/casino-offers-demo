@@ -9,6 +9,7 @@ import { User, UserSchema } from './data-access/schemas/user.schema';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { CommonsModule } from '@offers/commons';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         schema: UserSchema,
       },
     ]),
+    CommonsModule, // Add CommonsModule to access EmailService
   ],
   controllers: [AuthController, UserManagementController],
   providers: [AuthService, UserManagementService, JwtStrategy],

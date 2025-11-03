@@ -120,6 +120,11 @@ export const adminAppConfig = {
       // No nested bonus-type links; types are filtered within Bonuses page
     },
     {
+      title: "Campaign Management",
+      url: "/admin/campaigns-management",
+      icon: Gift,
+    },
+    {
       title: "Content Management",
       url: '#',
       icon: SquareChartGantt,
