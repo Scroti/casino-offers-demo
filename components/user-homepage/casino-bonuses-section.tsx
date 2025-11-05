@@ -170,7 +170,7 @@ export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
                       asChild
                     >
                       <Link href={reviewLink}>
-                        Play Now
+                        {t('casinos.visit')}
                       </Link>
                     </Button>
                   </CardContent>
