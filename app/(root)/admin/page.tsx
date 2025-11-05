@@ -47,6 +47,9 @@ function AdminDashboardContent() {
       {/* Overview Cards */}
       <DashboardOverviewCards />
 
+      {/* Charts and Analytics */}
+      <AnalyticsCharts />
+
       {/* Google Analytics Info Card */}
       <Card className={!gaId ? 'border-yellow-500/50 bg-yellow-500/10' : ''}>
         <CardHeader>
@@ -136,9 +139,6 @@ function AdminDashboardContent() {
           )}
         </CardContent>
       </Card>
-
-      {/* Charts and Analytics */}
-      <AnalyticsCharts />
     </div>
   );
 }
