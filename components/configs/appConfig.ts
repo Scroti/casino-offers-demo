@@ -147,6 +147,11 @@ export const adminAppConfig = {
       url: "/admin/guides-management",
       icon: FileText,
     },
+    {
+      title: "Games Management",
+      url: "/admin/games-management",
+      icon: DicesIcon,
+    },
   ],
   
   navSecondary: [

@@ -10,6 +10,7 @@ import { contactApi } from "../configs/contact.config";
 import { contactManagementApi } from "../configs/contact-management.config";
 import { newsApi } from "../configs/news.config";
 import { guidesApi } from "../configs/guides.config";
+import { gamesApi } from "../configs/games.config";
   export const store = configureStore({
     reducer: {
       auth: authReducer,
@@ -23,6 +24,7 @@ import { guidesApi } from "../configs/guides.config";
       [contactManagementApi.reducerPath]: contactManagementApi.reducer,
       [newsApi.reducerPath]: newsApi.reducer,
       [guidesApi.reducerPath]: guidesApi.reducer,
+      [gamesApi.reducerPath]: gamesApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(
@@ -35,7 +37,8 @@ import { guidesApi } from "../configs/guides.config";
         contactApi.middleware,
         contactManagementApi.middleware,
         newsApi.middleware,
-        guidesApi.middleware
+        guidesApi.middleware,
+        gamesApi.middleware
       ),
   });
 

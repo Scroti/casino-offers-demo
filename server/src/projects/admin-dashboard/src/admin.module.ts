@@ -12,6 +12,7 @@ import { CasinosModule } from './casinos/casinos.module';
 import { ContactModule } from './contact/contact.module';
 import { NewsModule } from './news/news.module';
 import { GuidesModule } from './guides/guides.module';
+import { GamesModule } from './games/games.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { GuidesModule } from './guides/guides.module';
     ContactModule,
     NewsModule,
     GuidesModule,
+    GamesModule,
     MongooseModule.forFeature([
       {
         name: NewsletterSubscription.name,
