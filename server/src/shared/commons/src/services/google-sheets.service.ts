@@ -40,9 +40,29 @@ export class GoogleSheetsService {
 
   async updateNewsletterSheet(subscribers: any[]) {
     const syncEnabled = this.configService.get<boolean>('GOOGLE_SHEETS_SYNC_ENABLED');
-    if (!syncEnabled) return;
+    if (!syncEnabled) {
+      console.log('Google Sheets sync is disabled (GOOGLE_SHEETS_SYNC_ENABLED=false)');
+      return;
+    }
+    
+    // Validate required configuration
+    if (!this.sheets) {
+      console.error('Google Sheets sync failed: Google Sheets service not initialized (check credentials)');
+      return;
+    }
+    
+    if (!this.spreadsheetId) {
+      console.error('Google Sheets sync failed: GOOGLE_SHEETS_SPREADSHEET_ID is not set');
+      return;
+    }
+    
+    const sheetName = this.configService.get('GOOGLE_SHEETS_SPREADSHEET_SHEET_NAME');
+    if (!sheetName) {
+      console.error('Google Sheets sync failed: GOOGLE_SHEETS_SPREADSHEET_SHEET_NAME is not set');
+      return;
+    }
+    
     try {
-      const sheetName = this.configService.get('GOOGLE_SHEETS_SPREADSHEET_SHEET_NAME');
       
       // Clear existing data
       await this.sheets.spreadsheets.values.clear({
