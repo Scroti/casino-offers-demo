@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useGetNewsQuery } from "@/app/lib/data-access/configs/news.config";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useCountryDetection } from "@/hooks/use-country-detection";
