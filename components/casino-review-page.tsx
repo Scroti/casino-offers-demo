@@ -429,7 +429,7 @@ function OverviewTab({ casino }: { casino: any }) {
           </div>
           <div className="space-y-6">
             {randomBonuses.map((bonus: any) => (
-              <CasinoBonusCard
+              <TranslatedBonusCard
                 key={bonus._id}
                 bonusType={extractBonusType(bonus.type)}
                 title={bonus.title}

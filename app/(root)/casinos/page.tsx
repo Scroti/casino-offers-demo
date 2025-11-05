@@ -4,7 +4,7 @@ import { useState, useMemo, memo, useEffect, Suspense } from "react";
 
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic';
-import { CasinoCard } from "@/components/ui/casino-card/index";
+import { TranslatedCasinoCard } from "@/components/ui/translated-casino-card";
 import { useGetAllCasinosQuery } from "@/app/lib/data-access/configs/casinos.config";
 import type { Casino } from "@/app/lib/data-access/models/casino.model";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -182,7 +182,7 @@ function CasinosPageContent() {
       {!isLoading && sortedCasinos.length > 0 && (
         <div className="flex flex-col gap-4 sm:gap-6">
           {sortedCasinos.map((casino: Casino, index) => (
-            <CasinoCard
+            <TranslatedCasinoCard
               key={casino._id || index}
               casino={casino}
               onVisitCasino={() => {

@@ -103,27 +103,54 @@ async function translateWithLibreTranslate(
   targetLang: string,
   sourceLang: string = 'en'
 ): Promise<string> {
-  const url = 'https://libretranslate.com/translate';
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      q: text,
-      source: sourceLang,
-      target: targetLang,
-      format: 'text',
-    }),
-  });
+  try {
+    // Try LibreTranslate public API first
+    const url = 'https://libretranslate.com/translate';
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        q: text,
+        source: sourceLang,
+        target: targetLang,
+        format: 'text',
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error('LibreTranslate API error');
+    if (!response.ok) {
+      // If LibreTranslate fails, try alternative endpoint
+      const altUrl = 'https://libretranslate.de/translate';
+      const altResponse = await fetch(altUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          q: text,
+          source: sourceLang,
+          target: targetLang,
+          format: 'text',
+        }),
+      });
+
+      if (!altResponse.ok) {
+        throw new Error('LibreTranslate API error');
+      }
+
+      const altData = await altResponse.json();
+      return altData.translatedText;
+    }
+
+    const data = await response.json();
+    return data.translatedText;
+  } catch (error) {
+    console.error('LibreTranslate error:', error);
+    // Fallback: return original text if translation fails
+    return text;
   }
-
-  const data = await response.json();
-  return data.translatedText;
 }
 
 export async function POST(request: NextRequest) {
