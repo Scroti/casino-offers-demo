@@ -318,31 +318,28 @@ export function CasinoBonusCard({
                   </div>
                 </div>
 
-                {/* How to Get Bonus - Moved to Dropdown */}
-                {promoCode && (
+                {/* How to Get Bonus - Always shown if instructions exist */}
+                {bonusInstructions && (
                   <div className="border border-dashed border-border p-3 rounded-lg space-y-2 mb-4">
                     <div className="text-xs font-semibold uppercase tracking-wider text-foreground">
                       HOW TO GET BONUS?
                     </div>
-                    <div className="text-sm text-foreground">{bonusInstructions || "Message live chat with promo code"}</div>
-                    <div className="flex items-center justify-between bg-muted px-3 py-2 rounded-md">
-                      <span className="font-bold text-primary">{promoCode}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(promoCode);
-                          onCopyCode?.();
-                        }}
-                        className="h-6 w-6"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    {bonusInstructions && (
-                      <button className="text-xs text-primary hover:underline">
-                        Show step by step instructions
-                      </button>
+                    <div className="text-sm text-foreground">{bonusInstructions}</div>
+                    {promoCode && (
+                      <div className="flex items-center justify-between bg-muted px-3 py-2 rounded-md">
+                        <span className="font-bold text-primary">{promoCode}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(promoCode);
+                            onCopyCode?.();
+                          }}
+                          className="h-6 w-6"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -545,31 +542,28 @@ export function CasinoBonusCard({
                   </div>
                 )}
 
-                {/* How to Get Bonus */}
-                {promoCode && (
+                {/* How to Get Bonus - Always shown if instructions exist */}
+                {bonusInstructions && (
                   <div className="border border-dashed border-border p-3 rounded-lg space-y-2">
                     <div className="text-xs font-semibold uppercase tracking-wider text-foreground">
                       HOW TO GET BONUS?
                     </div>
-                    <div className="text-sm text-foreground">{bonusInstructions || "Message live chat with promo code"}</div>
-                    <div className="flex items-center justify-between bg-muted px-3 py-2 rounded-md">
-                      <span className="font-bold text-primary">{promoCode}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(promoCode);
-                          onCopyCode?.();
-                        }}
-                        className="h-6 w-6"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    {bonusInstructions && (
-                      <button className="text-xs text-primary hover:underline">
-                        Show step by step instructions
-                      </button>
+                    <div className="text-sm text-foreground">{bonusInstructions}</div>
+                    {promoCode && (
+                      <div className="flex items-center justify-between bg-muted px-3 py-2 rounded-md">
+                        <span className="font-bold text-primary">{promoCode}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(promoCode);
+                            onCopyCode?.();
+                          }}
+                          className="h-6 w-6"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )}

@@ -30,6 +30,12 @@ const baseQueryWithReauth = async (
   api: BaseQueryApi,
   extraOptions: {}
 ) => {
+  // Prevent infinite refresh loops - don't retry refresh endpoint itself
+  const url = typeof args === 'string' ? args : args.url;
+  if (url === 'refresh' || url?.endsWith('/refresh')) {
+    return baseQuery(args, api, extraOptions);
+  }
+
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
@@ -37,33 +43,47 @@ const baseQueryWithReauth = async (
     const refreshToken = (api.getState() as any).auth.refreshToken;
 
     if (refreshToken) {
-      const refreshResult = await baseQuery(
-        {
-          url: "refresh",
-          method: "POST",
-          body: { refreshToken },
-        },
-        api,
-        extraOptions
-      );
-
-      const refreshData = refreshResult.data as RefreshResponse | undefined;
-
-      if (refreshData) {
-        // save new tokens
-        api.dispatch(
-          authSlice.actions.setCredentials({
-            accessToken: refreshData.accessToken,
-            refreshToken: refreshData.refreshToken,
-          })
+      try {
+        const refreshResult = await baseQuery(
+          {
+            url: "refresh",
+            method: "POST",
+            body: { refreshToken },
+          },
+          api,
+          extraOptions
         );
 
-        // retry the original query with new access token
-        result = await baseQuery(args, api, extraOptions);
-      } else {
+        // Check if refresh was successful
+        if (refreshResult.error) {
+          console.error('Refresh token failed:', refreshResult.error);
+          api.dispatch(authSlice.actions.logout());
+          return result;
+        }
+
+        const refreshData = refreshResult.data as RefreshResponse | undefined;
+
+        if (refreshData && refreshData.accessToken && refreshData.refreshToken) {
+          // save new tokens
+          api.dispatch(
+            authSlice.actions.setCredentials({
+              accessToken: refreshData.accessToken,
+              refreshToken: refreshData.refreshToken,
+            })
+          );
+
+          // retry the original query with new access token
+          result = await baseQuery(args, api, extraOptions);
+        } else {
+          console.error('Invalid refresh response:', refreshData);
+          api.dispatch(authSlice.actions.logout());
+        }
+      } catch (error) {
+        console.error('Error during token refresh:', error);
         api.dispatch(authSlice.actions.logout());
       }
     } else {
+      console.warn('No refresh token available');
       api.dispatch(authSlice.actions.logout());
     }
   }
@@ -73,6 +93,7 @@ const baseQueryWithReauth = async (
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ['User'],
   endpoints: (builder) => ({
     login: builder.mutation<
       { accessToken: string; refreshToken: string },
@@ -105,6 +126,7 @@ export const authApi = createApi({
         url: "me",
         method: "GET",
       }),
+      providesTags: ['User'],
     }),
     forgotPassword: builder.mutation<
       { message: string },
@@ -146,6 +168,17 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    updateProfile: builder.mutation<
+      UserProfile,
+      { name?: string; profileImageUrl?: string; gender?: 'male' | 'female' | 'prefer-not-to-say'; ageRange?: '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+' | 'prefer-not-to-say' }
+    >({
+      query: (data) => ({
+        url: "profile",
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 });
 
@@ -158,4 +191,5 @@ export const {
   useResetPasswordMutation,
   useVerifyEmailMutation,
   useResendVerificationEmailMutation,
+  useUpdateProfileMutation,
 } = authApi;

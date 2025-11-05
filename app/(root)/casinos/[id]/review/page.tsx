@@ -1,11 +1,12 @@
 import CasinoReviewPage from "@/components/casino-review-page";
 
-export default function ReviewPage({
+export default async function ReviewPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  return <CasinoReviewPage casinoId={params.id} />;
+  const { id } = await params;
+  return <CasinoReviewPage casinoId={id} />;
 }
 
 

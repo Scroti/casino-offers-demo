@@ -52,6 +52,12 @@ export class User {
   @Prop()
   language?: string; // Language code (e.g., 'en', 'es', 'ro')
 
+  @Prop({ enum: ['male', 'female', 'prefer-not-to-say'], default: null })
+  gender?: 'male' | 'female' | 'prefer-not-to-say';
+
+  @Prop({ enum: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'prefer-not-to-say'], default: null })
+  ageRange?: '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+' | 'prefer-not-to-say';
+
   @Prop()
   passwordResetToken?: string; // Token for password reset
 

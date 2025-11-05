@@ -1,9 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ENV } from '@/lib/constants/env';
 
+import type { Casino } from './casino.model';
+
 // Define the Bonus type for frontend use
 export type Bonus = {
   _id: string;
+  casino?: string | Casino; // Reference to Casino (can be ObjectId or populated Casino object)
   title: string;
   description?: { title?: string; subtitle?: string; content?: string };
   price: string;
@@ -52,6 +55,11 @@ export const bonusesApi = createApi({
       query: () => 'bonuses',
       providesTags: ['Bonus'],
     }),
+    // GET bonuses by casino ID
+    getBonusesByCasino: builder.query<Bonus[], string>({
+      query: (casinoId) => `bonuses/casino/${casinoId}`,
+      providesTags: (result, error, casinoId) => [{ type: 'Bonus', id: `casino-${casinoId}` }],
+    }),
     // GET details by id
     getBonusById: builder.query<Bonus, string>({
       query: (id) => `bonuses/${id}`,
@@ -88,6 +96,7 @@ export const bonusesApi = createApi({
 
 export const {
   useGetAllBonusesQuery,
+  useGetBonusesByCasinoQuery,
   useGetBonusByIdQuery,
   useCreateBonusMutation,
   useUpdateBonusMutation,

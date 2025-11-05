@@ -5,7 +5,10 @@ import { RootState } from '@/app/lib/data-access/store/store.config';
 import { useSelector } from 'react-redux';
 
 export function GlobalLoader() {
-  const { isFetching: isAuthLoading } = useMeQuery(undefined, { skip: false });
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
+  const { isFetching: isAuthLoading } = useMeQuery(undefined, { 
+    skip: !accessToken // Skip if no access token
+  });
    const isLoadingAuth = useSelector((state: RootState) => {
     const mutations = state.authApi?.mutations || {};
 

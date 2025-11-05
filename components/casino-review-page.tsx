@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetCasinoByIdQuery } from "@/app/lib/data-access/configs/casinos.config";
+import { useGetBonusesByCasinoQuery } from "@/app/lib/data-access/configs/bonuses.config";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,11 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ChevronDown } from "lucide-react";
+import { CasinoBonusCard } from "@/components/ui/casino-bonus-card";
+import type { Bonus } from "@/app/lib/data-access/configs/bonuses.config";
 
 type TabType = "overview" | "bonuses" | "reviews" | "safety" | "discussion" | "payments";
 
@@ -51,6 +57,8 @@ export default function CasinoReviewPage({ casinoId }: { casinoId: string }) {
   const router = useRouter();
   const { data: casino, isLoading, error } = useGetCasinoByIdQuery(casinoId);
   const [activeTab, setActiveTab] = useState<TabType>("overview");
+  // Get bonuses count for this casino - must be called before any early returns
+  const { data: bonuses = [] } = useGetBonusesByCasinoQuery(casino?._id || '');
 
   if (isLoading) {
     return (
@@ -74,10 +82,10 @@ export default function CasinoReviewPage({ casinoId }: { casinoId: string }) {
 
   const tabs = [
     { id: "overview" as TabType, label: "Overview", icon: Home, count: null },
-    { id: "bonuses" as TabType, label: "Bonuses", icon: Gift, count: casino.bonusText ? 6 : 0 },
-    { id: "reviews" as TabType, label: "User reviews", icon: Star, count: 142 },
+    { id: "bonuses" as TabType, label: "Bonuses", icon: Gift, count: bonuses.length || 0 },
+    { id: "reviews" as TabType, label: "User reviews", icon: Star, count: null },
     { id: "safety" as TabType, label: "Safety Index explained", icon: Shield, count: null },
-    { id: "discussion" as TabType, label: "Discussion", icon: MessageSquare, count: 266 },
+    { id: "discussion" as TabType, label: "Discussion", icon: MessageSquare, count: null },
     { id: "payments" as TabType, label: "Payment methods", icon: CreditCard, count: casino.paymentMethods?.length || 0 },
   ];
 
@@ -157,12 +165,12 @@ export default function CasinoReviewPage({ casinoId }: { casinoId: string }) {
                 </div>
                 <div className="flex-1 text-center sm:text-left">
                   <div className="text-[10px] sm:text-xs font-semibold mb-1">SAFETY INDEX</div>
-                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs">
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs rounded-md">
                     <Shield className="h-3 w-3 mr-1" />
                     HIGH
                   </Badge>
                   <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">by Casino Guru</div>
-                  <Badge variant="outline" className="mt-1 text-[10px] sm:text-xs">FAIR SAFE</Badge>
+                  <Badge variant="outline" className="mt-1 text-[10px] sm:text-xs rounded-md">FAIR SAFE</Badge>
                 </div>
               </div>
 
@@ -233,41 +241,119 @@ export default function CasinoReviewPage({ casinoId }: { casinoId: string }) {
                 </div>
               )}
 
-              {/* Withdrawal Limits */}
-              <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b">
-                <div className="text-[10px] sm:text-xs font-semibold mb-1">WITHDRAWAL LIMITS</div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground mb-1">per day</div>
-                <div className="text-xs sm:text-sm font-bold">€1,500</div>
-              </div>
+              {/* Payment & Withdrawal Limits */}
+              {(casino.minimalDeposit || casino.maxWithdrawalLimitPerMonth || casino.minimalPayout || casino.withdrawalTime || casino.withdrawWithActiveBonus || casino.withdrawFees) && (
+                <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b space-y-2">
+                  {casino.minimalDeposit && (
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold mb-1">MINIMAL DEPOSIT</div>
+                      <div className="text-xs sm:text-sm font-bold">{casino.minimalDeposit}</div>
+                    </div>
+                  )}
+                  {casino.maxWithdrawalLimitPerMonth && (
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold mb-1">MAX WITHDRAWAL LIMIT</div>
+                      <div className="text-xs sm:text-sm font-bold">{casino.maxWithdrawalLimitPerMonth}</div>
+                    </div>
+                  )}
+                  {casino.minimalPayout && (
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold mb-1">MINIMAL PAYOUT</div>
+                      <div className="text-xs sm:text-sm font-bold">{casino.minimalPayout}</div>
+                    </div>
+                  )}
+                  {casino.withdrawalTime && (
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold mb-1">WITHDRAWAL TIME</div>
+                      <div className="text-xs sm:text-sm font-bold">{casino.withdrawalTime}</div>
+                    </div>
+                  )}
+                  {casino.withdrawWithActiveBonus !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className={cn("h-3 w-3 sm:h-4 sm:w-4", casino.withdrawWithActiveBonus ? "text-primary" : "text-muted-foreground")} />
+                      <span className="text-[10px] sm:text-xs">
+                        {casino.withdrawWithActiveBonus ? "Can withdraw with active bonus" : "Cannot withdraw with active bonus"}
+                      </span>
+                    </div>
+                  )}
+                  {casino.withdrawFees && (
+                    <div>
+                      <div className="text-[10px] sm:text-xs font-semibold mb-1">WITHDRAWAL FEES</div>
+                      <div className="text-xs sm:text-sm font-bold">{casino.withdrawFees}</div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Company Information */}
               <div className="space-y-2 sm:space-y-3 text-[10px] sm:text-xs">
-                <div>
-                  <div className="font-semibold mb-1">OWNER:</div>
-                  <div className="text-muted-foreground">Sprut Group B.V.</div>
-                </div>
-                <div>
-                  <div className="font-semibold mb-1">OPERATOR:</div>
-                  <div className="text-muted-foreground">Sprut Group B.V.</div>
-                </div>
-                <div>
-                  <div className="font-semibold mb-1">ESTABLISHED:</div>
-                  <div className="text-muted-foreground">2018</div>
-                </div>
-                <div>
-                  <div className="flex items-center gap-1 font-semibold mb-1">
-                    ESTIMATED ANNUAL REVENUES:
-                    <Info className="h-3 w-3" />
+                {casino.url && (
+                  <div>
+                    <div className="font-semibold mb-1">WEBSITE:</div>
+                    <a href={casino.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary underline">
+                      {casino.url}
+                    </a>
                   </div>
-                  <div className="text-muted-foreground">&gt; 20,000,000 lei</div>
-                </div>
-                <div className="pt-2 sm:pt-3 border-t">
-                  <div className="font-semibold mb-2">LICENSING AUTHORITIES:</div>
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="text-muted-foreground">Curaçao (GCB)</span>
+                )}
+                {casino.facebook && (
+                  <div>
+                    <div className="font-semibold mb-1">FACEBOOK:</div>
+                    <a href={casino.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary underline">
+                      {casino.facebook}
+                    </a>
                   </div>
-                </div>
+                )}
+                {casino.owner && (
+                  <div>
+                    <div className="font-semibold mb-1">OWNER:</div>
+                    <div className="text-muted-foreground">{casino.owner}</div>
+                  </div>
+                )}
+                {casino.founded && (
+                  <div>
+                    <div className="font-semibold mb-1">ESTABLISHED:</div>
+                    <div className="text-muted-foreground">{casino.founded}</div>
+                  </div>
+                )}
+                {casino.license && (
+                  <div className="pt-2 sm:pt-3 border-t">
+                    <div className="font-semibold mb-2">LICENSING AUTHORITIES:</div>
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="text-muted-foreground">{casino.license}</span>
+                    </div>
+                  </div>
+                )}
+                {casino.companyAddress && (
+                  <div>
+                    <div className="font-semibold mb-1">COMPANY ADDRESS:</div>
+                    <div className="text-muted-foreground">{casino.companyAddress}</div>
+                  </div>
+                )}
+                {casino.affiliateSoftware && (
+                  <div>
+                    <div className="font-semibold mb-1">AFFILIATE SOFTWARE:</div>
+                    <div className="text-muted-foreground">{casino.affiliateSoftware}</div>
+                  </div>
+                )}
+                {casino.partners && (
+                  <div>
+                    <div className="font-semibold mb-1">PARTNERS:</div>
+                    <div className="text-muted-foreground">{casino.partners}</div>
+                  </div>
+                )}
+                {casino.version && (
+                  <div>
+                    <div className="font-semibold mb-1">VERSION:</div>
+                    <div className="text-muted-foreground">{casino.version}</div>
+                  </div>
+                )}
+                {casino.wagering && (
+                  <div>
+                    <div className="font-semibold mb-1">WAGERING:</div>
+                    <div className="text-muted-foreground">{casino.wagering}</div>
+                  </div>
+                )}
               </div>
             </Card>
           </aside>
@@ -289,6 +375,33 @@ export default function CasinoReviewPage({ casinoId }: { casinoId: string }) {
 
 // Overview Tab Component
 function OverviewTab({ casino }: { casino: any }) {
+  const isMobile = useIsMobile();
+  const { data: allBonuses = [] } = useGetBonusesByCasinoQuery(casino._id || '');
+  
+  // Get 2 random bonuses if they exist
+  const getRandomBonuses = (bonuses: any[], count: number) => {
+    if (bonuses.length === 0) return [];
+    const shuffled = [...bonuses].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(count, bonuses.length));
+  };
+  
+  const randomBonuses = getRandomBonuses(allBonuses, 2);
+  
+  const extractBonusType = (type: string) => {
+    if (type === "no-deposit") return "no-deposit";
+    if (type === "deposit") return "deposit";
+    return "cashback";
+  };
+
+  const extractCasinoName = (title: string) => {
+    const parts = title.split("-");
+    return parts.length > 1 ? parts[parts.length - 1].trim() : "Casino";
+  };
+  
+  const positives = casino.features?.filter((f: any) => f.type === 'positive') || [];
+  const negatives = casino.features?.filter((f: any) => f.type === 'negative') || [];
+  const neutrals = casino.features?.filter((f: any) => f.type === 'neutral') || [];
+
   return (
     <div className="space-y-6">
       {/* Review Introduction */}
@@ -305,8 +418,8 @@ function OverviewTab({ casino }: { casino: any }) {
         </Button>
       </Card>
 
-      {/* Bonuses Section */}
-      {casino.bonusText && (
+      {/* Bonuses Section - Show 2 random bonuses if they exist */}
+      {randomBonuses.length > 0 && (
         <Card className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className="flex items-center gap-2">
@@ -314,109 +427,196 @@ function OverviewTab({ casino }: { casino: any }) {
               <h2 className="text-xl sm:text-2xl font-bold">Bonuses</h2>
             </div>
           </div>
-          <div className="space-y-4">
-            {casino.isExclusive && (
-              <div className="border-l-4 border-primary pl-4 py-2">
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge className="bg-primary text-primary-foreground">NO DEPOSIT BONUS</Badge>
-                </div>
-                <p className="font-semibold">{casino.bonusText}</p>
-                {casino.bonusSubtext && (
-                  <p className="text-sm text-muted-foreground">no deposit, €0.1/spin</p>
-                )}
-                <Button variant="link" className="p-0 mt-2">
-                  Bonus T&C
-                </Button>
-              </div>
-            )}
-            <div className="border-l-4 border-primary pl-4 py-2">
-              <div className="flex items-center gap-2 mb-1">
-                <Badge className="bg-primary text-primary-foreground">DEPOSIT BONUS</Badge>
-              </div>
-              <p className="font-semibold">100% up to €300 and 30 extra spins (€0.1/spin)</p>
-              <Button variant="link" className="p-0 mt-2">
-                Bonus T&C
-              </Button>
-            </div>
+          <div className="space-y-6">
+            {randomBonuses.map((bonus: any) => (
+              <CasinoBonusCard
+                key={bonus._id}
+                bonusType={extractBonusType(bonus.type)}
+                title={bonus.title}
+                description={bonus.description}
+                isExclusive={bonus.isExclusive}
+                casinoName={bonus.casinoName || extractCasinoName(bonus.title)}
+                casinoImage={bonus.casinoImage}
+                safetyIndex={bonus.safetyIndex}
+                countryFlag={bonus.countryFlag}
+                countryCode={bonus.countryCode}
+                promoCode={bonus.promoCode}
+                bonusInstructions={bonus.bonusInstructions}
+                reviewLink={bonus.reviewLink}
+                href={bonus.href}
+                wageringRequirement={bonus.wageringRequirement}
+                bonusValue={bonus.bonusValue}
+                maxBet={bonus.maxBet}
+                expiration={bonus.expiration}
+                claimSpeed={bonus.claimSpeed}
+                termsConditions={bonus.termsConditions}
+                customSections={bonus.customSections}
+                onGetBonus={() => {
+                  window.open(bonus.href || "#", "_blank");
+                }}
+                onCopyCode={() => {
+                  if (bonus.promoCode) {
+                    navigator.clipboard.writeText(bonus.promoCode);
+                  }
+                }}
+                onReadReview={() => {
+                  if (bonus.reviewLink) {
+                    window.open(bonus.reviewLink, "_blank");
+                  }
+                }}
+                onFeedbackYes={() => {}}
+                onFeedbackNo={() => {}}
+              />
+            ))}
           </div>
         </Card>
       )}
 
       {/* Games Section */}
-      {casino.availableGames && casino.availableGames.length > 0 && (
-        <Card className="p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              <h2 className="text-xl sm:text-2xl font-bold">Games</h2>
+      <Card className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h2 className="text-xl sm:text-2xl font-bold">Games</h2>
+          </div>
+        </div>
+        
+        {/* Games Statistics */}
+        {(casino.gamesAmount || casino.slotGames || casino.jackpotGames || casino.videoPokerGames || casino.scratchGames || casino.bingoGames || casino.liveGamesAmount) && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
+            {casino.gamesAmount && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Total Games</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.gamesAmount}</div>
+              </div>
+            )}
+            {casino.slotGames && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Slot Games</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.slotGames}</div>
+              </div>
+            )}
+            {casino.jackpotGames && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Jackpot Games</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.jackpotGames}</div>
+              </div>
+            )}
+            {casino.videoPokerGames && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Video Poker</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.videoPokerGames}</div>
+              </div>
+            )}
+            {casino.scratchGames && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Scratch Games</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.scratchGames}</div>
+              </div>
+            )}
+            {casino.bingoGames && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Bingo Games</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.bingoGames}</div>
+              </div>
+            )}
+            {casino.liveGamesAmount && (
+              <div className="border rounded-md p-3 bg-muted/50">
+                <div className="text-[10px] sm:text-xs font-semibold text-muted-foreground mb-1">Live Games</div>
+                <div className="text-lg sm:text-xl font-bold">{casino.liveGamesAmount}</div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Sports Betting Info */}
+        {(casino.sportsBetting || casino.liveBetting || casino.virtualSportsBetting) && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {casino.sportsBetting && (
+              <Badge variant="outline" className="text-xs">Sports Betting</Badge>
+            )}
+            {casino.liveBetting && (
+              <Badge variant="outline" className="text-xs">Live Betting</Badge>
+            )}
+            {casino.virtualSportsBetting && (
+              <Badge variant="outline" className="text-xs">Virtual Sports Betting</Badge>
+            )}
+          </div>
+        )}
+        
+        {/* Available Games */}
+        {casino.availableGames && casino.availableGames.length > 0 && (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold">Available Game Types</div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+                    Show all ({casino.availableGames.length})
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-80 max-h-96 overflow-y-auto">
+                  <div className="p-2">
+                    <div className="text-xs font-semibold mb-2 pb-1 border-b">
+                      Available Games ({casino.availableGames.length})
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {casino.availableGames.map((game: any, idx: number) => {
+                        const GameIcon = getGameIcon(game.name);
+                        return (
+                          <div
+                            key={idx}
+                            className={cn(
+                              "flex flex-col items-center gap-1 p-2 rounded-md border bg-background relative",
+                              !game.available && "opacity-50"
+                            )}
+                          >
+                            {game.available ? (
+                              <CheckCircle2 className="h-3 w-3 text-primary absolute top-1 right-1 z-10" />
+                            ) : (
+                              <MinusCircle className="h-3 w-3 text-muted-foreground absolute top-1 right-1 z-10" />
+                            )}
+                            <GameIcon className={cn(
+                              "h-6 w-6",
+                              game.available ? "text-primary" : "text-muted-foreground"
+                            )} />
+                            <span className="text-[10px] text-center font-medium leading-tight text-foreground">{game.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
-                  Show all
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-80 max-h-96 overflow-y-auto">
-                <div className="p-2">
-                  <div className="text-xs font-semibold mb-2 pb-1 border-b">
-                    Available Games ({casino.availableGames.length})
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+              {casino.availableGames.slice(0, 9).map((game: any, idx: number) => {
+                const GameIcon = getGameIcon(game.name);
+                return (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 rounded-md border bg-background relative",
+                      !game.available && "opacity-50"
+                    )}
+                  >
+                    {game.available ? (
+                      <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary absolute top-0.5 right-0.5 sm:top-1 sm:right-1 z-10" />
+                    ) : (
+                      <MinusCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground absolute top-0.5 right-0.5 sm:top-1 sm:right-1 z-10" />
+                    )}
+                    <GameIcon className={cn(
+                      "h-6 w-6 sm:h-8 sm:w-8",
+                      game.available ? "text-primary" : "text-muted-foreground"
+                    )} />
+                    <span className="text-[10px] sm:text-xs text-center font-medium text-foreground leading-tight">{game.name}</span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {casino.availableGames.map((game: any, idx: number) => {
-                      const GameIcon = getGameIcon(game.name);
-                      return (
-                        <div
-                          key={idx}
-                          className={cn(
-                            "flex flex-col items-center gap-1 p-2 rounded-md border bg-background relative",
-                            !game.available && "opacity-50"
-                          )}
-                        >
-                          {game.available ? (
-                            <CheckCircle2 className="h-3 w-3 text-primary absolute top-1 right-1 z-10" />
-                          ) : (
-                            <MinusCircle className="h-3 w-3 text-muted-foreground absolute top-1 right-1 z-10" />
-                          )}
-                          <GameIcon className={cn(
-                            "h-6 w-6",
-                            game.available ? "text-primary" : "text-muted-foreground"
-                          )} />
-                          <span className="text-[10px] text-center font-medium leading-tight text-foreground">{game.name}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
-            {casino.availableGames.slice(0, 9).map((game: any, idx: number) => {
-              const GameIcon = getGameIcon(game.name);
-              return (
-                <div
-                  key={idx}
-                  className={cn(
-                    "flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 rounded-md border bg-background relative",
-                    !game.available && "opacity-50"
-                  )}
-                >
-                  {game.available ? (
-                    <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary absolute top-0.5 right-0.5 sm:top-1 sm:right-1 z-10" />
-                  ) : (
-                    <MinusCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground absolute top-0.5 right-0.5 sm:top-1 sm:right-1 z-10" />
-                  )}
-                  <GameIcon className={cn(
-                    "h-6 w-6 sm:h-8 sm:w-8",
-                    game.available ? "text-primary" : "text-muted-foreground"
-                  )} />
-                  <span className="text-[10px] sm:text-xs text-center font-medium text-foreground leading-tight">{game.name}</span>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
+                );
+              })}
+            </div>
+          </>
+        )}
+      </Card>
 
       {/* Language Options */}
       <Card className="p-4 sm:p-6">
@@ -428,8 +628,10 @@ function OverviewTab({ casino }: { casino: any }) {
           {casino.websiteLanguages && casino.websiteLanguages.length > 0 && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-2 sm:p-3 border rounded-md">
               <div className="flex items-center gap-2">
-                <span className="text-base sm:text-lg">🇷🇴</span>
-                <span className="text-sm sm:text-base">Romanian website</span>
+                {casino.countryFlag && (
+                  <span className="text-base sm:text-lg">{casino.countryFlag}</span>
+                )}
+                <span className="text-sm sm:text-base">{casino.websiteLanguages[0]} website</span>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -457,7 +659,7 @@ function OverviewTab({ casino }: { casino: any }) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-2 sm:p-3 border rounded-md">
               <div className="flex items-center gap-2">
                 <Headphones className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-sm sm:text-base">English customer support</span>
+                <span className="text-sm sm:text-base">{casino.customerSupportLanguages[0]} customer support</span>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -485,7 +687,7 @@ function OverviewTab({ casino }: { casino: any }) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-2 sm:p-3 border rounded-md">
               <div className="flex items-center gap-2">
                 <MessageSquareMore className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-sm sm:text-base">English live chat</span>
+                <span className="text-sm sm:text-base">{casino.liveChatLanguages[0]} live chat</span>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -509,6 +711,62 @@ function OverviewTab({ casino }: { casino: any }) {
               </DropdownMenu>
             </div>
           )}
+          {(casino.phoneLanguages && casino.phoneLanguages.length > 0) && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-2 sm:p-3 border rounded-md">
+              <div className="flex items-center gap-2">
+                <MessageSquareMore className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-sm sm:text-base">{casino.phoneLanguages[0]} phone support</span>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">
+                    All languages ({casino.phoneLanguages.length})
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-64 max-h-96 overflow-y-auto">
+                  <div className="p-2 space-y-1">
+                    <div className="text-xs font-semibold mb-2 pb-1 border-b">
+                      Phone Languages ({casino.phoneLanguages.length})
+                    </div>
+                    {casino.phoneLanguages.map((lang: string, idx: number) => (
+                      <div key={idx} className="flex items-center gap-2 py-1 px-2 text-sm">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                        <span>{lang}</span>
+                      </div>
+                    ))}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+          {(casino.emailLanguages && casino.emailLanguages.length > 0) && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-2 sm:p-3 border rounded-md">
+              <div className="flex items-center gap-2">
+                <MessageSquareMore className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-sm sm:text-base">{casino.emailLanguages[0]} email support</span>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm w-full sm:w-auto">
+                    All languages ({casino.emailLanguages.length})
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-64 max-h-96 overflow-y-auto">
+                  <div className="p-2 space-y-1">
+                    <div className="text-xs font-semibold mb-2 pb-1 border-b">
+                      Email Languages ({casino.emailLanguages.length})
+                    </div>
+                    {casino.emailLanguages.map((lang: string, idx: number) => (
+                      <div key={idx} className="flex items-center gap-2 py-1 px-2 text-sm">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                        <span>{lang}</span>
+                      </div>
+                    ))}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -519,30 +777,32 @@ function OverviewTab({ casino }: { casino: any }) {
             <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             <h2 className="text-xl sm:text-2xl font-bold">Game providers</h2>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
-                Show all (149)
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-96 max-h-96 overflow-y-auto">
-              <div className="p-2">
-                <div className="text-xs font-semibold mb-2 pb-1 border-b">
-                  Game Providers (149)
+          {casino.gameProviders && casino.gameProviders.length > 6 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+                  Show all ({casino.gameProviders.length})
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-96 max-h-96 overflow-y-auto">
+                <div className="p-2">
+                  <div className="text-xs font-semibold mb-2 pb-1 border-b">
+                    Game Providers ({casino.gameProviders.length})
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {casino.gameProviders.map((provider: string, idx: number) => (
+                      <div key={idx} className="border rounded-md p-2 bg-muted/50 flex items-center justify-center h-12 sm:h-16">
+                        <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{provider}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {['NETENT', 'NOLIMIT', 'Yggdrasil', 'Blueprint', 'Evolution', 'Pragmatic', 'Microgaming', 'Betsoft', 'Playtech', 'IGT', 'Red Tiger', 'Thunderkick'].map((provider, idx) => (
-                    <div key={idx} className="border rounded-md p-2 bg-muted/50 flex items-center justify-center h-12 sm:h-16">
-                      <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{provider}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
-          {['NETENT', 'NOLIMIT', 'Yggdrasil', 'Blueprint', 'Evolution', 'Pragmatic'].map((provider, idx) => (
+          {casino.gameProviders?.slice(0, 6).map((provider: string, idx: number) => (
             <div key={idx} className="border rounded-md p-2 sm:p-3 bg-muted/50 flex items-center justify-center h-12 sm:h-16">
               <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{provider}</span>
             </div>
@@ -550,27 +810,36 @@ function OverviewTab({ casino }: { casino: any }) {
         </div>
       </Card>
 
-      {/* Casino Screenshots */}
-      <Card className="p-4 sm:p-6">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4">
-          <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-          <h2 className="text-xl sm:text-2xl font-bold">Casino screenshots</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          {[1, 2, 3].map((idx) => (
-            <div key={idx} className="relative aspect-video bg-muted rounded-md overflow-hidden group cursor-pointer">
-              <div className="absolute inset-0 flex items-center justify-center bg-muted/80">
-                <Camera className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
-              </div>
+      {/* Casino Screenshots - Only show if image exists */}
+      {casino.image && (
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <h2 className="text-xl sm:text-2xl font-bold">Casino Preview</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="relative aspect-video bg-muted rounded-md overflow-hidden group cursor-pointer">
+              <Image
+                src={casino.image}
+                alt={casino.name}
+                fill
+                className="object-cover"
+                unoptimized
+              />
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button size="sm" variant="secondary" className="h-7 w-7 sm:h-9 sm:w-9 p-0">
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="h-7 w-7 sm:h-9 sm:w-9 p-0"
+                  onClick={() => window.open(casino.image, '_blank')}
+                >
                   <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
-          ))}
-        </div>
-      </Card>
+          </div>
+        </Card>
+      )}
 
       {/* Positives, Negatives, Interesting Facts */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -640,11 +909,90 @@ function OverviewTab({ casino }: { casino: any }) {
 
 // Bonuses Tab Component
 function BonusesTab({ casino }: { casino: any }) {
+  const { data: bonuses = [], isLoading } = useGetBonusesByCasinoQuery(casino._id || '');
+  
+  const extractBonusType = (type: string) => {
+    if (type === "no-deposit") return "no-deposit";
+    if (type === "deposit") return "deposit";
+    return "cashback";
+  };
+
+  const extractCasinoName = (title: string) => {
+    const parts = title.split("-");
+    return parts.length > 1 ? parts[parts.length - 1].trim() : "Casino";
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Bonuses</h2>
+        <p className="text-muted-foreground">Loading bonuses...</p>
+      </Card>
+    );
+  }
+
+  if (bonuses.length === 0) {
+    return (
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Bonuses</h2>
+        <p className="text-muted-foreground">No bonuses available for this casino.</p>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Bonuses</h2>
-      <p className="text-muted-foreground">Bonuses content will go here...</p>
-    </Card>
+    <div className="space-y-6">
+      <Card className="p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold">Bonuses</h2>
+          <Badge variant="outline" className="text-sm">
+            {bonuses.length} {bonuses.length === 1 ? 'bonus' : 'bonuses'}
+          </Badge>
+        </div>
+        <div className="space-y-6">
+          {bonuses.map((bonus: Bonus) => (
+            <CasinoBonusCard
+              key={bonus._id}
+              bonusType={extractBonusType(bonus.type)}
+              title={bonus.title}
+              description={bonus.description}
+              isExclusive={bonus.isExclusive}
+              casinoName={bonus.casinoName || extractCasinoName(bonus.title)}
+              casinoImage={bonus.casinoImage}
+              safetyIndex={bonus.safetyIndex}
+              countryFlag={bonus.countryFlag}
+              countryCode={bonus.countryCode}
+              promoCode={bonus.promoCode}
+              bonusInstructions={bonus.bonusInstructions}
+              reviewLink={bonus.reviewLink}
+              href={bonus.href}
+              wageringRequirement={bonus.wageringRequirement}
+              bonusValue={bonus.bonusValue}
+              maxBet={bonus.maxBet}
+              expiration={bonus.expiration}
+              claimSpeed={bonus.claimSpeed}
+              termsConditions={bonus.termsConditions}
+              customSections={bonus.customSections}
+              onGetBonus={() => {
+                window.open(bonus.href || "#", "_blank");
+              }}
+              onCopyCode={() => {
+                if (bonus.promoCode) {
+                  navigator.clipboard.writeText(bonus.promoCode);
+                }
+              }}
+              onReadReview={() => {
+                if (bonus.reviewLink) {
+                  window.open(bonus.reviewLink, "_blank");
+                }
+              }}
+              onFeedbackYes={() => {}}
+              onFeedbackNo={() => {}}
+            />
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 }
 

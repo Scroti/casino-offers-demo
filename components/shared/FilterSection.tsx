@@ -1,15 +1,11 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Filter, LucideIcon } from "lucide-react";
-
-interface FilterOption {
-  id: string;
-  label: string;
-  icon?: LucideIcon | null;
-}
+import { Filter } from "lucide-react";
+import { AdvancedFilterModal } from "./AdvancedFilterModal";
+import type { AdvancedFilterState, FilterCategory } from "./AdvancedFilterModal";
 
 interface SortOption {
   value: string;
@@ -17,56 +13,59 @@ interface SortOption {
 }
 
 interface FilterSectionProps {
-  activeFilter: string;
-  filters: FilterOption[];
-  onFilterChange: (filterId: string) => void;
   sortBy?: string;
   onSortChange?: (sort: string) => void;
   sortOptions?: SortOption[];
   resultsCount: number;
-  activeFilterCount?: number;
+  // Filter categories
+  filterCategories?: FilterCategory[];
+  activeFilters?: AdvancedFilterState;
+  onFilterChange?: (filters: AdvancedFilterState) => void;
 }
 
 export const FilterSection = memo(function FilterSection({
-  activeFilter,
-  filters,
-  onFilterChange,
   sortBy,
   onSortChange,
   sortOptions,
   resultsCount,
-  activeFilterCount = 0,
+  filterCategories,
+  activeFilters,
+  onFilterChange,
 }: FilterSectionProps) {
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
+
+  const getTotalFilterCount = () => {
+    if (!activeFilters) return 0;
+    return Object.values(activeFilters).reduce((sum, filters) => sum + filters.length, 0);
+  };
+
+  const filterCount = getTotalFilterCount();
+
   return (
     <div className="mb-6 space-y-4">
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2">
-        {filters.map((filter) => {
-          const Icon = filter.icon;
-          const isActive = activeFilter === filter.id;
-          
-          return (
-            <Button
-              key={filter.id}
-              variant={isActive ? "default" : "outline"}
-              size="sm"
-              onClick={() => onFilterChange(filter.id)}
-            >
-              {Icon && <Icon className="h-3 w-3 mr-1" />}
-              {filter.label}
-            </Button>
-          );
-        })}
-      </div>
-
       {/* Results Count & Controls */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="text-sm text-muted-foreground">
-          {resultsCount} results found {activeFilterCount > 0 ? `(${activeFilterCount} active filter)` : ""}
+          {resultsCount} results found {filterCount > 0 ? `(${filterCount} active filter${filterCount > 1 ? 's' : ''})` : ""}
         </div>
         
         {sortBy && onSortChange && sortOptions && (
           <div className="flex items-center gap-4">
+            {/* Filter Button */}
+            {filterCategories && filterCategories.length > 0 && activeFilters && onFilterChange && (
+              <Button
+                variant={filterCount > 0 ? "default" : "outline"}
+                size="sm"
+                className="gap-2"
+                onClick={() => setFilterModalOpen(true)}
+              >
+                <Filter className="h-4 w-4" />
+                Filter
+                {filterCount > 0 && ` (${filterCount})`}
+              </Button>
+            )}
+
+            {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Sort by:</span>
               <Select value={sortBy} onValueChange={onSortChange}>
@@ -82,16 +81,22 @@ export const FilterSection = memo(function FilterSection({
                 </SelectContent>
               </Select>
             </div>
-
-            {activeFilterCount > 0 && (
-              <Button variant="outline" size="sm" className="gap-2">
-                <Filter className="h-4 w-4" />
-                Filter {activeFilterCount}
-              </Button>
-            )}
           </div>
         )}
       </div>
+
+      {/* Filter Modal */}
+      {filterCategories && filterCategories.length > 0 && activeFilters && onFilterChange && (
+        <AdvancedFilterModal
+          isOpen={filterModalOpen}
+          onClose={() => setFilterModalOpen(false)}
+          categories={filterCategories}
+          activeFilters={activeFilters}
+          onFilterChange={onFilterChange}
+          onApply={() => setFilterModalOpen(false)}
+          onClear={() => {}}
+        />
+      )}
     </div>
   );
 });

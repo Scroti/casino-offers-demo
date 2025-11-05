@@ -16,11 +16,16 @@ export class BonusesService {
   }
 
   async findAll(): Promise<Bonus[]> {
-    return this.bonusModel.find().sort({ createdAt: -1 }).lean();
+    return this.bonusModel.find().populate('casino').sort({ createdAt: -1 }).lean();
+  }
+
+  async findByCasino(casinoId: string): Promise<Bonus[]> {
+    return this.bonusModel.find({ casino: casinoId }).populate('casino').sort({ createdAt: -1 }).lean();
   }
 
   async findOne(id: string): Promise<Bonus> {
-    const bonus = await this.bonusModel.findById(id).lean();
+    // Note: ObjectId validation is done in the controller to prevent route conflicts
+    const bonus = await this.bonusModel.findById(id).populate('casino').lean();
     if (!bonus) throw new NotFoundException('Bonus not found');
     return bonus;
   }

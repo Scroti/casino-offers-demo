@@ -1,0 +1,27 @@
+// Common game types/categories
+export const COMMON_GAME_TYPES = [
+  'Slots',
+  'Roulette',
+  'Blackjack',
+  'Baccarat',
+  'Poker',
+  'Video Poker',
+  'Bingo',
+  'Live Games',
+  'Live Casino',
+  'Live Roulette',
+  'Live Blackjack',
+  'Live Baccarat',
+  'Live Poker',
+  'No Betting',
+  'Scratch Cards',
+  'Crash Games',
+  'Jackpot Games',
+  'Keno',
+  'Craps and Dice',
+  'Virtual Sports',
+  'Sports Betting',
+  'Live Betting',
+  'Virtual Sports Betting',
+];
+

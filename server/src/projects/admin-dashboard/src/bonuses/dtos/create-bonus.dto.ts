@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, ValidateNested, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsNumber, ValidateNested, IsBoolean, IsArray, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class BonusAccordionContentDto {
@@ -46,6 +46,11 @@ export class BonusDescriptionDto {
 }
 
 export class CreateBonusDto {
+  // Reference to Casino
+  @IsOptional()
+  @IsMongoId()
+  casino?: string;
+
   @IsString()
   title: string;
 

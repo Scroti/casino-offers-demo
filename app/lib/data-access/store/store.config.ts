@@ -6,6 +6,8 @@ import { bonusesApi } from "../configs/bonuses.config";
 import { casinosApi } from "../configs/casinos.config";
 import { usersApi } from "../configs/users.config";
 import { campaignsApi } from "../configs/campaigns.config";
+import { contactApi } from "../configs/contact.config";
+import { contactManagementApi } from "../configs/contact-management.config";
   export const store = configureStore({
     reducer: {
       auth: authReducer,
@@ -14,10 +16,21 @@ import { campaignsApi } from "../configs/campaigns.config";
       [bonusesApi.reducerPath]:bonusesApi.reducer,
       [casinosApi.reducerPath]:casinosApi.reducer,
       [usersApi.reducerPath]:usersApi.reducer,
-      [campaignsApi.reducerPath]:campaignsApi.reducer
+      [campaignsApi.reducerPath]:campaignsApi.reducer,
+      [contactApi.reducerPath]: contactApi.reducer,
+      [contactManagementApi.reducerPath]: contactManagementApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(newsletterApi.middleware, authApi.middleware,bonusesApi.middleware,casinosApi.middleware,usersApi.middleware,campaignsApi.middleware),
+      getDefaultMiddleware().concat(
+        newsletterApi.middleware,
+        authApi.middleware,
+        bonusesApi.middleware,
+        casinosApi.middleware,
+        usersApi.middleware,
+        campaignsApi.middleware,
+        contactApi.middleware,
+        contactManagementApi.middleware
+      ),
   });
 
   export type RootState = ReturnType<typeof store.getState>;

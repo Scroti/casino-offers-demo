@@ -67,6 +67,14 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   language?: string;
+
+  @IsOptional()
+  @IsEnum(['male', 'female', 'prefer-not-to-say'])
+  gender?: 'male' | 'female' | 'prefer-not-to-say';
+
+  @IsOptional()
+  @IsEnum(['18-24', '25-34', '35-44', '45-54', '55-64', '65+', 'prefer-not-to-say'])
+  ageRange?: '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+' | 'prefer-not-to-say';
 }
 
 export class ChangeUserStatusDto {

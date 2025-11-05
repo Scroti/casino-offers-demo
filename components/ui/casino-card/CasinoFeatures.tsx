@@ -14,21 +14,24 @@ interface CasinoFeaturesProps {
 export const CasinoFeatures = memo(function CasinoFeatures({ features }: CasinoFeaturesProps) {
   if (!features || features.length === 0) return null;
 
+  // Show at least 3 features, or all if there are 3 or fewer
+  const displayFeatures = features.length <= 3 ? features : features.slice(0, 3);
+
   return (
     <div className="space-y-0.5 mt-1.5">
-      {features.slice(0, 3).map((feature, idx) => (
+      {displayFeatures.map((feature, idx) => (
         <div key={idx} className="flex items-start gap-2 text-[10px] sm:text-xs">
           {feature.type === 'positive' && (
-            <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+            <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
           )}
           {feature.type === 'negative' && (
-            <XCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+            <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive mt-0.5 flex-shrink-0" />
           )}
           {feature.type === 'neutral' && (
-            <MinusCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <MinusCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
           )}
           <span className={cn(
-            "leading-tight",
+            "leading-tight text-[10px] sm:text-xs",
             feature.type === 'negative' && 'text-destructive'
           )}>
             {feature.text}

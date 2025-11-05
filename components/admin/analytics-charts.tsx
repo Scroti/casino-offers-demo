@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,63 +10,25 @@ import {
   BarChart3,
   PieChart,
   Calendar,
-  Download
+  Download,
+  Star
 } from 'lucide-react';
-
-// Mock chart data
-const monthlyStats = [
-  { month: 'Jan', users: 1200, revenue: 4500, bonuses: 12 },
-  { month: 'Feb', users: 1350, revenue: 5200, bonuses: 15 },
-  { month: 'Mar', users: 1480, revenue: 6100, bonuses: 18 },
-  { month: 'Apr', users: 1620, revenue: 7200, bonuses: 22 },
-  { month: 'May', users: 1750, revenue: 8400, bonuses: 25 },
-  { month: 'Jun', users: 1890, revenue: 9200, bonuses: 28 },
-];
-
-const bonusCategories = [
-  { name: 'No Deposit', value: 35, color: 'bg-blue-500' },
-  { name: 'Welcome Bonus', value: 28, color: 'bg-green-500' },
-  { name: 'Reload Bonus', value: 20, color: 'bg-yellow-500' },
-  { name: 'Cashback', value: 17, color: 'bg-purple-500' },
-];
-
-const topCasinos = [
-  { name: 'Casino Royal', rating: 4.8, bonuses: 12, revenue: 2400 },
-  { name: 'Lucky Casino', rating: 4.7, bonuses: 10, revenue: 2100 },
-  { name: 'Mega Casino', rating: 4.6, bonuses: 8, revenue: 1800 },
-  { name: 'Golden Palace', rating: 4.5, bonuses: 6, revenue: 1500 },
-  { name: 'Diamond Casino', rating: 4.4, bonuses: 5, revenue: 1200 },
-];
-
-function SimpleBarChart({ data, dataKey, color = 'bg-blue-500' }: { 
-  data: any[], 
-  dataKey: string, 
-  color?: string 
-}) {
-  const maxValue = Math.max(...data.map(d => d[dataKey]));
-  
-  return (
-    <div className="flex items-end space-x-2 h-32">
-      {data.map((item, index) => (
-        <div key={index} className="flex flex-col items-center flex-1">
-          <div 
-            className={`w-full ${color} rounded-t`}
-            style={{ 
-              height: `${(item[dataKey] / maxValue) * 100}%`,
-              minHeight: '4px'
-            }}
-          />
-          <span className="text-xs text-muted-foreground mt-2">
-            {item.month}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { useGetAllCasinosQuery } from '@/app/lib/data-access/configs/casinos.config';
+import { useGetAllBonusesQuery } from '@/app/lib/data-access/configs/bonuses.config';
+import { useGetAllUsersQuery } from '@/app/lib/data-access/configs/users.config';
+import Link from 'next/link';
+import Image from 'next/image';
 
 function SimplePieChart({ data }: { data: { name: string, value: number, color: string }[] }) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
+  
+  if (total === 0) {
+    return (
+      <div className="text-sm text-muted-foreground text-center py-8">
+        No bonus data available
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-3">
@@ -76,7 +38,7 @@ function SimplePieChart({ data }: { data: { name: string, value: number, color: 
             <div className={`w-3 h-3 rounded-full ${item.color}`} />
             <span className="text-sm">{item.name}</span>
           </div>
-          <div className="text-sm font-medium">{item.value}%</div>
+          <div className="text-sm font-medium">{Math.round((item.value / total) * 100)}%</div>
         </div>
       ))}
     </div>
@@ -84,49 +46,135 @@ function SimplePieChart({ data }: { data: { name: string, value: number, color: 
 }
 
 export const AnalyticsCharts = memo(function AnalyticsCharts() {
+  const { data: casinos = [], isLoading: casinosLoading } = useGetAllCasinosQuery();
+  const { data: bonuses = [], isLoading: bonusesLoading } = useGetAllBonusesQuery();
+  const { data: users = [], isLoading: usersLoading } = useGetAllUsersQuery();
+
+  // Calculate bonus categories distribution
+  const bonusCategories = useMemo(() => {
+    const categories: Record<string, number> = {};
+    
+    bonuses.forEach(bonus => {
+      const type = bonus.bonusType || 'Other';
+      categories[type] = (categories[type] || 0) + 1;
+    });
+
+    const colors = {
+      'No Deposit': 'bg-blue-500',
+      'Welcome Bonus': 'bg-green-500',
+      'Reload Bonus': 'bg-yellow-500',
+      'Cashback': 'bg-purple-500',
+      'Other': 'bg-gray-500',
+    };
+
+    return Object.entries(categories).map(([name, value]) => ({
+      name,
+      value,
+      color: colors[name as keyof typeof colors] || 'bg-gray-500',
+    }));
+  }, [bonuses]);
+
+  // Get top casinos by safety index/rating
+  const topCasinos = useMemo(() => {
+    return [...casinos]
+      .filter(c => c.safetyIndex !== undefined && c.safetyIndex > 0)
+      .sort((a, b) => (b.safetyIndex || 0) - (a.safetyIndex || 0))
+      .slice(0, 5)
+      .map((casino, index) => {
+        // Count bonuses for this casino
+        const bonusCount = bonuses.filter(b => {
+          if (typeof b.casino === 'object' && b.casino !== null) {
+            return (b.casino as any)._id === casino._id;
+          }
+          return b.casino === casino._id;
+        }).length;
+
+        return {
+          ...casino,
+          index: index + 1,
+          bonusCount,
+        };
+      });
+  }, [casinos, bonuses]);
+
+  // Calculate user growth by month
+  const userGrowthByMonth = useMemo(() => {
+    const months: Record<string, number> = {};
+    
+    users.forEach(user => {
+      if (user.createdAt) {
+        const date = new Date(user.createdAt);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        months[monthKey] = (months[monthKey] || 0) + 1;
+      }
+    });
+
+    // Get last 6 months
+    const last6Months: Array<{ month: string; users: number }> = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+      last6Months.push({
+        month: monthName,
+        users: months[monthKey] || 0,
+      });
+    }
+
+    return last6Months;
+  }, [users]);
+
+  const isLoading = casinosLoading || bonusesLoading || usersLoading;
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      {/* Revenue Chart */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Monthly Revenue</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-green-600 dark:text-green-400">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              +12.5%
-            </Badge>
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <SimpleBarChart data={monthlyStats} dataKey="revenue" color="bg-green-500" />
-          <div className="mt-4 text-sm text-muted-foreground">
-            Total: ${monthlyStats[monthlyStats.length - 1].revenue.toLocaleString()}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* User Growth Chart */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>User Growth</CardTitle>
+          <CardTitle>User Growth (Last 6 Months)</CardTitle>
           <div className="flex items-center space-x-2">
             <Badge variant="outline" className="text-blue-600 dark:text-blue-400">
               <TrendingUp className="w-3 h-3 mr-1" />
-              +8.2%
+              {userGrowthByMonth.length > 0 && userGrowthByMonth[userGrowthByMonth.length - 1].users > 0 ? '+' : ''}
+              {userGrowthByMonth.length > 0 ? userGrowthByMonth[userGrowthByMonth.length - 1].users : 0}
             </Badge>
-            <Button variant="outline" size="sm">
-              <Calendar className="h-4 w-4" />
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <SimpleBarChart data={monthlyStats} dataKey="users" color="bg-blue-500" />
-          <div className="mt-4 text-sm text-muted-foreground">
-            Total: {monthlyStats[monthlyStats.length - 1].users.toLocaleString()} users
-          </div>
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
+          ) : userGrowthByMonth.length > 0 ? (
+            <>
+              <div className="flex items-end space-x-2 h-32">
+                {userGrowthByMonth.map((item, index) => {
+                  const maxValue = Math.max(...userGrowthByMonth.map(d => d.users), 1);
+                  return (
+                    <div key={index} className="flex flex-col items-center flex-1">
+                      <div 
+                        className="w-full bg-blue-500 rounded-t"
+                        style={{ 
+                          height: `${(item.users / maxValue) * 100}%`,
+                          minHeight: '4px'
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground mt-2">
+                        {item.month}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 text-sm text-muted-foreground">
+                Total: {userGrowthByMonth.reduce((sum, m) => sum + m.users, 0).toLocaleString()} users
+              </div>
+            </>
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No user data available
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -136,38 +184,74 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
           <CardTitle>Bonus Categories</CardTitle>
         </CardHeader>
         <CardContent>
-          <SimplePieChart data={bonusCategories} />
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
+          ) : (
+            <SimplePieChart data={bonusCategories} />
+          )}
         </CardContent>
       </Card>
 
-      {/* Top Performing Casinos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Performing Casinos</CardTitle>
+      {/* Top Performing Casinos by Safety Index */}
+      <Card className="md:col-span-2">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500" />
+            Top Performing Casinos (by Safety Index)
+          </CardTitle>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/casinos-management">
+              View All
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {topCasinos.map((casino, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <div className="font-medium">{casino.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {casino.bonuses} bonuses • ${casino.revenue} revenue
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
+          ) : topCasinos.length > 0 ? (
+            <div className="space-y-4">
+              {topCasinos.map((casino) => (
+                <div key={casino._id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center space-x-4 flex-1">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                      {casino.index}
+                    </div>
+                    {casino.logo && (
+                      <div className="relative w-12 h-12 flex-shrink-0">
+                        <Image
+                          src={casino.logo}
+                          alt={casino.name}
+                          fill
+                          className="object-contain rounded"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium">{casino.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {casino.bonusCount} {casino.bonusCount === 1 ? 'bonus' : 'bonuses'}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge variant="outline" className="text-lg px-3 py-1">
+                      <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                      {casino.safetyIndex?.toFixed(1)}/10
+                    </Badge>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/admin/casinos-management`}>
+                        View
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline">
-                    ⭐ {casino.rating}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No casinos with safety index data available
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

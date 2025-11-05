@@ -4,7 +4,6 @@ import { useState, useMemo, memo } from "react";
 import { CasinoBonusCard } from "@/components/ui/casino-bonus-card";
 import { useGetAllBonusesQuery } from "@/app/lib/data-access/configs/bonuses.config";
 import type { Bonus } from "@/app/lib/data-access/models/bonus.model";
-import { CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterSection } from "@/components/shared/FilterSection";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +12,14 @@ import { useI18n } from "@/context/i18n.context";
 import { useEmailCampaign } from "@/hooks/use-email-campaign";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { 
+  getBonusFilterCategories, 
+  applyBonusFilters,
+  type AdvancedFilterState 
+} from "@/lib/utils/filter-categories";
+import { useCountryDetection } from "@/hooks/use-country-detection";
+import { getCachedCountries } from "@/lib/services/countries-api";
+import { useEffect } from "react";
 
 const extractCasinoName = (title: string) => {
   const parts = title.split("-");
@@ -30,35 +37,171 @@ function BonusesPage() {
   const { user, accessToken, hydrated } = useAuth();
   const { t } = useI18n();
   const { isFromCampaign } = useEmailCampaign();
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const { userCountry, isDetecting } = useCountryDetection();
   const [sortBy, setSortBy] = useState("recommended");
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilterState>({});
+  const [countryNameMap, setCountryNameMap] = useState<Record<string, string>>({});
   
   const isLoggedIn = hydrated && (accessToken || user);
   // Allow access if logged in OR from valid campaign
   const canAccessBonuses = isLoggedIn || isFromCampaign;
 
-  const filteredByType = useMemo(() => {
-    if (selectedFilter === "all" || selectedFilter === "recommended" || selectedFilter === "latest") {
-      return bonuses;
-    }
-    if (selectedFilter === "no-deposit" || selectedFilter === "deposit" || selectedFilter === "cashback") {
-      return bonuses.filter((b) => b.type === selectedFilter);
-    }
-    if (selectedFilter === "exclusive") {
-      return bonuses.filter((b) => b.isExclusive);
-    }
-    return bonuses;
-  }, [bonuses, selectedFilter]);
+  // Load country name mapping
+  useEffect(() => {
+    const loadCountryNames = async () => {
+      try {
+        const countries = await getCachedCountries();
+        const map: Record<string, string> = {};
+        countries.forEach(c => {
+          map[c.code] = c.name;
+        });
+        setCountryNameMap(map);
+      } catch (error) {
+        console.error('Failed to load country names:', error);
+      }
+    };
+    loadCountryNames();
+  }, []);
 
-  const filters = useMemo(() => [
-    { id: "all", label: `All (${bonuses.length})`, icon: null },
-    { id: "deposit", label: "Deposit", icon: null },
-    { id: "no-deposit", label: "No deposit", icon: null },
-    { id: "cashback", label: "Cashback", icon: null },
-    { id: "recommended", label: "Recommended", icon: CheckCircle2 },
-    { id: "latest", label: "Latest", icon: null },
-    { id: "exclusive", label: "Exclusive", icon: null },
-  ], [bonuses.length]);
+  // Get filter categories
+  const filterCategories = useMemo(() => {
+    return getBonusFilterCategories(bonuses);
+  }, [bonuses]);
+
+  // Helper function to check if bonus's casino is available in user's country
+  // If a bonus is assigned to a casino that is available in a country, the bonus is also available
+  const isBonusAvailableInCountry = (bonus: Bonus): boolean => {
+    if (!userCountry) return true; // If no country detected, show all bonuses
+    
+    // If bonus has no casino reference, show it (can't determine availability, so show to be safe)
+    if (!bonus.casino) return true;
+    
+    // If casino is populated (object), check its availability
+    if (typeof bonus.casino === 'object' && bonus.casino !== null) {
+      const casino = bonus.casino as any;
+      const availableCountries: string[] = Array.isArray(casino.availableCountries) ? casino.availableCountries : [];
+      const restrictedCountries: string[] = Array.isArray(casino.restrictedCountries) ? casino.restrictedCountries : [];
+      
+      // Normalize user's country for matching
+      const normalizedUserCountry = userCountry.toLowerCase().trim();
+      const normalizedCountryName = countryNameMap[userCountry]?.toLowerCase().trim() || '';
+      
+      // Check if user's country is restricted
+      if (restrictedCountries.length > 0) {
+        const isRestricted = restrictedCountries.some((country: string) => {
+          if (!country) return false;
+          const normalizedCountry = country.toLowerCase().trim();
+          
+          // Match by exact code, name, or partial match
+          return normalizedCountry === normalizedUserCountry || 
+                 normalizedCountry === normalizedCountryName ||
+                 (normalizedCountryName && normalizedCountry === normalizedCountryName) ||
+                 normalizedCountry.includes(normalizedUserCountry) ||
+                 normalizedUserCountry.includes(normalizedCountry) ||
+                 (normalizedCountryName && (normalizedCountry.includes(normalizedCountryName) || normalizedCountryName.includes(normalizedCountry)));
+        });
+        
+        if (isRestricted) return false;
+      }
+      
+      // If no available countries specified, assume it's available (unless restricted)
+      if (availableCountries.length === 0) return true;
+      
+      // Check if user's country is in available countries
+      return availableCountries.some((country: string) => {
+        if (!country) return false;
+        const normalizedCountry = country.toLowerCase().trim();
+        
+        // Match by exact code, name, or partial match
+        return normalizedCountry === normalizedUserCountry || 
+               normalizedCountry === normalizedCountryName ||
+               (normalizedCountryName && normalizedCountry === normalizedCountryName) ||
+               normalizedCountry.includes(normalizedUserCountry) ||
+               normalizedUserCountry.includes(normalizedCountry) ||
+               (normalizedCountryName && (normalizedCountry.includes(normalizedCountryName) || normalizedCountryName.includes(normalizedCountry)));
+      });
+    }
+    
+    // If casino is just an ID (string), show it (can't determine availability without casino data)
+    // This shouldn't happen if backend populates correctly, but show it to be safe
+    return true;
+  };
+
+  const filteredByType = useMemo(() => {
+    let filtered = bonuses;
+
+    // For logged-in users, filter by country automatically
+    if (isLoggedIn && userCountry && !isDetecting) {
+      filtered = filtered.filter((bonus) => isBonusAvailableInCountry(bonus));
+    }
+
+    // Apply advanced filters
+    const hasAdvancedFilters = Object.values(advancedFilters).some(filters => filters.length > 0);
+    if (hasAdvancedFilters) {
+      filtered = applyBonusFilters(filtered, advancedFilters);
+    }
+
+    return filtered;
+  }, [bonuses, advancedFilters, isLoggedIn, userCountry, isDetecting, countryNameMap]);
+
+  const sortedBonuses = useMemo(() => {
+    const sorted = [...filteredByType];
+    
+    // Helper function to extract numeric value from price or bonusValue
+    const extractNumericValue = (bonus: Bonus): number => {
+      // Try to extract from bonusValue first
+      if (bonus.bonusValue?.value) {
+        const match = bonus.bonusValue.value.match(/(\d+(?:\.\d+)?)/);
+        if (match) return parseFloat(match[1]);
+      }
+      // Fallback to price
+      if (bonus.price) {
+        const match = bonus.price.match(/(\d+(?:\.\d+)?)/);
+        if (match) return parseFloat(match[1]);
+      }
+      return 0;
+    };
+    
+    switch (sortBy) {
+      case "recommended":
+        return sorted.sort((a, b) => {
+          // Sort by rating (high to low), then by safety index, then by name
+          const ratingDiff = (b.rating || 0) - (a.rating || 0);
+          if (ratingDiff !== 0) return ratingDiff;
+          const safetyDiff = (b.safetyIndex || 0) - (a.safetyIndex || 0);
+          if (safetyDiff !== 0) return safetyDiff;
+          return a.title.localeCompare(b.title);
+        });
+      case "highest":
+        return sorted.sort((a, b) => {
+          const valueA = extractNumericValue(a);
+          const valueB = extractNumericValue(b);
+          if (valueB !== valueA) return valueB - valueA;
+          return a.title.localeCompare(b.title);
+        });
+      case "lowest":
+        return sorted.sort((a, b) => {
+          const valueA = extractNumericValue(a);
+          const valueB = extractNumericValue(b);
+          if (valueA !== valueB) return valueA - valueB;
+          return a.title.localeCompare(b.title);
+        });
+      case "newest":
+        return sorted.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+      case "oldest":
+        return sorted.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateA - dateB;
+        });
+      default:
+        return sorted;
+    }
+  }, [filteredByType, sortBy]);
 
   const sortOptions = [
     { value: "recommended", label: "Recommended" },
@@ -67,8 +210,6 @@ function BonusesPage() {
     { value: "newest", label: "Newest" },
     { value: "oldest", label: "Oldest" },
   ];
-
-  const activeFilterCount = selectedFilter !== "all" ? 1 : 0;
 
   // Show login prompt if not logged in and not from campaign
   if (hydrated && !canAccessBonuses) {
@@ -99,14 +240,13 @@ function BonusesPage() {
       <PageHeader title={t('bonuses.title')} />
 
       <FilterSection
-        activeFilter={selectedFilter}
-        filters={filters}
-        onFilterChange={setSelectedFilter}
         sortBy={sortBy}
         onSortChange={setSortBy}
         sortOptions={sortOptions}
-        resultsCount={filteredByType.length}
-        activeFilterCount={activeFilterCount}
+        resultsCount={sortedBonuses.length}
+        filterCategories={filterCategories}
+        activeFilters={advancedFilters}
+        onFilterChange={setAdvancedFilters}
       />
 
       {isLoading && (
@@ -117,15 +257,15 @@ function BonusesPage() {
         </div>
       )}
 
-      {!isLoading && filteredByType.length === 0 && (
+      {!isLoading && sortedBonuses.length === 0 && (
         <div className="w-full text-center text-lg py-12 text-muted-foreground">
           {t('bonuses.noBonuses')}
         </div>
       )}
 
-      {!isLoading && canAccessBonuses && filteredByType.length > 0 && (
+      {!isLoading && canAccessBonuses && sortedBonuses.length > 0 && (
         <div className="flex flex-col gap-6">
-          {filteredByType.map((bonus: Bonus, index) => (
+          {sortedBonuses.map((bonus: Bonus, index) => (
             <CasinoBonusCard
               key={bonus._id || index}
               bonusType={extractBonusType(bonus.type)}

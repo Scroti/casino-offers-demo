@@ -3,7 +3,7 @@
 import React from "react";
 import { authApi, useLogoutMutation } from "@/app/lib/data-access/configs/auth.config";
 import { useAuth } from "@/context/auth.context";
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -95,26 +95,9 @@ export function NavUser({ user }: { user: UserProfile | null }) {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
+              <DropdownMenuItem onClick={() => router.push('/profile/edit')}>
+                <User />
+                Edit Profile
               </DropdownMenuItem>
             </DropdownMenuGroup>
 

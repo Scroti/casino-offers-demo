@@ -79,6 +79,9 @@ export class AuthService {
     const userRole = user.role; // ✅ Get user role
     const tokens = await this.getTokens(userId, userRole); // ✅ Pass role
     await this.updateRefreshTokenHash(userId, tokens.refreshToken);
+    
+    // Update last login time
+    await this.userModel.findByIdAndUpdate(userId, { lastLogin: new Date() });
 
     return tokens;
   }
@@ -91,20 +94,57 @@ export class AuthService {
     refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string } | null> {
     try {
-      const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || this.configService.get<string>('JWT_SECRET');
-      const payload = this.jwtService.verify(refreshToken, { secret: refreshSecret as any });
-      const user = await this.userModel.findById(payload.id);
-      if (!user || !user.refreshTokenHash) return null;
+      if (!refreshToken) {
+        console.error('Refresh token is missing');
+        return null;
+      }
 
+      const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || this.configService.get<string>('JWT_SECRET');
+      
+      // Verify JWT token
+      let payload: any;
+      try {
+        payload = this.jwtService.verify(refreshToken, { secret: refreshSecret as any });
+      } catch (error) {
+        console.error('JWT verification failed:', error);
+        return null;
+      }
+
+      if (!payload || !payload.id) {
+        console.error('Invalid token payload:', payload);
+        return null;
+      }
+
+      // Find user
+      const user = await this.userModel.findById(payload.id);
+      if (!user) {
+        console.error('User not found for refresh token');
+        return null;
+      }
+
+      if (!user.refreshTokenHash) {
+        console.error('User has no refresh token hash stored');
+        return null;
+      }
+
+      // Compare refresh token with stored hash
       const isValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
-      if (!isValid) return null;
+      if (!isValid) {
+        console.error('Refresh token hash comparison failed');
+        return null;
+      }
+
+      // Generate new tokens
       const userId = user._id.toString();
-      const userRole = user.role; // ✅ Get user role
-      const tokens = await this.getTokens(userId, userRole); // ✅ Pass role
+      const userRole = user.role;
+      const tokens = await this.getTokens(userId, userRole);
+      
+      // Update refresh token hash with new token
       await this.updateRefreshTokenHash(userId, tokens.refreshToken);
 
       return tokens;
-    } catch {
+    } catch (error) {
+      console.error('Error refreshing tokens:', error);
       return null;
     }
   }

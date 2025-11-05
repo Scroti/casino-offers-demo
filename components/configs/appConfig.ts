@@ -13,6 +13,9 @@ import {
   UserCog,
   SquareChartGantt,
   ChartCandlestick,
+  MessageSquare,
+  Ticket,
+  Building2,
 } from "lucide-react";
 
 export const appConfig = {
@@ -84,7 +87,7 @@ export const userAppConfig = {
   navSecondary: [
     {
       title: "Support",
-      url: "#",
+      url: "/support",
       icon: LifeBuoy,
     },
     {
@@ -125,23 +128,19 @@ export const adminAppConfig = {
       icon: Gift,
     },
     {
-      title: "Content Management",
-      url: '#',
+      title: "Bonuses Management",
+      url: '/admin/bonuses-management',
       icon: SquareChartGantt,
-      items: [
-        {
-          title: "Bonuses Management",
-          url: "/admin/bonuses-management",
-        },
-        {
-          title: "Casinos Management",
-          url: "/admin/casinos-management",
-        },
-        {
-          title: "TBD",
-          url: "#",
-        },
-      ],
+    },
+    {
+      title: "Casinos Management",
+      url: '/admin/casinos-management',
+      icon: Building2,
+    },
+    {
+      title: "Ticket Management",
+      url: "/admin/contact-management",
+      icon: Ticket,
     },
     {
       title: "Analytics and Reports",
@@ -149,23 +148,7 @@ export const adminAppConfig = {
       icon: ChartCandlestick,
     },
   ],
-  projects: [
-    {
-      name: "Complaints",
-      url: "#",
-      icon: Gavel,
-    },
-    {
-      name: "Reviews",
-      url: "#",
-      icon: Star,
-    },
-    {
-      name: "News",
-      url: "#",
-      icon: Newspaper,
-    },
-  ],
+  
   navSecondary: [
     {
       title: "User Logs",

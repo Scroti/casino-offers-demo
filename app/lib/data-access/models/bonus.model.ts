@@ -1,5 +1,8 @@
+import type { Casino } from './casino.model';
+
 export interface Bonus {
   _id: string;
+  casino?: string | Casino; // Reference to Casino (can be ObjectId or populated Casino object)
   title: string;
   description?: { title?: string; subtitle?: string; content?: string };
   price: string;

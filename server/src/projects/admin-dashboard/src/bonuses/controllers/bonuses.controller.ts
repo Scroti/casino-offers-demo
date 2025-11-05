@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException } from '@nestjs/common';
 import { JwtAuthGuard, RolesGuard, Roles, Role } from '@offers/auth';
 import { BonusesService } from '../services/bonuses.service';
 import { CreateBonusDto } from '../dtos/create-bonus.dto';
@@ -20,8 +20,18 @@ export class BonusesController {
     return this.bonusesService.findAll();
   }
 
+  @Get('casino/:casinoId')
+  findByCasino(@Param('casinoId') casinoId: string) {
+    return this.bonusesService.findByCasino(casinoId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
+    // Validate that id is a valid ObjectId format (24 hex characters)
+    // This prevents route conflicts where "casino" could be mistaken for an ID
+    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
+      throw new NotFoundException('Invalid bonus ID format');
+    }
     return this.bonusesService.findOne(id);
   }
 

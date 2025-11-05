@@ -383,11 +383,11 @@ export default function UserManagementTable() {
               
               {/* Role Actions */}
               <DropdownMenuItem
-                onClick={() => handleRoleChange(user._id, 'moderator')}
-                disabled={user.role === 'moderator'}
+                onClick={() => handleRoleChange(user._id, 'admin')}
+                disabled={user.role === 'admin'}
               >
                 <Shield className="mr-2 h-4 w-4" />
-                Make Moderator
+                Make Admin
               </DropdownMenuItem>
               
               <DropdownMenuItem

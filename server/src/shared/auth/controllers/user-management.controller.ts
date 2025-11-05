@@ -99,9 +99,9 @@ export class UserManagementController {
       throw new ForbiddenException('Insufficient permissions');
     }
 
-    // Non-admin users can only update their own name and profile image
+    // Non-admin users can only update their own profile fields (name, profile image, gender, age range)
     if (user.role !== 'admin' && user.id === id) {
-      const allowedFields = ['name', 'profileImageUrl'];
+      const allowedFields = ['name', 'profileImageUrl', 'gender', 'ageRange'];
       const filteredDto = Object.keys(updateUserDto)
         .filter(key => allowedFields.includes(key))
         .reduce((obj, key) => {
@@ -177,9 +177,9 @@ export class UserManagementController {
     @Body() sendEmailDto: SendEmailDto,
     @Req() req: Request,
   ) {
-    // Check if user has admin or moderator role
+    // Check if user has admin role
     const user = req.user as any;
-    if (!['admin', 'moderator'].includes(user.role)) {
+    if (user.role !== 'admin') {
       throw new ForbiddenException('Insufficient permissions');
     }
 

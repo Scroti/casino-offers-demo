@@ -29,33 +29,36 @@ export const CasinoCard = memo(function CasinoCard({
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   return (
-    <div className="w-full flex flex-col sm:flex-row border border-border rounded-none overflow-hidden bg-background shadow-sm pb-4">
+    <div className="w-full flex flex-col sm:flex-row border border-border rounded-lg overflow-hidden bg-background shadow-sm pb-4">
       {/* Left Section - Logo/Image Full Cover */}
-      <div className="relative w-full sm:w-[35%] h-48 sm:h-auto sm:self-stretch overflow-hidden rounded-none">
+      <div className="relative w-full sm:w-[35%] h-48 sm:h-auto sm:self-stretch overflow-hidden rounded-t-lg sm:rounded-t-none sm:rounded-l-lg sm:rounded-r-none rounded-b-lg sm:rounded-b-none">
         <CasinoLogo logo={casino.logo} image={casino.image} name={casino.name} />
         
         {/* Apple-style Liquid Glass Overlay with Safety Index - Bottom of Image */}
         {casino.safetyIndex && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none rounded-none">
-            {/* Glass blur backdrop with gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/80 to-background/50 backdrop-blur-xl backdrop-saturate-150 rounded-none" />
-            {/* Border with glow effect */}
-            <div className="absolute inset-0 border-t border-white/30 shadow-[0_-2px_12px_rgba(0,0,0,0.15)] rounded-none" />
+          <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none rounded-b-lg sm:rounded-bl-lg sm:rounded-br-none overflow-hidden">
+            {/* Liquid glass backdrop with enhanced blur */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/70 to-black/50 backdrop-blur-2xl backdrop-saturate-150 rounded-b-lg sm:rounded-bl-lg sm:rounded-br-none shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_-4px_24px_rgba(0,0,0,0.4)]" />
+            {/* Top border glow */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent shadow-[0_1px_2px_rgba(255,255,255,0.1)]" />
+            {/* Subtle reflection */}
+            <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent opacity-30 rounded-b-lg sm:rounded-bl-lg sm:rounded-br-none" />
             {/* Content */}
-            <div className="relative flex items-center justify-between px-4 py-3 pointer-events-auto rounded-none">
+            <div className="relative flex items-center justify-between px-4 py-3 pointer-events-auto">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-foreground/95 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-white/90 uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                   Safety Index
                 </span>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-xl font-bold text-foreground">
+                  <span className="text-xl font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                     {casino.safetyIndex.toFixed(1)}
                   </span>
-                  <span className="text-xs text-foreground/70">/10</span>
+                  <span className="text-xs text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">/10</span>
                 </div>
               </div>
-              <Badge className="bg-primary/95 backdrop-blur-sm text-primary-foreground px-3 py-1 text-xs font-semibold shadow-lg border border-primary/30 rounded-none">
-                HIGH
+              <Badge className="bg-red-600/95 backdrop-blur-sm text-white px-3 py-1.5 text-xs font-semibold shadow-[0_2px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] border border-red-500/40 rounded-md relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-40" />
+                <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">HIGH</span>
               </Badge>
             </div>
           </div>
@@ -74,7 +77,7 @@ export const CasinoCard = memo(function CasinoCard({
               </h3>
 
               {/* Features */}
-             {!isMobile ? <CasinoFeatures features={casino.features} /> : null}
+             {isMobile? null : <CasinoFeatures features={casino.features} />}
             </div>
 
             {/* Bonus and Action Buttons */}
@@ -105,44 +108,15 @@ export const CasinoCard = memo(function CasinoCard({
                 )}
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 mt-3 pt-4 border-t">
-                {/* Key Benefits - Only in Mobile Dropdown */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                    Key Benefits:
-                  </h4>
-                  <div className="space-y-2.5">
-                    <div className="flex items-start gap-2.5">
-                      <div className="h-5 w-5 rounded-full bg-destructive flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg className="h-3 w-3 text-destructive-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-foreground leading-relaxed">
-                        Large selection of slot games from top providers
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <div className="h-5 w-5 rounded-full bg-destructive flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg className="h-3 w-3 text-destructive-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-foreground leading-relaxed">
-                        Fast withdrawal processing (24 hours)
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <div className="h-5 w-5 rounded-full bg-destructive flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg className="h-3 w-3 text-destructive-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-foreground leading-relaxed">
-                        24/7 customer support
-                      </span>
-                    </div>
+                {/* Features - Show on Mobile */}
+                {casino.features && casino.features.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                      Features:
+                    </h4>
+                    <CasinoFeatures features={casino.features} />
                   </div>
-                </div>
+                )}
                 <LanguageOptions 
                   websiteLanguages={casino.websiteLanguages}
                   liveChatLanguages={casino.liveChatLanguages}

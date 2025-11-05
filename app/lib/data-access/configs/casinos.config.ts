@@ -1,12 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { Casino } from '../models/casino.model';
-import { mockCasinos } from './casinos.mock';
 import { ENV } from '@/lib/constants/env';
-
-// Helper to determine if we should use mock data
-const shouldUseMock = () => {
-  return ENV.USE_MOCK_CASINOS;
-};
 
 export const casinosApi = createApi({
   reducerPath: 'casinosApi',
@@ -25,87 +19,48 @@ export const casinosApi = createApi({
   endpoints: (builder) => ({
     // LIST all casinos
     getAllCasinos: builder.query<Casino[], void>({
-      queryFn: async () => {
-        // Use mock data if configured or if API is unavailable
-        if (shouldUseMock()) {
-          // Simulate network delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-          return { data: mockCasinos };
-        }
-        
-        // Try to fetch from API
-        try {
-          const response = await fetch(
-            `${ENV.API_URL}/casinos`,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          
-          if (!response.ok) {
-            throw new Error(`API returned ${response.status}`);
-          }
-          
-          const data = await response.json();
-          return { data };
-        } catch (error) {
-          // Fallback to mock data on error
-          console.warn('Failed to fetch casinos from API, using mock data:', error);
-          await new Promise(resolve => setTimeout(resolve, 300));
-          return { data: mockCasinos };
-        }
-      },
+      query: () => 'casinos',
       providesTags: ['Casino'],
     }),
     // GET details by id
     getCasinoById: builder.query<Casino, string>({
-      queryFn: async (id) => {
-        // Use mock data if configured
-        if (shouldUseMock()) {
-          await new Promise(resolve => setTimeout(resolve, 300));
-          const casino = mockCasinos.find(c => c._id === id);
-          if (!casino) {
-            return { error: { status: 404, data: 'Casino not found' } };
-          }
-          return { data: casino };
-        }
-        
-        // Try to fetch from API
-        try {
-          const response = await fetch(
-            `${ENV.API_URL}/casinos/${id}`,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          
-          if (!response.ok) {
-            throw new Error(`API returned ${response.status}`);
-          }
-          
-          const data = await response.json();
-          return { data };
-        } catch (error) {
-          // Fallback to mock data on error
-          console.warn('Failed to fetch casino from API, using mock data:', error);
-          await new Promise(resolve => setTimeout(resolve, 300));
-          const casino = mockCasinos.find(c => c._id === id);
-          if (!casino) {
-            return { error: { status: 404, data: 'Casino not found' } };
-          }
-          return { data: casino };
-        }
-      },
+      query: (id) => `casinos/${id}`,
       providesTags: (result, error, id) => [{ type: 'Casino', id }],
+    }),
+    // CREATE
+    createCasino: builder.mutation<Casino, Partial<Casino>>({
+      query: (casino) => ({
+        url: 'casinos',
+        method: 'POST',
+        body: casino,
+      }),
+      invalidatesTags: ['Casino'],
+    }),
+    // UPDATE
+    updateCasino: builder.mutation<Casino, { id: string; casino: Partial<Casino> }>({
+      query: ({ id, casino }) => ({
+        url: `casinos/${id}`,
+        method: 'PATCH',
+        body: casino,
+      }),
+      invalidatesTags: ['Casino'],
+    }),
+    // DELETE
+    deleteCasino: builder.mutation<{ deleted: boolean }, string>({
+      query: (id) => ({
+        url: `casinos/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Casino'],
     }),
   }),
 });
 
-export const { useGetAllCasinosQuery, useGetCasinoByIdQuery } = casinosApi;
+export const {
+  useGetAllCasinosQuery,
+  useGetCasinoByIdQuery,
+  useCreateCasinoMutation,
+  useUpdateCasinoMutation,
+  useDeleteCasinoMutation,
+} = casinosApi;
 

@@ -232,5 +232,67 @@ export class EmailService {
         // Don't throw - allow the calling operation to complete
       });
   }
+
+  async sendCustomEmail(
+    email: string,
+    subject: string,
+    message: string,
+    userName?: string,
+  ): Promise<void> {
+    // Check if SendGrid is properly configured
+    if (!this.sendGridApiKey) {
+      console.warn('⚠️ SendGrid API key not configured.');
+      console.log(`Custom email to ${email}: ${subject} - ${message}`);
+      return;
+    }
+    
+    if (!this.fromEmail) {
+      console.warn('⚠️ EMAIL_FROM not configured.');
+      console.log(`Custom email to ${email}: ${subject} - ${message}`);
+      return;
+    }
+
+    const greeting = userName ? `Hi ${userName},` : 'Hi there,';
+    const header = `
+      <h2 style="color: #333333; font-size: 24px; font-weight: 600; margin: 0 0 20px 0;">${subject}</h2>
+      <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+        ${greeting}
+      </p>
+    `;
+
+    const content = `
+      <div style="color: #666666; font-size: 16px; line-height: 1.8; margin: 0 0 30px 0;">
+        ${message.replace(/\n/g, '<br>')}
+      </div>
+      <p style="color: #999999; font-size: 14px; line-height: 1.6; margin: 30px 0 0 0;">
+        If you have any questions, please don't hesitate to contact our support team.
+      </p>
+    `;
+
+    // Send email using SendGrid API (non-blocking with timeout protection)
+    await Promise.race([
+      sgMail.send({
+        to: email,
+        from: `${this.appName} <${this.fromEmail}>`,
+        subject: subject,
+        html: this.getEmailTemplate(header, content),
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email sending timeout after 10 seconds')), 10000)
+      ),
+    ])
+      .then(() => {
+        console.log(`✅ Custom email sent successfully to ${email}`);
+      })
+      .catch((error) => {
+        console.error('❌ Failed to send custom email:', error);
+        console.error('Error details:', {
+          code: (error as any)?.code,
+          response: (error as any)?.response?.body,
+          message: (error as any)?.message,
+        });
+        throw error; // Re-throw to let the caller handle it
+      });
+  }
 }
 

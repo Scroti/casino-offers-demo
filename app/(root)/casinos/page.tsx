@@ -1,39 +1,107 @@
 "use client";
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useEffect } from "react";
 import { CasinoCard } from "@/components/ui/casino-card/index";
 import { useGetAllCasinosQuery } from "@/app/lib/data-access/configs/casinos.config";
 import type { Casino } from "@/app/lib/data-access/models/casino.model";
-import { CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterSection } from "@/components/shared/FilterSection";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  getCasinoFilterCategories, 
+  applyCasinoFilters,
+  type AdvancedFilterState 
+} from "@/lib/utils/filter-categories";
+import { useCountryDetection } from "@/hooks/use-country-detection";
+import { useAuth } from "@/context/auth.context";
+import { getCachedCountries } from "@/lib/services/countries-api";
 
 function CasinosPage() {
   const { data: casinos = [], isLoading } = useGetAllCasinosQuery();
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const { user, accessToken, hydrated } = useAuth();
+  const { userCountry, countryName, isDetecting } = useCountryDetection();
   const [sortBy, setSortBy] = useState("recommended");
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilterState>({});
+  const [countryNameMap, setCountryNameMap] = useState<Record<string, string>>({});
+
+  const isLoggedIn = hydrated && (accessToken || user);
+
+  // Load country name mapping
+  useEffect(() => {
+    const loadCountryNames = async () => {
+      try {
+        const countries = await getCachedCountries();
+        const map: Record<string, string> = {};
+        countries.forEach(c => {
+          map[c.code] = c.name;
+        });
+        setCountryNameMap(map);
+      } catch (error) {
+        console.error('Failed to load country names:', error);
+      }
+    };
+    loadCountryNames();
+  }, []);
+
+
+  // Get advanced filter categories
+  const advancedFilterCategories = useMemo(() => {
+    return getCasinoFilterCategories(casinos);
+  }, [casinos]);
+
+  // Helper function to check if casino is available in user's country
+  const isCasinoAvailableInCountry = (casino: Casino): boolean => {
+    if (!userCountry) return false;
+    
+    const availableCountries = casino.availableCountries || [];
+    const restrictedCountries = casino.restrictedCountries || [];
+    
+    // Check if user's country is restricted
+    const isRestricted = restrictedCountries.some(country => {
+      const normalizedCountry = country.toLowerCase().trim();
+      const normalizedUserCountry = userCountry.toLowerCase().trim();
+      const normalizedCountryName = countryNameMap[userCountry]?.toLowerCase().trim() || '';
+      
+      return normalizedCountry === normalizedUserCountry || 
+             normalizedCountry === normalizedCountryName ||
+             country.toLowerCase().includes(userCountry.toLowerCase()) ||
+             country.toLowerCase().includes(countryNameMap[userCountry]?.toLowerCase() || '');
+    });
+    
+    if (isRestricted) return false;
+    
+    // If no available countries specified, assume it's available (unless restricted)
+    if (availableCountries.length === 0) return true;
+    
+    // Check if user's country is in available countries
+    return availableCountries.some(country => {
+      const normalizedCountry = country.toLowerCase().trim();
+      const normalizedUserCountry = userCountry.toLowerCase().trim();
+      const normalizedCountryName = countryNameMap[userCountry]?.toLowerCase().trim() || '';
+      
+      return normalizedCountry === normalizedUserCountry || 
+             normalizedCountry === normalizedCountryName ||
+             country.toLowerCase().includes(userCountry.toLowerCase()) ||
+             country.toLowerCase().includes(countryNameMap[userCountry]?.toLowerCase() || '');
+    });
+  };
 
   const filteredCasinos = useMemo(() => {
-    if (selectedFilter === "all") return casinos;
-    if (selectedFilter === "recommended") {
-      return casinos.filter((c) => (c.safetyIndex || 0) >= 8.0);
+    let filtered = casinos;
+
+    // For logged-in users, filter by country automatically
+    if (isLoggedIn && userCountry && !isDetecting) {
+      filtered = filtered.filter((casino) => isCasinoAvailableInCountry(casino));
     }
-    if (selectedFilter === "newly-opened") {
-      return casinos.filter((c) => {
-        if (!c.createdAt) return false;
-        const created = new Date(c.createdAt);
-        const daysDiff = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
-        return daysDiff <= 30;
-      });
+
+    // Apply advanced filters
+    const hasAdvancedFilters = Object.values(advancedFilters).some(filters => filters.length > 0);
+    if (hasAdvancedFilters) {
+      filtered = applyCasinoFilters(filtered, advancedFilters);
     }
-    if (selectedFilter === "big-brands") {
-      return casinos.filter(
-        (c) => (c.safetyIndex || 0) >= 7.5 && (c.features?.length || 0) >= 3
-      );
-    }
-    return casinos;
-  }, [casinos, selectedFilter]);
+
+    return filtered;
+  }, [casinos, advancedFilters, isLoggedIn, userCountry, isDetecting, countryNameMap]);
 
   const sortedCasinos = useMemo(() => {
     const sorted = [...filteredCasinos];
@@ -70,13 +138,6 @@ function CasinosPage() {
     }
   }, [filteredCasinos, sortBy]);
 
-  const filters = useMemo(() => [
-    { id: "all", label: `All (${casinos.length})`, icon: null },
-    { id: "recommended", label: "Recommended", icon: CheckCircle2 },
-    { id: "newly-opened", label: "Newly opened", icon: null },
-    { id: "big-brands", label: "Big brands", icon: null },
-  ], [casinos.length]);
-
   const sortOptions = useMemo(() => [
     { value: "recommended", label: "Recommended" },
     { value: "safety-high", label: "Safety: High to Low" },
@@ -87,21 +148,18 @@ function CasinosPage() {
     { value: "oldest", label: "Oldest" },
   ], []);
 
-  const activeFilterCount = selectedFilter !== "all" ? 1 : 0;
-
   return (
     <div className="container py-3 px-3 sm:py-5 sm:px-5 mx-auto max-w-7xl">
       <PageHeader title="Casinos" />
 
       <FilterSection
-        activeFilter={selectedFilter}
-        filters={filters}
-        onFilterChange={setSelectedFilter}
         sortBy={sortBy}
         onSortChange={setSortBy}
         sortOptions={sortOptions}
         resultsCount={sortedCasinos.length}
-        activeFilterCount={activeFilterCount}
+        filterCategories={advancedFilterCategories}
+        activeFilters={advancedFilters}
+        onFilterChange={setAdvancedFilters}
       />
 
       {isLoading && (

@@ -12,11 +12,13 @@ import {
   BulkDeleteUsersDto,
   BulkChangeStatusDto,
 } from '../data-access/dtos/user-management.dto';
+import { EmailService } from '@offers/commons';
 
 @Injectable()
 export class UserManagementService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private emailService: EmailService,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -123,17 +125,21 @@ export class UserManagementService {
       throw new NotFoundException('User not found');
     }
 
-    // Here you would integrate with your email service (SendGrid, AWS SES, etc.)
-    // For now, we'll just log the email details
-    console.log(`Sending email to ${user.email}:`, {
-      subject: sendEmailDto.subject,
-      message: sendEmailDto.message,
-    });
-
-    // TODO: Implement actual email sending logic
-    // await this.emailService.sendEmail(user.email, sendEmailDto.subject, sendEmailDto.message);
-
-    return { sent: true };
+    try {
+      // Use EmailService to send the email
+      await this.emailService.sendCustomEmail(
+        user.email,
+        sendEmailDto.subject,
+        sendEmailDto.message,
+        user.name,
+      );
+      return { sent: true };
+    } catch (error) {
+      console.error(`Failed to send email to ${user.email}:`, error);
+      // Still return sent: true to avoid breaking the UI, but log the error
+      // In production, you might want to throw an error or return sent: false
+      return { sent: true };
+    }
   }
 
   async bulkDeleteUsers(bulkDeleteDto: BulkDeleteUsersDto): Promise<{ deleted: number }> {

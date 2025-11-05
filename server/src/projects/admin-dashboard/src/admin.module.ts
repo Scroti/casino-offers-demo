@@ -8,11 +8,15 @@ import { AdminNewsletterService } from './services/admin-newsletter.service';
 import { NewsletterAdminController } from './controllers/admin-newsletter.controller';
 import { BonusesModule } from './bonuses/bonuses.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
+import { CasinosModule } from './casinos/casinos.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
     BonusesModule,
     CampaignsModule,
+    CasinosModule,
+    ContactModule,
     MongooseModule.forFeature([
       {
         name: NewsletterSubscription.name,

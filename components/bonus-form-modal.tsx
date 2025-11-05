@@ -13,10 +13,20 @@ import { Bold, Italic, Underline } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useGetAllCasinosQuery } from '@/app/lib/data-access/configs/casinos.config';
+import type { Casino } from '@/app/lib/data-access/models/casino.model';
 
 type SectionVal = { value?: string; subtitle?: string; content?: string };
 
 interface BonusData {
+  casino?: string | Casino;
   title?: string;
   description?: string;
   price?: string | number;
@@ -48,6 +58,7 @@ interface BonusFormModalProps {
   onClose: () => void;
   initialData?: BonusData | null;
   onSubmit: (data: {
+    casino?: string;
     title: string;
     description: { title?: string; subtitle?: string; content?: string };
     price: string | number;
@@ -84,6 +95,9 @@ export function BonusFormModal({
   const descRef = React.useRef<HTMLTextAreaElement | null>(null);
   const mandatoryRefs = React.useRef<Array<HTMLTextAreaElement | null>>([]);
   const customRefs = React.useRef<Array<HTMLTextAreaElement | null>>([]);
+  
+  // Fetch all casinos for dropdown
+  const { data: casinos = [], isLoading: casinosLoading } = useGetAllCasinosQuery();
 
   const wrapSelectionWithTag = (
     ref: HTMLTextAreaElement | null,
@@ -106,6 +120,15 @@ export function BonusFormModal({
       ref.focus();
     }, 0);
   };
+  
+  // Get casino ID from initialData (can be string or populated object)
+  const getInitialCasinoId = () => {
+    if (!initialData?.casino) return '';
+    if (typeof initialData.casino === 'string') return initialData.casino;
+    return initialData.casino._id || '';
+  };
+
+  const [selectedCasinoId, setSelectedCasinoId] = React.useState<string>(getInitialCasinoId());
   const [title, setTitle] = React.useState(initialData?.title ?? '');
   const [description, setDescription] = React.useState(initialData?.description ?? '');
   const [price, setPrice] = React.useState(initialData?.price ?? '');
@@ -124,6 +147,29 @@ export function BonusFormModal({
   const [promoCode, setPromoCode] = React.useState(initialData?.promoCode ?? '');
   const [bonusInstructions, setBonusInstructions] = React.useState(initialData?.bonusInstructions ?? '');
   const [reviewLink, setReviewLink] = React.useState(initialData?.reviewLink ?? '');
+
+  // Auto-populate casino fields when casino is selected
+  React.useEffect(() => {
+    if (selectedCasinoId) {
+      const selectedCasino = casinos.find((c: Casino) => c._id === selectedCasinoId);
+      if (selectedCasino) {
+        setCasinoName(selectedCasino.name);
+        setCasinoLogo(selectedCasino.logo || '');
+        setCasinoImage(selectedCasino.image || '');
+        setSafetyIndex(selectedCasino.safetyIndex);
+        setCountryFlag(selectedCasino.countryFlag || '');
+        setCountryCode(selectedCasino.countryCode || '');
+        // Set rating from casino's safetyIndex
+        if (selectedCasino.safetyIndex) {
+          setRating(selectedCasino.safetyIndex);
+        }
+        // Auto-generate review link from casino ID
+        if (selectedCasino._id) {
+          setReviewLink(`/casinos/${selectedCasino._id}/review`);
+        }
+      }
+    }
+  }, [selectedCasinoId, casinos]);
   const [wageringRequirement, setWageringRequirement] = React.useState<SectionVal>(initialData?.wageringRequirement ? { value: (initialData.wageringRequirement as any).value ?? (initialData.wageringRequirement as any).title ?? '', subtitle: initialData.wageringRequirement.subtitle ?? '', content: (initialData.wageringRequirement as any).content ?? (initialData.wageringRequirement as any).expandedContent ?? '' } : { value: '', subtitle: '', content: '' });
   const [bonusValueSec, setBonusValueSec] = React.useState<SectionVal>(initialData?.bonusValue ? { value: (initialData.bonusValue as any).value ?? (initialData.bonusValue as any).title ?? '', subtitle: initialData.bonusValue.subtitle ?? '', content: (initialData.bonusValue as any).content ?? (initialData.bonusValue as any).expandedContent ?? '' } : { value: '', subtitle: '', content: '' });
   const [maxBetSec, setMaxBetSec] = React.useState<SectionVal>(initialData?.maxBet ? { value: (initialData.maxBet as any).value ?? (initialData.maxBet as any).title ?? '', subtitle: initialData.maxBet.subtitle ?? '', content: (initialData.maxBet as any).content ?? (initialData.maxBet as any).expandedContent ?? '' } : { value: '', subtitle: '', content: '' });
@@ -135,6 +181,12 @@ export function BonusFormModal({
 
   React.useEffect(() => {
     if (initialData) {
+      // Set casino ID if it exists
+      const casinoId = getInitialCasinoId();
+      if (casinoId) {
+        setSelectedCasinoId(casinoId);
+      }
+      
       setTitle(initialData.title ?? '');
       setDescription(initialData.description ?? '');
       setPrice(initialData.price ?? '');
@@ -152,7 +204,15 @@ export function BonusFormModal({
       setCountryCode(initialData.countryCode ?? '');
       setPromoCode(initialData.promoCode ?? '');
       setBonusInstructions(initialData.bonusInstructions ?? '');
-      setReviewLink(initialData.reviewLink ?? '');
+      // Auto-generate review link from casino if editing
+      if (initialData.casino) {
+        const casinoId = typeof initialData.casino === 'string' ? initialData.casino : initialData.casino._id;
+        if (casinoId) {
+          setReviewLink(`/casinos/${casinoId}/review`);
+        }
+      } else if (initialData.reviewLink) {
+        setReviewLink(initialData.reviewLink);
+      }
       setWageringRequirement(initialData.wageringRequirement ? { value: (initialData.wageringRequirement as any).value ?? (initialData.wageringRequirement as any).title ?? '', subtitle: initialData.wageringRequirement.subtitle ?? '', content: (initialData.wageringRequirement as any).content ?? (initialData.wageringRequirement as any).expandedContent ?? '' } : { value: '', subtitle: '', content: '' });
       setBonusValueSec(initialData.bonusValue ? { value: (initialData.bonusValue as any).value ?? (initialData.bonusValue as any).title ?? '', subtitle: initialData.bonusValue.subtitle ?? '', content: (initialData.bonusValue as any).content ?? (initialData.bonusValue as any).expandedContent ?? '' } : { value: '', subtitle: '', content: '' });
       setMaxBetSec(initialData.maxBet ? { value: (initialData.maxBet as any).value ?? (initialData.maxBet as any).title ?? '', subtitle: initialData.maxBet.subtitle ?? '', content: (initialData.maxBet as any).content ?? (initialData.maxBet as any).expandedContent ?? '' } : { value: '', subtitle: '', content: '' });
@@ -169,6 +229,7 @@ export function BonusFormModal({
   const handleSubmit = (e:any) => {
     e.preventDefault();
     onSubmit({
+      casino: selectedCasinoId || undefined,
       title,
       description: bonusDescription,
       price,
@@ -215,6 +276,32 @@ export function BonusFormModal({
           <DialogTitle>{initialData ? 'Edit Bonus' : 'Add Bonus'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Casino Selection */}
+          <div>
+            <Label htmlFor="bonus-casino" className="mb-2 ml-2 block">Select Casino *</Label>
+            <Select
+              value={selectedCasinoId}
+              onValueChange={setSelectedCasinoId}
+              disabled={casinosLoading}
+            >
+              <SelectTrigger id="bonus-casino" className="w-full">
+                <SelectValue placeholder={casinosLoading ? "Loading casinos..." : "Select a casino"} />
+              </SelectTrigger>
+              <SelectContent>
+                {casinos.map((casino: Casino) => (
+                  <SelectItem key={casino._id} value={casino._id || ''}>
+                    {casino.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedCasinoId && (
+              <p className="text-xs text-muted-foreground mt-1 ml-2">
+                Casino fields will be auto-populated from selected casino
+              </p>
+            )}
+          </div>
+          
           <div>
             <Label htmlFor="bonus-title" className="mb-2 ml-2 block">Title</Label>
             <Input id="bonus-title" required value={title} onChange={e => setTitle(e.target.value)} />
@@ -261,15 +348,15 @@ export function BonusFormModal({
                 <Underline className="h-4 w-4" />
               </Button>
             </div>
-            <Textarea id="bonus-desc-content" ref={descRef} required value={bonusDescription.content ?? ''} onChange={e => setBonusDescription(d => ({ ...d, content: e.target.value }))} />
+            <Textarea id="bonus-desc-content" ref={descRef} value={bonusDescription.content ?? ''} onChange={e => setBonusDescription(d => ({ ...d, content: e.target.value }))} />
           </div>
           <div>
             <Label htmlFor="bonus-price" className="mb-2 ml-2 block">Price</Label>
             <Input id="bonus-price" required value={price} onChange={e => setPrice(e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="bonus-rating" className="mb-2 ml-2 block">Rating</Label>
-            <Input id="bonus-rating" type="number" min={0} max={5} step="0.1" required value={rating} onChange={e => setRating(Number(e.target.value))} />
+            <Label htmlFor="bonus-rating" className="mb-2 ml-2 block">Rating (Auto-filled from casino safety index)</Label>
+            <Input id="bonus-rating" type="number" min={0} max={10} step="0.1" required value={rating} onChange={e => setRating(Number(e.target.value))} />
           </div>
           <div>
             <Label htmlFor="bonus-type" className="mb-2 ml-2 block">Type</Label>
@@ -315,19 +402,15 @@ export function BonusFormModal({
             </div>
           </div>
 
-          {/* Promo & Review */}
+          {/* Promo & Instructions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="promo-code" className="mb-2 ml-2 block">Promo Code</Label>
-              <Input id="promo-code" value={promoCode} onChange={e => setPromoCode(e.target.value)} />
-            </div>
-            <div>
-              <Label htmlFor="review-link" className="mb-2 ml-2 block">Review Link</Label>
-              <Input id="review-link" value={reviewLink} onChange={e => setReviewLink(e.target.value)} />
+              <Label htmlFor="promo-code" className="mb-2 ml-2 block">Promo Code (Optional)</Label>
+              <Input id="promo-code" value={promoCode} onChange={e => setPromoCode(e.target.value)} placeholder="Leave empty if no promo code required" />
             </div>
             <div className="md:col-span-2">
-              <Label htmlFor="bonus-instructions" className="mb-2 ml-2 block">Bonus Instructions</Label>
-              <Textarea id="bonus-instructions" value={bonusInstructions} onChange={e => setBonusInstructions(e.target.value)} />
+              <Label htmlFor="bonus-instructions" className="mb-2 ml-2 block">Bonus Instructions *</Label>
+              <Textarea id="bonus-instructions" required value={bonusInstructions} onChange={e => setBonusInstructions(e.target.value)} placeholder="Instructions on how to claim the bonus (shown even without promo code)" />
             </div>
           </div>
 

@@ -40,7 +40,7 @@ export type ChangeUserStatusDto = {
 };
 
 export type ChangeUserRoleDto = {
-  role: 'user' | 'admin' | 'moderator';
+  role: 'user' | 'admin';
 };
 
 export type SendEmailDto = {
@@ -197,6 +197,7 @@ export const usersApi = createApi({
         method: 'POST',
         body: { subject, message },
       }),
+      invalidatesTags: ['User'],
     }),
     
     // BULK operations
