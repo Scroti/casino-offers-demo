@@ -9,8 +9,12 @@ import { useLazyValidateCampaignTokenQuery } from '@/app/lib/data-access/configs
  * Detects if user came from a valid campaign token and stores it in cookie
  * Looks for: ?campaign=TOKEN (e.g., ?campaign=summer2024)
  * Validates the token against the database
+ * 
+ * NOTE: This hook uses useSearchParams() which must be wrapped in Suspense.
+ * The layout that uses this hook should have a Suspense boundary.
  */
 export function useEmailCampaign() {
+  // useSearchParams must be called unconditionally - Suspense in layout handles this
   const searchParams = useSearchParams();
   const [isFromCampaign, setIsFromCampaign] = useState<boolean>(false);
   const [campaignToken, setCampaignToken] = useState<string | null>(null);

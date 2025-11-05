@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: "Discover the best online casino bonuses, reviews, and free games. Trusted guides for safe and secure online gambling.",
 };
 
+// Force dynamic rendering at root level
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{
