@@ -1,6 +1,12 @@
+'use client';
+
+import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 
-export default function NotFound() {
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
+function NotFoundContent() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-4xl font-bold mb-4">404</h1>
@@ -10,5 +16,17 @@ export default function NotFound() {
       </p>
       <Button className="mt-3">Go back to the Homepage</Button>
     </div>
+  );
+}
+
+export default function NotFound() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    }>
+      <NotFoundContent />
+    </Suspense>
   );
 }

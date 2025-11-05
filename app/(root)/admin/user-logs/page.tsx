@@ -2,6 +2,10 @@
 'use client';
 
 import { useState } from 'react';
+import { Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import {
   Table,
   TableBody,
@@ -14,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
-export default function ActivityLogsPage() {
+function ActivityLogsPageContent() {
   const [filters, setFilters] = useState({
     action: '',
     category: '',
@@ -97,5 +101,17 @@ export default function ActivityLogsPage() {
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+export default function ActivityLogsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading logs...</p>
+      </div>
+    }>
+      <ActivityLogsPageContent />
+    </Suspense>
   );
 }
