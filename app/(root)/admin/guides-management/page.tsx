@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
 import { flexRender } from '@tanstack/react-table';
 import {
   Table,
@@ -16,7 +17,7 @@ import { GuideTableToolbar } from '@/components/admin/guide-table-toolbar';
 import { GuideTablePagination } from '@/components/admin/guide-table-pagination';
 import { useGuideTable } from '@/hooks/use-guide-table';
 
-export default function AdminGuidesTable() {
+function AdminGuidesTableContent() {
   const {
     table,
     isLoading,
@@ -94,6 +95,18 @@ export default function AdminGuidesTable() {
         description="Are you sure you want to delete this guide? This action cannot be undone."
       />
     </>
+  );
+}
+
+export default function AdminGuidesTable() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading guides...</p>
+      </div>
+    }>
+      <AdminGuidesTableContent />
+    </Suspense>
   );
 }
 
