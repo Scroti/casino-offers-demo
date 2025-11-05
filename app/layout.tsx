@@ -3,11 +3,13 @@ import Script from "next/script";
 import "./globals.css";
 import AppWrapper from "./app-wrapper.component";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { generateMetadata as genMeta } from "@/lib/utils/seo";
 
-export const metadata: Metadata = {
-  title: "Playwise Guru - Best Online Casino Bonuses & Reviews",
+export const metadata: Metadata = genMeta({
+  title: "Best Online Casino Bonuses & Reviews",
   description: "Discover the best online casino bonuses, reviews, and free games. Trusted guides for safe and secure online gambling.",
-};
+  url: "/",
+});
 
 // Force dynamic rendering at root level
 export const dynamic = 'force-dynamic';
