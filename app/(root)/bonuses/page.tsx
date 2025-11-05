@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, Suspense } from "react";
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { CasinoBonusCard } from "@/components/ui/casino-bonus-card";
 import { useGetAllBonusesQuery } from "@/app/lib/data-access/configs/bonuses.config";
 import type { Bonus } from "@/app/lib/data-access/models/bonus.model";
@@ -45,7 +48,7 @@ const extractBonusType = (type: string) => {
   return type || "other";
 };
 
-function BonusesPage() {
+function BonusesPageContent() {
   const { data: bonuses = [], isLoading } = useGetAllBonusesQuery();
   const { user, accessToken, hydrated } = useAuth();
   const { t } = useI18n();
@@ -312,4 +315,14 @@ function BonusesPage() {
   );
 }
 
-export default memo(BonusesPage);
+export default function BonusesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading bonuses...</p>
+      </div>
+    }>
+      <BonusesPageContent />
+    </Suspense>
+  );
+}

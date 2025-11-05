@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useMemo, memo, useEffect } from "react";
+import { useState, useMemo, memo, useEffect, Suspense } from "react";
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { CasinoCard } from "@/components/ui/casino-card/index";
 import { useGetAllCasinosQuery } from "@/app/lib/data-access/configs/casinos.config";
 import type { Casino } from "@/app/lib/data-access/models/casino.model";
@@ -16,7 +19,7 @@ import { useCountryDetection } from "@/hooks/use-country-detection";
 import { useAuth } from "@/context/auth.context";
 import { getCachedCountries } from "@/lib/services/countries-api";
 
-function CasinosPage() {
+function CasinosPageContent() {
   const { data: casinos = [], isLoading } = useGetAllCasinosQuery();
   const { user, accessToken, hydrated } = useAuth();
   const { userCountry, countryName, isDetecting } = useCountryDetection();
@@ -193,6 +196,18 @@ function CasinosPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function CasinosPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading casinos...</p>
+      </div>
+    }>
+      <CasinosPageContent />
+    </Suspense>
   );
 }
 

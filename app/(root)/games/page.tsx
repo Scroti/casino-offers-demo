@@ -1,12 +1,16 @@
 'use client';
 
+import { Suspense } from 'react';
 import GameCard from '@/components/ui/game-card';
 import { getAllGamesWithEmbedUrls } from '@/app/lib/constants/games';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 
 // Get all games with generated embed URLs
 const games = getAllGamesWithEmbedUrls();
 
-export default function GamesPage() {
+function GamesPageContent() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div>
@@ -37,5 +41,17 @@ export default function GamesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function GamesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading games...</p>
+      </div>
+    }>
+      <GamesPageContent />
+    </Suspense>
   );
 }

@@ -28,7 +28,7 @@ const categories = [
   { value: "bonuses", label: "Bonuses" },
 ];
 
-export default function NewsPage() {
+function NewsPageContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [limit, setLimit] = useState(20);
   const { userCountry, isDetecting } = useCountryDetection();
@@ -236,6 +236,18 @@ export default function NewsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function NewsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading news...</p>
+      </div>
+    }>
+      <NewsPageContent />
+    </Suspense>
   );
 }
 

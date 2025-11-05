@@ -1,6 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { useGetAllGuidesQuery, useGetFeaturedGuidesQuery } from '@/app/lib/data-access/configs/guides.config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -92,7 +96,7 @@ function GuideCard({ guide }: GuideCardProps) {
   );
 }
 
-export default function GuidesPage() {
+function GuidesPageContent() {
   const { data: publishedGuides = [], isLoading } = useGetAllGuidesQuery({ published: true });
   const { data: featuredGuides = [] } = useGetFeaturedGuidesQuery();
 
@@ -160,6 +164,18 @@ export default function GuidesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function GuidesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading guides...</p>
+      </div>
+    }>
+      <GuidesPageContent />
+    </Suspense>
   );
 }
 

@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth.context";
 import { useMeQuery, useUpdateProfileMutation } from "@/app/lib/data-access/configs/auth.config";
@@ -19,7 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function EditProfilePage() {
+function EditProfilePageContent() {
   const router = useRouter();
   const { user: authUser, accessToken, hydrated } = useAuth();
   const { data: userProfile, isLoading: isLoadingProfile, refetch } = useMeQuery();
@@ -283,6 +286,18 @@ export default function EditProfilePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function EditProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading profile...</p>
+      </div>
+    }>
+      <EditProfilePageContent />
+    </Suspense>
   );
 }
 

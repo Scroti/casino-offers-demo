@@ -1,6 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +20,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function AdminAnalyticsPage() {
+function AdminAnalyticsPageContent() {
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const analyticsUrl = 'https://analytics.google.com/';
 
@@ -296,6 +300,18 @@ export default function AdminAnalyticsPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function AdminAnalyticsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading analytics...</p>
+      </div>
+    }>
+      <AdminAnalyticsPageContent />
+    </Suspense>
   );
 }
 

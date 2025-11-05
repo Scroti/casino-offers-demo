@@ -1,6 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -80,7 +84,7 @@ const formatDate = (dateString: string | undefined): string => {
   }
 };
 
-export default function CampaignsManagementPage() {
+function CampaignsManagementPageContent() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -425,6 +429,18 @@ export default function CampaignsManagementPage() {
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+export default function CampaignsManagementPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading campaigns...</p>
+      </div>
+    }>
+      <CampaignsManagementPageContent />
+    </Suspense>
   );
 }
 

@@ -1,10 +1,14 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { DashboardOverviewCards } from '@/components/admin/dashboard-overview-cards';
 import { AnalyticsCharts } from '@/components/admin/analytics-charts';
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [currentTime, setCurrentTime] = React.useState<string>('');
 
   React.useEffect(() => {
@@ -35,5 +39,17 @@ export default function AdminDashboard() {
       {/* Charts and Analytics */}
       <AnalyticsCharts />
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading dashboard...</p>
+      </div>
+    }>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

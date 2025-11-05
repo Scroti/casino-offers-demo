@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +21,7 @@ import { useContactMutation } from "@/app/lib/data-access/configs/contact.config
 import { useAuth } from "@/context/auth.context";
 import { PageHeader } from "@/components/shared/PageHeader";
 
-export default function SupportPage() {
+function SupportPageContent() {
   const { user } = useAuth();
   const [contact, { isLoading }] = useContactMutation();
   const [formData, setFormData] = useState({
@@ -228,6 +231,18 @@ export default function SupportPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SupportPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading support page...</p>
+      </div>
+    }>
+      <SupportPageContent />
+    </Suspense>
   );
 }
 
