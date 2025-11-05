@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -53,7 +54,7 @@ export type Subscriber = {
   status?: "active" | "unsubscribed";
 };
 
-export default function NewsletterSubscribersTable() {
+function NewsletterSubscribersTableContent() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -404,5 +405,17 @@ export default function NewsletterSubscribersTable() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewsletterSubscribersTable() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading subscribers...</p>
+      </div>
+    }>
+      <NewsletterSubscribersTableContent />
+    </Suspense>
   );
 }
