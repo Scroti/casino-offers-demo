@@ -48,7 +48,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronDown } from "lucide-react";
-import { CasinoBonusCard } from "@/components/ui/casino-bonus-card";
+import { TranslatedBonusCard } from "@/components/ui/translated-bonus-card";
 import type { Bonus } from "@/app/lib/data-access/configs/bonuses.config";
 
 type TabType = "overview" | "bonuses" | "reviews" | "safety" | "discussion" | "payments";

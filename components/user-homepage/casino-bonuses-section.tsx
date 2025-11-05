@@ -10,6 +10,8 @@ import { useGetAllCasinosQuery } from '@/app/lib/data-access/configs/casinos.con
 import { useGetAllBonusesQuery, useGetBonusesByCasinoQuery } from '@/app/lib/data-access/configs/bonuses.config';
 import type { Casino } from '@/app/lib/data-access/models/casino.model';
 import type { Bonus } from '@/app/lib/data-access/models/bonus.model';
+import { TranslatedBonusCard } from '@/components/ui/translated-bonus-card';
+import { useI18n } from '@/context/i18n.context';
 
 export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
   const { data: casinos = [], isLoading: casinosLoading } = useGetAllCasinosQuery();

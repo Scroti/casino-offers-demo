@@ -166,6 +166,7 @@ async function translateWithDeepL(
 
 /**
  * Translate text using LibreTranslate (open source, free)
+ * Uses our backend API endpoint to avoid CORS issues
  */
 async function translateWithLibreTranslate(
   text: string,
@@ -180,17 +181,17 @@ async function translateWithLibreTranslate(
   }
   
   try {
-    // LibreTranslate public API (rate limited)
-    const response = await fetch('https://libretranslate.com/translate', {
+    // Use our backend API endpoint (which handles LibreTranslate)
+    const response = await fetch('/api/translate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        q: text,
-        source: sourceLang,
-        target: targetLang,
-        format: 'text',
+        text,
+        targetLang,
+        sourceLang,
+        provider: 'libretranslate',
       }),
     });
     

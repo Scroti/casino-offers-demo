@@ -122,32 +122,75 @@ export function useTranslateApi(provider: TranslationProvider = 'libretranslate'
    */
   const translateBonus = useCallback(
     async (bonus: any, sourceLang: string = 'en'): Promise<any> => {
-      if (language === sourceLang) {
+      if (language === sourceLang || language === 'en') {
         return bonus;
       }
 
-      const fields: (keyof typeof bonus)[] = ['title', 'bonusInstructions'];
-      const translated = await translateObject(bonus, fields, sourceLang);
+      const translated = { ...bonus };
+
+      // Translate title
+      if (bonus.title && typeof bonus.title === 'string') {
+        translated.title = await t(bonus.title, sourceLang);
+      }
 
       // Translate description object
       if (bonus.description) {
-        const descFields: any[] = ['title', 'subtitle', 'content'];
-        translated.description = await translateObject(bonus.description, descFields, sourceLang);
+        translated.description = { ...bonus.description };
+        if (bonus.description.title) {
+          translated.description.title = await t(bonus.description.title, sourceLang);
+        }
+        if (bonus.description.subtitle) {
+          translated.description.subtitle = await t(bonus.description.subtitle, sourceLang);
+        }
+        if (bonus.description.content) {
+          translated.description.content = await t(bonus.description.content, sourceLang);
+        }
+      }
+
+      // Translate bonus instructions
+      if (bonus.bonusInstructions && typeof bonus.bonusInstructions === 'string') {
+        translated.bonusInstructions = await t(bonus.bonusInstructions, sourceLang);
+      }
+
+      // Translate accordion sections
+      const accordionFields = ['wageringRequirement', 'bonusValue', 'maxBet', 'expiration', 'claimSpeed', 'termsConditions'];
+      for (const field of accordionFields) {
+        if (bonus[field]) {
+          translated[field] = { ...bonus[field] };
+          if (bonus[field].value) {
+            translated[field].value = await t(bonus[field].value, sourceLang);
+          }
+          if (bonus[field].subtitle) {
+            translated[field].subtitle = await t(bonus[field].subtitle, sourceLang);
+          }
+          if (bonus[field].content) {
+            translated[field].content = await t(bonus[field].content, sourceLang);
+          }
+        }
       }
 
       // Translate custom sections
       if (bonus.customSections && Array.isArray(bonus.customSections)) {
         translated.customSections = await Promise.all(
           bonus.customSections.map(async (section: any) => {
-            const sectionFields: any[] = ['title', 'content', 'subtitle'];
-            return translateObject(section, sectionFields, sourceLang);
+            const translatedSection = { ...section };
+            if (section.title) {
+              translatedSection.title = await t(section.title, sourceLang);
+            }
+            if (section.content) {
+              translatedSection.content = await t(section.content, sourceLang);
+            }
+            if (section.subtitle) {
+              translatedSection.subtitle = await t(section.subtitle, sourceLang);
+            }
+            return translatedSection;
           })
         );
       }
 
       return translated;
     },
-    [language, translateObject]
+    [language, t]
   );
 
   /**

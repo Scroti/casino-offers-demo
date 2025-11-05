@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CasinoBonusCard } from "@/components/ui/casino-bonus-card";
+import { TranslatedBonusCard } from "@/components/ui/translated-bonus-card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllBonusesQuery } from "@/app/lib/data-access/configs/bonuses.config";
@@ -122,7 +122,7 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
       {/* Stacked bonuses - one under the other */}
       <div className="flex flex-col gap-6">
         {filteredByType.map((bonus: Bonus, index) => (
-          <CasinoBonusCard
+          <TranslatedBonusCard
             key={bonus._id || index}
             bonusType={extractBonusType(bonus.type)}
             title={bonus.title}
