@@ -20,10 +20,49 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { useGetAllUsersQuery } from '@/app/lib/data-access/configs/users.config';
+import { useGetAllBonusesQuery } from '@/app/lib/data-access/configs/bonuses.config';
+import { useGetAllCasinosQuery } from '@/app/lib/data-access/configs/casinos.config';
+import { useMemo } from 'react';
 
 function AdminAnalyticsPageContent() {
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const analyticsUrl = 'https://analytics.google.com/';
+  
+  // Fetch data from backend
+  const { data: users = [], isLoading: usersLoading } = useGetAllUsersQuery();
+  const { data: bonuses = [], isLoading: bonusesLoading } = useGetAllBonusesQuery();
+  const { data: casinos = [], isLoading: casinosLoading } = useGetAllCasinosQuery();
+  
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const totalUsers = users.length;
+    const activeUsers = users.filter(u => u.status === 'active').length;
+    const totalBonuses = bonuses.length;
+    const totalCasinos = casinos.length;
+    
+    // Calculate page views (simulated - would come from Google Analytics API)
+    // For now, using user count as a proxy
+    const estimatedPageViews = totalUsers * 5; // Estimate 5 views per user
+    
+    // Calculate bounce rate (simulated)
+    const bounceRate = totalUsers > 0 ? Math.round((totalUsers * 0.4 / totalUsers) * 100) : 0;
+    
+    // Calculate average session (simulated in seconds)
+    const avgSessionMinutes = totalUsers > 0 ? Math.round((totalUsers * 2) / totalUsers) : 0;
+    
+    return {
+      totalUsers,
+      activeUsers,
+      totalBonuses,
+      totalCasinos,
+      estimatedPageViews,
+      bounceRate,
+      avgSessionMinutes,
+    };
+  }, [users, bonuses, casinos]);
+  
+  const isLoading = usersLoading || bonusesLoading || casinosLoading;
 
   return (
     <div className="space-y-6 p-6">
@@ -99,52 +138,60 @@ function AdminAnalyticsPageContent() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">--</div>
+                <div className="text-2xl font-bold">
+                  {isLoading ? '...' : stats.totalUsers.toLocaleString()}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  View in Google Analytics for real data
+                  {stats.activeUsers} active users
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Page Views</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Bonuses</CardTitle>
                 <Eye className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">--</div>
+                <div className="text-2xl font-bold">
+                  {isLoading ? '...' : stats.totalBonuses.toLocaleString()}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  View in Google Analytics for real data
+                  Active bonus offers
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Bounce Rate</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Casinos</CardTitle>
                 <MousePointerClick className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">--</div>
+                <div className="text-2xl font-bold">
+                  {isLoading ? '...' : stats.totalCasinos.toLocaleString()}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  View in Google Analytics for real data
+                  Registered casinos
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg. Session</CardTitle>
+                <CardTitle className="text-sm font-medium">Platform Stats</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">--</div>
+                <div className="text-2xl font-bold">
+                  {isLoading ? '...' : `${stats.totalBonuses + stats.totalCasinos}`}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  View in Google Analytics for real data
+                  Total content items
                 </p>
               </CardContent>
             </Card>
