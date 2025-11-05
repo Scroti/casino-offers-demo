@@ -951,7 +951,7 @@ function BonusesTab({ casino }: { casino: any }) {
         </div>
         <div className="space-y-6">
           {bonuses.map((bonus: Bonus) => (
-            <CasinoBonusCard
+            <TranslatedBonusCard
               key={bonus._id}
               bonusType={extractBonusType(bonus.type)}
               title={bonus.title}
