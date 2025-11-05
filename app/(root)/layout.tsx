@@ -8,7 +8,7 @@ import { adminAppConfig, userAppConfig } from "@/components/configs/appConfig";
 import { useEmailCampaign } from "@/hooks/use-email-campaign";
 import { useMemo, Suspense } from "react";
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
+function LayoutContentWithCampaign({ children }: { children: React.ReactNode }) {
   const { user, accessToken, hydrated } = useAuth();
   const { isFromCampaign } = useEmailCampaign();
 
@@ -48,18 +48,22 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function RootNestedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     }>
-      <LayoutContent>{children}</LayoutContent>
+      <LayoutContentWithCampaign>{children}</LayoutContentWithCampaign>
     </Suspense>
   );
+}
+
+export default function RootNestedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <LayoutContent>{children}</LayoutContent>;
 }
