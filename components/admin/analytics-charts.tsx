@@ -36,9 +36,9 @@ function SimplePieChart({ data }: { data: { name: string, value: number, color: 
         <div key={index} className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className={`w-3 h-3 rounded-full ${item.color}`} />
-            <span className="text-sm">{item.name}</span>
+            <span className="text-sm text-foreground">{item.name}</span>
           </div>
-          <div className="text-sm font-medium">{Math.round((item.value / total) * 100)}%</div>
+          <div className="text-sm font-medium text-foreground">{Math.round((item.value / total) * 100)}%</div>
         </div>
       ))}
     </div>
@@ -73,18 +73,18 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
     });
 
     const colors = {
-      'No Deposit': 'bg-blue-500',
-      'Deposit': 'bg-green-500',
-      'Welcome Bonus': 'bg-yellow-500',
-      'Reload Bonus': 'bg-orange-500',
-      'Cashback': 'bg-purple-500',
-      'Other': 'bg-gray-500',
+      'No Deposit': 'bg-chart-1',
+      'Deposit': 'bg-chart-2',
+      'Welcome Bonus': 'bg-chart-3',
+      'Reload Bonus': 'bg-chart-4',
+      'Cashback': 'bg-chart-5',
+      'Other': 'bg-muted',
     };
 
     return Object.entries(categories).map(([name, value]) => ({
       name,
       value,
-      color: colors[name as keyof typeof colors] || 'bg-gray-500',
+      color: colors[name as keyof typeof colors] || 'bg-muted',
     }));
   }, [bonuses]);
 
@@ -180,9 +180,9 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* User Demographics - Gender */}
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>User Demographics - Gender</CardTitle>
+          <CardTitle className="text-foreground">User Demographics - Gender</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -192,7 +192,7 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
               data={userDemographics.gender.map(item => ({
                 name: item.name === 'male' ? 'Male' : item.name === 'female' ? 'Female' : 'Prefer not to say',
                 value: item.value,
-                color: item.name === 'male' ? 'bg-blue-500' : item.name === 'female' ? 'bg-pink-500' : 'bg-gray-500'
+                color: item.name === 'male' ? 'bg-chart-1' : item.name === 'female' ? 'bg-chart-2' : 'bg-muted'
               }))} 
             />
           )}
@@ -200,29 +200,32 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
       </Card>
 
       {/* User Demographics - Age Range */}
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>User Demographics - Age Range</CardTitle>
+          <CardTitle className="text-foreground">User Demographics - Age Range</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
           ) : (
             <SimplePieChart 
-              data={userDemographics.ageRange.map(item => ({
-                name: item.name === 'Not specified' ? 'Not specified' : item.name,
-                value: item.value,
-                color: 'bg-indigo-500'
-              }))} 
+              data={userDemographics.ageRange.map((item, index) => {
+                const chartColors = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-chart-5'];
+                return {
+                  name: item.name === 'Not specified' ? 'Not specified' : item.name,
+                  value: item.value,
+                  color: chartColors[index % chartColors.length]
+                };
+              })} 
             />
           )}
         </CardContent>
       </Card>
 
       {/* User Demographics - Top Countries */}
-      <Card className="md:col-span-2">
+      <Card className="md:col-span-2 border-border bg-card">
         <CardHeader>
-          <CardTitle>User Demographics - Top Countries</CardTitle>
+          <CardTitle className="text-foreground">User Demographics - Top Countries</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -230,12 +233,12 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
           ) : userDemographics.countries.length > 0 ? (
             <div className="space-y-3">
               {userDemographics.countries.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
                       {index + 1}
                     </div>
-                    <span className="font-medium">{item.country}</span>
+                    <span className="font-medium text-foreground">{item.country}</span>
                   </div>
                   <Badge variant="outline" className="text-lg px-3 py-1">
                     {item.count} {item.count === 1 ? 'user' : 'users'}
@@ -252,11 +255,11 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
       </Card>
 
       {/* User Growth Chart */}
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>User Growth (Last 6 Months)</CardTitle>
+          <CardTitle className="text-foreground">User Growth (Last 6 Months)</CardTitle>
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-blue-600 dark:text-blue-400">
+            <Badge variant="outline" className="text-primary">
               <TrendingUp className="w-3 h-3 mr-1" />
               {userGrowthByMonth.length > 0 && userGrowthByMonth[userGrowthByMonth.length - 1].users > 0 ? '+' : ''}
               {userGrowthByMonth.length > 0 ? userGrowthByMonth[userGrowthByMonth.length - 1].users : 0}
@@ -274,7 +277,7 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
                   return (
                     <div key={index} className="flex flex-col items-center flex-1">
                       <div 
-                        className="w-full bg-blue-500 rounded-t"
+                        className="w-full bg-primary rounded-t"
                         style={{ 
                           height: `${(item.users / maxValue) * 100}%`,
                           minHeight: '4px'
@@ -300,9 +303,9 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
       </Card>
 
       {/* Bonus Categories */}
-      <Card>
+      <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Bonus Categories</CardTitle>
+          <CardTitle className="text-foreground">Bonus Categories</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -314,10 +317,10 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
       </Card>
 
       {/* Top Performing Casinos by Safety Index */}
-      <Card className="md:col-span-2">
+      <Card className="md:col-span-2 border-border bg-card">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-yellow-500" />
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <Star className="h-5 w-5 text-primary fill-primary" />
             Top Performing Casinos (by Safety Index)
           </CardTitle>
           <Button variant="outline" size="sm" asChild>
@@ -332,9 +335,9 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
           ) : topCasinos.length > 0 ? (
             <div className="space-y-4">
               {topCasinos.map((casino) => (
-                <div key={casino._id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div key={casino._id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors bg-card">
                   <div className="flex items-center space-x-4 flex-1">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold flex-shrink-0">
                       {casino.index}
                     </div>
                     {casino.logo && (
@@ -348,7 +351,7 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium">{casino.name}</div>
+                      <div className="font-medium text-foreground">{casino.name}</div>
                       <div className="text-sm text-muted-foreground">
                         {casino.bonusCount} {casino.bonusCount === 1 ? 'bonus' : 'bonuses'}
                       </div>
@@ -356,7 +359,7 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <Badge variant="outline" className="text-lg px-3 py-1">
-                      <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                      <Star className="h-4 w-4 mr-1 fill-primary text-primary" />
                       {casino.safetyIndex?.toFixed(1)}/10
                     </Badge>
                     <Button variant="ghost" size="sm" asChild>
