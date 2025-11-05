@@ -13,6 +13,9 @@ export const ENV = {
   // App Configuration
   APP_NAME: 'Playwise Guru',
   
+  // Google Analytics
+  GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '',
+  
   // Cookie Configuration
   COOKIE_CONFIG: {
     ACCESS_TOKEN_EXPIRES: 1 / 24, // 1 hour

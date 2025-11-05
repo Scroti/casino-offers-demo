@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Ticket,
   Building2,
+  FileText,
 } from "lucide-react";
 
 export const appConfig = {
@@ -63,24 +64,24 @@ export const userAppConfig = {
     },
     {
       title: "Guides",
-      url: "#",
+      url: "/guides",
       icon: BookOpen,
     },
   ],
   projects: [
     {
       name: "Complaints",
-      url: "#",
+      url: "/complaints",
       icon: Gavel,
     },
     {
       name: "Reviews",
-      url: "#",
+      url: "/reviews",
       icon: Star,
     },
     {
       name: "News",
-      url: "#",
+      url: "/news",
       icon: Newspaper,
     },
   ],
@@ -143,8 +144,13 @@ export const adminAppConfig = {
       icon: Ticket,
     },
     {
-      title: "Analytics and Reports",
-      url: "#",
+      title: "Guides Configuration",
+      url: "/admin/guides-management",
+      icon: FileText,
+    },
+    {
+      title: "Google Analytics",
+      url: "/admin/analytics",
       icon: ChartCandlestick,
     },
   ],

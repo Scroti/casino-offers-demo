@@ -52,7 +52,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'A vibrant and exciting slot game with fruity themes',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Juicy Fruits'),
+    thumbnail: 'https://casinorange.com/wp-content/uploads/2022/12/Juicy-Fruits-Slot-2022.2e16d0ba.fill-600x340.webp',
   },
   {
     id: 'sweet-bonanza',
@@ -61,7 +61,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'A candy-themed slot with tumbling reels and high multipliers',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Sweet Bonanza'),
+    thumbnail: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQY9cR-6cJaconzJ5P2izxas0EWg6GcvXMzoA&s',
   },
   {
     id: 'gates-of-olympus',
@@ -70,7 +70,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'An ancient Greek-themed slot featuring cascading reels and random multipliers',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Gates of Olympus'),
+    thumbnail: 'https://content.hollywoodbets.net/Gates_of_Olympus_1000x600_39d9c14787.webp',
   },
   {
     id: 'sugar-rush',
@@ -79,7 +79,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'A sweet slot with cluster pays and multiplier symbols',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Sugar Rush'),
+    thumbnail: 'https://cdn.casinorange.com/images/slots/sugar-rush.webp'
   },
   {
     id: 'wanted-dead-or-a-wild',
@@ -88,7 +88,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'A western-themed slot with wild features and exciting gameplay',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Wanted Dead or a Wild'),
+    thumbnail: 'https://cdn.casinorange.com/images/slots/wanted-dead-or-a-wild.webp'
   },
   {
     id: 'sugar-rush-1000',
@@ -97,7 +97,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'The 1000x multiplier version of the popular Sugar Rush slot',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Sugar Rush 1000'),
+    thumbnail: 'https://sportsnews.worldsportsbetting.co.za/wp-content/uploads/2024/08/Pragmatic-SugarRush1000_Blog.png'
   },
   {
     id: 'big-bamboo',
@@ -106,7 +106,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'An Asian-themed slot with exciting features and multipliers',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Big Bamboo'),
+    thumbnail: 'https://www.racingpost.com/online-casino/_next/image/?url=%2Fonline-casino%2Fstatic%2Fslots%2Fbig-bamboo%2Fcapa-big-bamboo%2Fcapa-big-bamboo.jpg&w=1920&q=75'
   },
   {
     id: 'big-bass-bonanza-1000',
@@ -115,7 +115,7 @@ export const pragmaticPlayGames: Game[] = [
     category: 'Slots',
     description: 'The 1000x multiplier version of Big Bass Bonanza fishing slot',
     provider: 'Pragmatic Play',
-    thumbnail: generateThumbnailUrl('Big Bass Bonanza 1000'),
+    thumbnail: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.royalpanda.com%2Fen-nz%2Fgame%2Fbig-bass-bonanza&psig=AOvVaw1KmTeiCpQJFJ0c2zkeAs0X&ust=1762453690073000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCIiq9-LR25ADFQAAAAAdAAAAABAE'
   },
 ];
 

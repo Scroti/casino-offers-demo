@@ -68,6 +68,8 @@ export default function EditProfilePage() {
       if (profileImageUrl && profileImageUrl.trim()) {
         updateData.profileImageUrl = profileImageUrl.trim();
       }
+      // Always include gender and ageRange so they're saved/updated
+      // Send the value if it exists, otherwise send undefined to keep existing value
       if (gender) {
         updateData.gender = gender as "male" | "female" | "prefer-not-to-say";
       }

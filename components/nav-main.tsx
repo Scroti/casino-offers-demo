@@ -64,8 +64,9 @@ export function NavMain({
 }) {
   const pathname = usePathname();
   const { isOpen, toggleMenu } = usePersistentMenus();
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, isMobile } = useSidebar();
+  // On mobile, always show labels when sidebar is open (mobile Sheet is always expanded when open)
+  const collapsed = isMobile ? false : state === "collapsed";
 
   return (
     <SidebarGroup>

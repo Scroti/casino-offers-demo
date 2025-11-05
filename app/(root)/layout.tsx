@@ -34,7 +34,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   }, [user?.role, user, accessToken, hydrated, isFromCampaign]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex flex-col min-h-screen w-full">
         <AppHeader />
 

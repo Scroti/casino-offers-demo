@@ -10,6 +10,8 @@ import { BonusesModule } from './bonuses/bonuses.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { CasinosModule } from './casinos/casinos.module';
 import { ContactModule } from './contact/contact.module';
+import { NewsModule } from './news/news.module';
+import { GuidesModule } from './guides/guides.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { ContactModule } from './contact/contact.module';
     CampaignsModule,
     CasinosModule,
     ContactModule,
+    NewsModule,
+    GuidesModule,
     MongooseModule.forFeature([
       {
         name: NewsletterSubscription.name,

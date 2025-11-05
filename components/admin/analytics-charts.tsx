@@ -55,14 +55,28 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
     const categories: Record<string, number> = {};
     
     bonuses.forEach(bonus => {
-      const type = bonus.bonusType || 'Other';
+      // Normalize bonus type
+      let type = bonus.type?.toLowerCase().trim() || 'other';
+      if (type === 'no-deposit' || type === 'no deposit' || type === 'nodeposit') {
+        type = 'No Deposit';
+      } else if (type === 'deposit') {
+        type = 'Deposit';
+      } else if (type === 'cashback' || type === 'cash back') {
+        type = 'Cashback';
+      } else if (type === 'other' || type === 'others') {
+        type = 'Other';
+      } else {
+        // Capitalize first letter
+        type = type.charAt(0).toUpperCase() + type.slice(1);
+      }
       categories[type] = (categories[type] || 0) + 1;
     });
 
     const colors = {
       'No Deposit': 'bg-blue-500',
-      'Welcome Bonus': 'bg-green-500',
-      'Reload Bonus': 'bg-yellow-500',
+      'Deposit': 'bg-green-500',
+      'Welcome Bonus': 'bg-yellow-500',
+      'Reload Bonus': 'bg-orange-500',
       'Cashback': 'bg-purple-500',
       'Other': 'bg-gray-500',
     };
@@ -73,6 +87,41 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
       color: colors[name as keyof typeof colors] || 'bg-gray-500',
     }));
   }, [bonuses]);
+
+  // Calculate user demographics
+  const userDemographics = useMemo(() => {
+    // Gender distribution
+    const genderStats: Record<string, number> = {};
+    users.forEach(user => {
+      const gender = user.gender || 'Not specified';
+      genderStats[gender] = (genderStats[gender] || 0) + 1;
+    });
+
+    // Age range distribution
+    const ageStats: Record<string, number> = {};
+    users.forEach(user => {
+      const age = user.ageRange || 'Not specified';
+      ageStats[age] = (ageStats[age] || 0) + 1;
+    });
+
+    // Country distribution (top 10)
+    const countryStats: Record<string, number> = {};
+    users.forEach(user => {
+      const country = user.country || 'Not specified';
+      countryStats[country] = (countryStats[country] || 0) + 1;
+    });
+
+    const topCountries = Object.entries(countryStats)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([country, count]) => ({ country, count }));
+
+    return {
+      gender: Object.entries(genderStats).map(([name, value]) => ({ name, value })),
+      ageRange: Object.entries(ageStats).map(([name, value]) => ({ name, value })),
+      countries: topCountries,
+    };
+  }, [users]);
 
   // Get top casinos by safety index/rating
   const topCasinos = useMemo(() => {
@@ -130,6 +179,78 @@ export const AnalyticsCharts = memo(function AnalyticsCharts() {
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
+      {/* User Demographics - Gender */}
+      <Card>
+        <CardHeader>
+          <CardTitle>User Demographics - Gender</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
+          ) : (
+            <SimplePieChart 
+              data={userDemographics.gender.map(item => ({
+                name: item.name === 'male' ? 'Male' : item.name === 'female' ? 'Female' : 'Prefer not to say',
+                value: item.value,
+                color: item.name === 'male' ? 'bg-blue-500' : item.name === 'female' ? 'bg-pink-500' : 'bg-gray-500'
+              }))} 
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* User Demographics - Age Range */}
+      <Card>
+        <CardHeader>
+          <CardTitle>User Demographics - Age Range</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
+          ) : (
+            <SimplePieChart 
+              data={userDemographics.ageRange.map(item => ({
+                name: item.name === 'Not specified' ? 'Not specified' : item.name,
+                value: item.value,
+                color: 'bg-indigo-500'
+              }))} 
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* User Demographics - Top Countries */}
+      <Card className="md:col-span-2">
+        <CardHeader>
+          <CardTitle>User Demographics - Top Countries</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground text-center py-8">Loading...</div>
+          ) : userDemographics.countries.length > 0 ? (
+            <div className="space-y-3">
+              {userDemographics.countries.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <span className="font-medium">{item.country}</span>
+                  </div>
+                  <Badge variant="outline" className="text-lg px-3 py-1">
+                    {item.count} {item.count === 1 ? 'user' : 'users'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No country data available
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* User Growth Chart */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

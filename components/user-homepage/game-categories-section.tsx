@@ -73,34 +73,34 @@ export const GameCategoriesSection = memo(function GameCategoriesSection() {
   ];
 
   return (
-    <section className="py-16 px-4 bg-muted/50">
+    <section className="py-8 sm:py-12 lg:py-16 px-4 bg-muted/50">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Star className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+              <Star className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Explore by Category</span>
             </div>
             
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
               Discover Your Perfect <span className="text-primary">Gaming Experience</span>
             </h2>
             
-            <p className="text-muted-foreground max-w-2xl">
+            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl">
               Whether you're looking for the best casino games, thrilling live dealer experiences, 
               trusted payment methods, or the biggest bonuses, we've got you covered.
             </p>
           </div>
           
-          <Button variant="link" className="text-primary">
+          <Button variant="link" className="text-primary text-sm sm:text-base">
             See all casino games
             <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </div>
         
         {/* Enhanced Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8">
           {tabs.map((tab) => (
             <Button
               key={tab.id}
@@ -119,26 +119,26 @@ export const GameCategoriesSection = memo(function GameCategoriesSection() {
         </div>
 
         {/* Main Content - Game Categories */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-bold text-foreground mb-6">
+        <div className="mb-6 sm:mb-8">
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">
             Find safe places to play <span className="text-primary">games you'll love</span>
           </h3>
           
           {/* Game Categories Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             {gameCategories.map((category, index) => (
               <Card 
                 key={index}
                 className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 border border-border bg-card"
               >
-                <CardContent className="p-4 text-center">
+                <CardContent className="p-3 sm:p-4 text-center">
                   {/* Icon with theme colors */}
-                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                    <category.icon className="w-6 h-6 text-primary-foreground" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <category.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                   </div>
                   
-                  <h4 className="font-semibold text-foreground mb-2 text-sm">{category.name}</h4>
-                  <p className="text-xs text-muted-foreground mb-3">{category.description}</p>
+                  <h4 className="font-semibold text-foreground mb-1 sm:mb-2 text-xs sm:text-sm">{category.name}</h4>
+                  <p className="text-xs text-muted-foreground mb-2 sm:mb-3">{category.description}</p>
                   
                   <div className="space-y-1">
                     <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs w-full">

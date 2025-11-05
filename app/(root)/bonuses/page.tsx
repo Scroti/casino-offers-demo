@@ -27,9 +27,22 @@ const extractCasinoName = (title: string) => {
 };
 
 const extractBonusType = (type: string) => {
-  if (type === "no-deposit") return "no-deposit";
-  if (type === "deposit") return "deposit";
-  return "cashback";
+  // Handle various bonus type formats
+  const normalizedType = type?.toLowerCase().trim();
+  if (normalizedType === "no-deposit" || normalizedType === "no deposit" || normalizedType === "nodeposit") {
+    return "no-deposit";
+  }
+  if (normalizedType === "deposit") {
+    return "deposit";
+  }
+  if (normalizedType === "cashback" || normalizedType === "cash back") {
+    return "cashback";
+  }
+  if (normalizedType === "other" || normalizedType === "others") {
+    return "other";
+  }
+  // Return the original type if it doesn't match known types
+  return type || "other";
 };
 
 function BonusesPage() {

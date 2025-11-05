@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SidebarTrigger, useSidebar } from './ui/sidebar';
 import { NavUser } from './nav-user';
 import { ModeToggle } from './ui/mode-toggle';
+import { LanguageToggle } from './ui/language-toggle';
 import { appConfig } from '@/components/configs/appConfig';
 import { useAuth } from '@/context/auth.context';
 import { useI18n } from '@/context/i18n.context';
@@ -31,6 +32,7 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2">
+          <LanguageToggle />
           <ModeToggle />
           {!hydrated ? null : accessToken ? (
             <NavUser user={user} />

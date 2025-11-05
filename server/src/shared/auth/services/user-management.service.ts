@@ -70,9 +70,18 @@ export class UserManagementService {
       }
     }
 
+    // Handle null values to clear fields (e.g., gender, ageRange)
+    const updatePayload: any = { ...updateUserDto, updatedAt: new Date() };
+    if (updateUserDto.gender === null || updateUserDto.gender === undefined) {
+      updatePayload.gender = null;
+    }
+    if (updateUserDto.ageRange === null || updateUserDto.ageRange === undefined) {
+      updatePayload.ageRange = null;
+    }
+
     const updatedUser = await this.userModel.findByIdAndUpdate(
       id,
-      { ...updateUserDto, updatedAt: new Date() },
+      updatePayload,
       { new: true }
     ).select('-passwordHash -refreshTokenHash').lean();
 

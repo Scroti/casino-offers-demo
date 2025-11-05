@@ -57,24 +57,24 @@ export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
   ];
 
   return (
-    <section className="py-20 px-4 bg-background">
+    <section className="py-8 sm:py-12 lg:py-20 px-4 bg-background">
       <div className="container mx-auto max-w-7xl">
         {/* Why Choose Us Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-8">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6 sm:mb-8">
             Why use <span className="text-primary">{appName}</span>?
           </h2>
           
           {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12 lg:mb-16">
             {features.map((feature, index) => (
               <Card key={index} className="bg-background border border-border shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                    <feature.icon className="w-8 h-8 text-primary-foreground" />
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                    <feature.icon className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-4">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4">{feature.title}</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -82,18 +82,18 @@ export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
         </div>
 
         {/* Trusted by Players Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-foreground mb-12">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 lg:mb-12">
             Trusted by players worldwide
           </h2>
           
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((stat, index) => (
               <Card key={index} className="bg-primary/5 border border-primary/20 shadow-sm">
-                <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-primary mb-2">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">{stat.value}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -102,10 +102,10 @@ export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
 
         {/* Recognition Section */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             You might recognize us <span className="text-primary">from...</span>
           </h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto">
             We're proud to have featured in many trusted publications around the world.
           </p>
           

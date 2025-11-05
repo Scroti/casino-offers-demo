@@ -41,5 +41,7 @@ export const envValidationSchema = Joi.object({
   SMTP_PASSWORD: Joi.string().optional(), // Can also be used as SendGrid API key fallback
   EMAIL_FROM: Joi.string().email().optional(),
   EMAIL_LOGO_URL: Joi.string().uri().optional(), // Optional: custom logo URL for emails
+  SUPPORT_EMAIL: Joi.string().email().optional(), // Where to send contact form notifications
+  NEWS_API_KEY: Joi.string().optional(), // News API key for fetching news articles
 });
 

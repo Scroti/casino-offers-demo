@@ -65,13 +65,14 @@ export const HeroSection = memo(function HeroSection() {
   ];
 
   return (
-    <section className="relative py-20 px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/5">
+    <section className="relative py-8 sm:py-12 lg:py-20 px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/5">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:items-center">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 lg:items-center">
           {/* Hero section - Text content */}
-          <div className="space-y-6">
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight text-foreground">
+          <div className="space-y-4 sm:space-y-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
               {t('hero.title')}{' '}
+              <br className="sm:hidden" />
               <span 
                 className="relative inline-block h-[1.2em] transition-all duration-500 ease-in-out overflow-hidden"
                 style={{ 
@@ -115,31 +116,31 @@ export const HeroSection = memo(function HeroSection() {
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <Card
-                    key={index}
-                    className="group relative border-2 hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden bg-card flex-shrink-0 w-[280px] lg:w-auto"
-                  >
-                    <a href={feature.href} className="block">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                            <Icon className="w-6 h-6" />
+                    <Card
+                      key={index}
+                      className="group relative border-2 hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden bg-card flex-shrink-0 w-[280px] lg:w-auto"
+                    >
+                      <a href={feature.href} className="block">
+                        <CardContent className="p-4 sm:p-5 lg:p-6">
+                          <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                            <div className="p-2 sm:p-2.5 lg:p-3 rounded-lg bg-primary/10 text-primary">
+                              <Icon className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+                            </div>
+                            {feature.label && (
+                              <Badge variant="default" className="font-bold text-xs sm:text-sm">
+                                {feature.label}
+                              </Badge>
+                            )}
                           </div>
-                          {feature.label && (
-                            <Badge variant="default" className="font-bold">
-                              {feature.label}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-foreground font-semibold text-sm">
-                            {feature.title}
-                          </h3>
-                          <ArrowRight className="text-muted-foreground w-5 h-5 group-hover:translate-x-1 group-hover:text-primary transition-all" />
-                        </div>
-                      </CardContent>
-                    </a>
-                  </Card>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-foreground font-semibold text-xs sm:text-sm">
+                              {feature.title}
+                            </h3>
+                            <ArrowRight className="text-muted-foreground w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 group-hover:text-primary transition-all" />
+                          </div>
+                        </CardContent>
+                      </a>
+                    </Card>
                 );
               })}
             </div>

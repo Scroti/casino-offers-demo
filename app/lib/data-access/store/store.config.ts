@@ -8,6 +8,8 @@ import { usersApi } from "../configs/users.config";
 import { campaignsApi } from "../configs/campaigns.config";
 import { contactApi } from "../configs/contact.config";
 import { contactManagementApi } from "../configs/contact-management.config";
+import { newsApi } from "../configs/news.config";
+import { guidesApi } from "../configs/guides.config";
   export const store = configureStore({
     reducer: {
       auth: authReducer,
@@ -19,6 +21,8 @@ import { contactManagementApi } from "../configs/contact-management.config";
       [campaignsApi.reducerPath]:campaignsApi.reducer,
       [contactApi.reducerPath]: contactApi.reducer,
       [contactManagementApi.reducerPath]: contactManagementApi.reducer,
+      [newsApi.reducerPath]: newsApi.reducer,
+      [guidesApi.reducerPath]: guidesApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(
@@ -29,7 +33,9 @@ import { contactManagementApi } from "../configs/contact-management.config";
         usersApi.middleware,
         campaignsApi.middleware,
         contactApi.middleware,
-        contactManagementApi.middleware
+        contactManagementApi.middleware,
+        newsApi.middleware,
+        guidesApi.middleware
       ),
   });
 
