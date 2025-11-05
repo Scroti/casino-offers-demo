@@ -2,6 +2,9 @@
 
 import * as React from "react";
 import { Suspense } from "react";
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 import {
   ColumnDef,
   ColumnFiltersState,
