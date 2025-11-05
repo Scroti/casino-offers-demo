@@ -14,6 +14,7 @@ import { TranslatedBonusCard } from '@/components/ui/translated-bonus-card';
 import { useI18n } from '@/context/i18n.context';
 
 export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
+  const { t } = useI18n();
   const { data: casinos = [], isLoading: casinosLoading } = useGetAllCasinosQuery();
   const { data: allBonuses = [] } = useGetAllBonusesQuery();
 
