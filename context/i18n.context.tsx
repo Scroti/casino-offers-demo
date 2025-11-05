@@ -95,22 +95,38 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   // Translation function
   const t = (key: string): string => {
-    const keys = key.split('.');
-    let value = messages[language] || messages[defaultLanguage];
-    
-    for (const k of keys) {
-      value = value?.[k];
-      if (value === undefined) {
-        // Fallback to English
-        value = messages[defaultLanguage];
-        for (const fallbackKey of keys) {
-          value = value?.[fallbackKey];
+    try {
+      const keys = key.split('.');
+      
+      // Try to get translation from current language
+      let value = messages[language];
+      if (value) {
+        for (const k of keys) {
+          value = value?.[k];
+          if (value === undefined) break;
         }
-        break;
+        
+        // If found in current language, return it
+        if (value !== undefined && typeof value === 'string') {
+          return value;
+        }
       }
+      
+      // Fallback to English
+      value = messages[defaultLanguage];
+      for (const k of keys) {
+        value = value?.[k];
+        if (value === undefined) {
+          console.warn(`Translation key not found: ${key}`);
+          return key; // Return the key itself if not found
+        }
+      }
+      
+      return value || key;
+    } catch (error) {
+      console.error(`Translation error for key "${key}":`, error);
+      return key;
     }
-    
-    return value || key;
   };
 
   return (
