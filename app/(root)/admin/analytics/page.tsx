@@ -12,15 +12,12 @@ import {
   TrendingUp,
   Calendar,
   ExternalLink,
-  RefreshCw,
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminAnalyticsPage() {
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-  const [isLoading, setIsLoading] = React.useState(false);
-
   const analyticsUrl = 'https://analytics.google.com/';
 
   return (
@@ -72,9 +69,15 @@ export default function AdminAnalyticsPage() {
               </p>
               <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
                 <li>Get your Measurement ID from Google Analytics (format: G-XXXXXXXXXX)</li>
-                <li>Add it to your environment variables as <code className="bg-muted px-1 py-0.5 rounded">NEXT_PUBLIC_GA_MEASUREMENT_ID</code></li>
-                <li>Restart your development server or redeploy your application</li>
+                <li>Create a <code className="bg-muted px-1 py-0.5 rounded">.env.local</code> file in the root directory</li>
+                <li>Add: <code className="bg-muted px-1 py-0.5 rounded">NEXT_PUBLIC_GA_MEASUREMENT_ID=G-HW4HZYZ5V7</code></li>
+                <li><strong>Important:</strong> Stop your dev server (Ctrl+C) and restart it with <code className="bg-muted px-1 py-0.5 rounded">npm run dev</code></li>
+                <li>Refresh this page after restarting</li>
               </ol>
+              <div className="p-3 bg-muted rounded text-sm">
+                <strong>Note:</strong> Environment variables starting with <code>NEXT_PUBLIC_</code> must be available at build/start time. 
+                Just adding them to the file isn&apos;t enough - you must restart the Next.js dev server.
+              </div>
               <Button asChild variant="outline" size="sm">
                 <Link href="/admin">
                   Back to Dashboard
