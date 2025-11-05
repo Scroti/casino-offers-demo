@@ -7,12 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetAllBonusesQuery } from "@/app/lib/data-access/configs/bonuses.config";
 import type { Bonus } from "@/app/lib/data-access/models/bonus.model";
 import { Filter, CheckCircle2 } from "lucide-react";
+import { useI18n } from "@/context/i18n.context";
 
 interface BonusesPageProps {
   filter?: string;
 }
 
 export default function BonusesPage({ filter }: BonusesPageProps) {
+  const { t } = useI18n();
   const { data: bonuses = [], isLoading } = useGetAllBonusesQuery();
   const [selectedFilter, setSelectedFilter] = useState(filter || "all");
   const [sortBy, setSortBy] = useState("recommended");
@@ -27,13 +29,13 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
   })();
 
   const filters = [
-    { id: "all", label: `All (${bonuses.length})`, icon: null },
-    { id: "deposit", label: "Deposit", icon: null },
-    { id: "no-deposit", label: "No deposit", icon: null },
-    { id: "cashback", label: "Cashback", icon: null },
-    { id: "recommended", label: "Recommended", icon: CheckCircle2 },
-    { id: "latest", label: "Latest", icon: null },
-    { id: "exclusive", label: "Exclusive", icon: null },
+    { id: "all", label: `${t('common.all')} (${bonuses.length})`, icon: null },
+    { id: "deposit", label: t('bonuses.deposit'), icon: null },
+    { id: "no-deposit", label: t('bonuses.noDeposit'), icon: null },
+    { id: "cashback", label: t('bonuses.cashback'), icon: null },
+    { id: "recommended", label: t('bonuses.recommended'), icon: CheckCircle2 },
+    { id: "latest", label: t('bonuses.newest'), icon: null },
+    { id: "exclusive", label: t('bonuses.exclusive'), icon: null },
   ];
 
   const activeFilterCount = selectedFilter !== "all" ? 1 : 0;
@@ -52,7 +54,7 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
 
   return (
     <div className="container py-5 px-5 mx-auto max-w-7xl">
-      <h1 className="text-4xl font-bold mb-6">Bonuses</h1>
+      <h1 className="text-4xl font-bold mb-6">{t('bonuses.title')}</h1>
 
       {/* Filter Section */}
       <div className="mb-6 space-y-4">
@@ -80,23 +82,23 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
         {/* Results Count & Controls */}
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            {filteredByType.length} bonuses found {activeFilterCount ? `(1 active filter)` : ""}
+            {filteredByType.length} {t('bonuses.title').toLowerCase()} {t('common.found')} {activeFilterCount ? `(1 ${t('common.active')} ${t('common.filter')})` : ""}
           </div>
           
           <div className="flex items-center gap-4">
             {/* Sort By */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Sort by:</span>
+              <span className="text-sm text-muted-foreground">{t('bonuses.sort')}:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Recommended" />
+                  <SelectValue placeholder={t('bonuses.recommended')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="recommended">Recommended</SelectItem>
-                  <SelectItem value="highest">Highest Value</SelectItem>
-                  <SelectItem value="lowest">Lowest Value</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="oldest">Oldest</SelectItem>
+                  <SelectItem value="recommended">{t('bonuses.recommended')}</SelectItem>
+                  <SelectItem value="highest">{t('bonuses.highestValue')}</SelectItem>
+                  <SelectItem value="lowest">{t('bonuses.lowestValue')}</SelectItem>
+                  <SelectItem value="newest">{t('bonuses.newest')}</SelectItem>
+                  <SelectItem value="oldest">{t('bonuses.oldest')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -105,7 +107,7 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
             {activeFilterCount > 0 && (
               <Button variant="outline" size="sm" className="gap-2">
                 <Filter className="h-4 w-4" />
-                Filter {activeFilterCount}
+                {t('common.filter')} {activeFilterCount}
               </Button>
             )}
           </div>
@@ -113,10 +115,10 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
       </div>
 
       {isLoading && (
-        <div className="w-full text-center text-lg py-12">Loading bonuses...</div>
+        <div className="w-full text-center text-lg py-12">{t('common.loading')} {t('bonuses.title').toLowerCase()}...</div>
       )}
       {(!isLoading && filteredByType.length === 0) && (
-        <div className="w-full text-center text-lg py-12">No bonuses found.</div>
+        <div className="w-full text-center text-lg py-12">{t('bonuses.noBonuses')}</div>
       )}
 
       {/* Stacked bonuses - one under the other */}

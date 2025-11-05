@@ -100,13 +100,13 @@ export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-              Browse our top picks for October
+              {t('hero.title')} {t('hero.casinos')}
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base">Claim the latest casino bonuses</p>
+            <p className="text-muted-foreground text-sm sm:text-base">{t('hero.subtitle')}</p>
           </div>
           <Button variant="link" className="text-primary text-sm sm:text-base" asChild>
             <Link href="/bonuses">
-              See all casino bonuses
+              {t('common.view')} {t('common.all')} {t('bonuses.title').toLowerCase()}
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
@@ -129,7 +129,7 @@ export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
             ))
           ) : casinoBonuses.length === 0 ? (
             <div className="col-span-full text-center py-8 text-muted-foreground">
-              No casino bonuses available at the moment.
+              {t('bonuses.noBonuses')}
             </div>
           ) : (
             casinoBonuses.map((item, index) => {

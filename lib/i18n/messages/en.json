@@ -47,7 +47,9 @@
     "no": "No",
     "confirm": "Confirm",
     "continue": "Continue",
-    "skip": "Skip"
+    "skip": "Skip",
+    "found": "found",
+    "active": "active"
   },
   "hero": {
     "title": "Helping you find",
