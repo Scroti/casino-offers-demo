@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -63,7 +64,7 @@ import {
   type Contact,
 } from "@/app/lib/data-access/configs/contact-management.config";
 
-export default function ContactManagementPage() {
+function ContactManagementPageContent() {
   const { user } = useAuth();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -603,6 +604,18 @@ export default function ContactManagementPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function ContactManagementPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading contacts...</p>
+      </div>
+    }>
+      <ContactManagementPageContent />
+    </Suspense>
   );
 }
 

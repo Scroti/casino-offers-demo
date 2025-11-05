@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
 import { flexRender } from '@tanstack/react-table';
 import {
   Table,
@@ -16,7 +17,7 @@ import { BonusTableToolbar } from '@/components/admin/bonus-table-toolbar';
 import { BonusTablePagination } from '@/components/admin/bonus-table-pagination';
 import { useBonusTable } from '@/hooks/use-bonus-table';
 
-export default function AdminBonusesTable() {
+function AdminBonusesTableContent() {
   const {
     table,
     isLoading,
@@ -94,5 +95,17 @@ export default function AdminBonusesTable() {
         description="Are you sure you want to delete this bonus? This action cannot be undone."
       />
     </>
+  );
+}
+
+export default function AdminBonusesTable() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading bonuses...</p>
+      </div>
+    }>
+      <AdminBonusesTableContent />
+    </Suspense>
   );
 }

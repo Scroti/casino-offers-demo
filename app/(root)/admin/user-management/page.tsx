@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -59,7 +60,7 @@ import {
   type User,
 } from '@/app/lib/data-access/configs/users.config';
 
-export default function UserManagementTable() {
+function UserManagementTableContent() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -586,5 +587,17 @@ export default function UserManagementTable() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UserManagementTable() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading users...</p>
+      </div>
+    }>
+      <UserManagementTableContent />
+    </Suspense>
   );
 }

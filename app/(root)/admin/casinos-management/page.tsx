@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Suspense } from 'react';
 import { flexRender } from '@tanstack/react-table';
 import {
   Table,
@@ -16,7 +17,7 @@ import { CasinoTableToolbar } from '@/components/admin/casino-table-toolbar';
 import { CasinoTablePagination } from '@/components/admin/casino-table-pagination';
 import { useCasinoTable } from '@/hooks/use-casino-table';
 
-export default function AdminCasinosTable() {
+function AdminCasinosTableContent() {
   const {
     table,
     isLoading,
@@ -94,6 +95,18 @@ export default function AdminCasinosTable() {
         description="Are you sure you want to delete this casino? This action cannot be undone."
       />
     </>
+  );
+}
+
+export default function AdminCasinosTable() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading casinos...</p>
+      </div>
+    }>
+      <AdminCasinosTableContent />
+    </Suspense>
   );
 }
 
