@@ -10,6 +10,8 @@ import { AnalyticsCharts } from '@/components/admin/analytics-charts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/context/auth.context';
+import { useMeQuery } from '@/app/lib/data-access/configs/auth.config';
 import { 
   ExternalLink, 
   AlertCircle,
@@ -21,6 +23,11 @@ function AdminDashboardContent() {
   const [currentTime, setCurrentTime] = React.useState<string>('');
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const analyticsUrl = 'https://analytics.google.com/';
+  const { accessToken } = useAuth();
+  const { data: user } = useMeQuery(undefined, { skip: !accessToken });
+  
+  // Get admin username - use name or email as fallback
+  const adminName = user?.name || user?.email?.split('@')[0] || 'Admin';
 
   React.useEffect(() => {
     // Set time only on client side to avoid hydration mismatch
@@ -28,18 +35,18 @@ function AdminDashboardContent() {
   }, []);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 bg-background">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Admin Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome back! Here&apos;s what&apos;s happening with your casino platform.
+            Welcome back, <span className="font-semibold text-foreground">{adminName}</span>! Here&apos;s what&apos;s happening with your casino platform.
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="text-sm text-muted-foreground">
-            Last updated: {currentTime || 'Loading...'}
+            Last updated: <span className="text-foreground">{currentTime || 'Loading...'}</span>
           </div>
         </div>
       </div>
@@ -51,14 +58,14 @@ function AdminDashboardContent() {
       <AnalyticsCharts />
 
       {/* Google Analytics Info Card */}
-      <Card className={!gaId ? 'border-yellow-500/50 bg-yellow-500/10' : ''}>
+      <Card className={!gaId ? 'border-destructive/50 bg-destructive/10 dark:bg-destructive/20' : 'border-border bg-card'}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              <CardTitle>Google Analytics</CardTitle>
+              <BarChart3 className="h-5 w-5 text-foreground" />
+              <CardTitle className="text-foreground">Google Analytics</CardTitle>
               {gaId && (
-                <Badge variant="secondary" className="text-sm">
+                <Badge variant="secondary" className="text-sm font-medium">
                   ID: {gaId}
                 </Badge>
               )}
@@ -77,7 +84,7 @@ function AdminDashboardContent() {
               </Button>
             )}
           </div>
-          <CardDescription>
+          <CardDescription className="text-muted-foreground">
             {gaId 
               ? 'View detailed analytics and visitor insights for your platform'
               : 'Add your Google Analytics Measurement ID to start tracking visitors'
@@ -87,13 +94,13 @@ function AdminDashboardContent() {
         <CardContent>
           {!gaId ? (
             <div className="space-y-4">
-              <div className="flex items-start gap-2 text-yellow-600 dark:text-yellow-400">
-                <AlertCircle className="h-5 w-5 mt-0.5" />
-                <div>
-                  <p className="font-semibold mb-2">Google Analytics Not Configured</p>
+              <div className="flex items-start gap-2 text-destructive">
+                <AlertCircle className="h-5 w-5 mt-0.5 text-destructive" />
+                <div className="space-y-2">
+                  <p className="font-semibold text-foreground mb-2">Google Analytics Not Configured</p>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
                     <li>Get your Measurement ID from Google Analytics (format: G-XXXXXXXXXX)</li>
-                    <li>Add it to your environment variables: <code className="bg-muted px-1 py-0.5 rounded">NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX</code></li>
+                    <li>Add it to your environment variables: <code className="bg-muted text-foreground px-1.5 py-0.5 rounded font-mono text-xs">NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX</code></li>
                     <li>Restart your application for the changes to take effect</li>
                   </ol>
                 </div>
@@ -102,9 +109,9 @@ function AdminDashboardContent() {
           ) : (
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">Quick Access</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-foreground">Quick Access</h4>
+                  <p className="text-sm text-muted-foreground">
                     Access your full analytics dashboard to view visitor traffic, page views, 
                     user behavior, and conversion events.
                   </p>
@@ -120,9 +127,9 @@ function AdminDashboardContent() {
                     </a>
                   </Button>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">What to Track</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-foreground">What to Track</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
                     <li>Visitor traffic and page views</li>
                     <li>User behavior and engagement</li>
                     <li>Conversion events (bonus clicks, casino views)</li>
@@ -131,9 +138,11 @@ function AdminDashboardContent() {
                   </ul>
                 </div>
               </div>
-              <div className="p-3 bg-muted rounded text-sm text-muted-foreground">
-                <strong>Note:</strong> The application automatically tracks custom events like bonus clicks, 
-                casino views, and game plays. These events are available in Google Analytics under Events.
+              <div className="p-3 bg-muted rounded-md border border-border">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Note:</strong> The application automatically tracks custom events like bonus clicks, 
+                  casino views, and game plays. These events are available in Google Analytics under Events.
+                </p>
               </div>
             </div>
           )}
