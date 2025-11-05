@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
     maxInactiveAge: 25 * 1000,
     pagesBufferLength: 2,
   },
+  // Ensure dynamic rendering for pages using useSearchParams
+  experimental: {
+    dynamicIO: true,
+  },
   images: {
     // Allow images from any domain by disabling optimization
     // This allows Next.js Image component to load images from any hostname
