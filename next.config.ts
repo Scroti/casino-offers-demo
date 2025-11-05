@@ -5,18 +5,14 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // eslint config moved to separate file
   // Suppress all linting errors during build
   onDemandEntries: {
     maxInactiveAge: 25 * 1000,
     pagesBufferLength: 2,
   },
-  // Ensure dynamic rendering for pages using useSearchParams
-  experimental: {
-    dynamicIO: true,
-  },
+  // Note: cacheComponents is not compatible with dynamic = 'force-dynamic'
+  // We need dynamic rendering for pages using useSearchParams via layout
   images: {
     // Allow images from any domain by disabling optimization
     // This allows Next.js Image component to load images from any hostname

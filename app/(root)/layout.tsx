@@ -2,7 +2,6 @@
 
 // Force dynamic rendering for this layout
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";

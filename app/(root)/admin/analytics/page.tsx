@@ -5,7 +5,6 @@ import { Suspense } from 'react';
 
 // Force dynamic rendering for this page - must be before any imports
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
