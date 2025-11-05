@@ -25,18 +25,20 @@ type RefreshResponse = {
   refreshToken: string;
 };
 
-const baseQueryWithReauth = async (
-  args: string | FetchArgs,
-  api: BaseQueryApi,
-  extraOptions: {}
-) => {
-  // Prevent infinite refresh loops - don't retry refresh endpoint itself
-  const url = typeof args === 'string' ? args : args.url;
-  if (url === 'refresh' || url?.endsWith('/refresh')) {
-    return baseQuery(args, api, extraOptions);
-  }
+// Factory function to create baseQueryWithReauth for any baseQuery
+export function createBaseQueryWithReauth(baseQueryFn: ReturnType<typeof fetchBaseQuery>) {
+  return async (
+    args: string | FetchArgs,
+    api: BaseQueryApi,
+    extraOptions: {}
+  ) => {
+    // Prevent infinite refresh loops - don't retry refresh endpoint itself
+    const url = typeof args === 'string' ? args : args.url;
+    if (url === 'refresh' || url?.endsWith('/refresh') || url?.includes('/auth/refresh')) {
+      return baseQueryFn(args, api, extraOptions);
+    }
 
-  let result = await baseQuery(args, api, extraOptions);
+    let result = await baseQueryFn(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
     // try to get a new token
@@ -44,7 +46,18 @@ const baseQueryWithReauth = async (
 
     if (refreshToken) {
       try {
-        const refreshResult = await baseQuery(
+        // Use the auth baseQuery for refresh token
+        const authBaseQuery = fetchBaseQuery({
+          baseUrl: `${ENV.API_URL}/auth`,
+          credentials: 'include',
+          prepareHeaders(headers, { getState }) {
+            const token = (getState() as any).auth.accessToken;
+            if (token) headers.set("Authorization", `Bearer ${token}`);
+            return headers;
+          },
+        });
+        
+        const refreshResult = await authBaseQuery(
           {
             url: "refresh",
             method: "POST",
@@ -73,7 +86,7 @@ const baseQueryWithReauth = async (
           );
 
           // retry the original query with new access token
-          result = await baseQuery(args, api, extraOptions);
+          result = await baseQueryFn(args, api, extraOptions);
         } else {
           console.error('Invalid refresh response:', refreshData);
           api.dispatch(authSlice.actions.logout());
@@ -88,7 +101,11 @@ const baseQueryWithReauth = async (
     }
   }
   return result;
-};
+  };
+}
+
+// Use the factory function for auth API
+const baseQueryWithReauth = createBaseQueryWithReauth(baseQuery);
 
 export const authApi = createApi({
   reducerPath: "authApi",

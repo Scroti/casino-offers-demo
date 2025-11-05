@@ -1,6 +1,21 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQueryWithReauth } from './auth.config';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createBaseQueryWithReauth } from './auth.config';
+import { ENV } from '@/lib/constants/env';
 import type { Game } from '../models/game.model';
+
+const baseQuery = fetchBaseQuery({
+  baseUrl: ENV.API_URL,
+  credentials: 'include',
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as any).auth.accessToken;
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const baseQueryWithReauth = createBaseQueryWithReauth(baseQuery);
 
 export const gamesApi = createApi({
   reducerPath: 'gamesApi',
