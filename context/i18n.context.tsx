@@ -31,6 +31,9 @@ const I18nContext = createContext<I18nContextType | null>(null);
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<string>(defaultLanguage);
   const [initialized, setInitialized] = useState(false);
+  
+  // Force re-render when language changes
+  const [, forceUpdate] = useState(0);
 
   // Load language from cookie or detect from country
   useEffect(() => {
@@ -88,8 +91,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (lang: string) => {
     if (supportedLanguages.includes(lang)) {
+      console.log(`🌐 Changing language from ${language} to ${lang}`);
       setLanguageState(lang);
       Cookies.set('app-language', lang, { expires: 365, path: '/' });
+      forceUpdate(prev => prev + 1); // Force re-render
     }
   };
 
