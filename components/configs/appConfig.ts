@@ -148,11 +148,6 @@ export const adminAppConfig = {
       url: "/admin/guides-management",
       icon: FileText,
     },
-    {
-      title: "Google Analytics",
-      url: "/admin/analytics",
-      icon: ChartCandlestick,
-    },
   ],
   
   navSecondary: [
