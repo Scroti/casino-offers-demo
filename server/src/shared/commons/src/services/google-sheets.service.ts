@@ -41,7 +41,7 @@ export class GoogleSheetsService {
   async updateNewsletterSheet(subscribers: any[]) {
     const syncEnabled = this.configService.get<boolean>('GOOGLE_SHEETS_SYNC_ENABLED');
     if (!syncEnabled) {
-      console.log('Google Sheets sync is disabled (GOOGLE_SHEETS_SYNC_ENABLED=false)');
+      console.log('⚠️ Google Sheets sync is disabled. Set GOOGLE_SHEETS_SYNC_ENABLED=true to enable.');
       return;
     }
     
@@ -116,7 +116,7 @@ export class GoogleSheetsService {
   async appendSubscriber(subscriber: any) {
     const syncEnabled = this.configService.get<boolean>('GOOGLE_SHEETS_SYNC_ENABLED');
     if (!syncEnabled) {
-      console.log('Google Sheets sync is disabled (GOOGLE_SHEETS_SYNC_ENABLED=false)');
+      console.log('⚠️ Google Sheets sync is disabled. Set GOOGLE_SHEETS_SYNC_ENABLED=true to enable.');
       return;
     }
     
