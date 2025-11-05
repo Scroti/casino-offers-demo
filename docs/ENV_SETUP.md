@@ -40,10 +40,10 @@ After restarting, refresh your browser page (or do a hard refresh with `Ctrl+Shi
 
 ### Step 5: Verify
 
-1. Go to `/admin/analytics` page
-2. You should see a blue "Debug Info" box in development mode
+1. Go to `/admin` dashboard page
+2. You should see the Google Analytics card with your Measurement ID
 3. Check the console for: `GA Measurement ID from env: G-HW4HZYZ5V7`
-4. The warning should disappear and you should see the analytics cards
+4. The warning should disappear and you should see the "Open Google Analytics" button
 
 ## Common Issues
 
@@ -96,7 +96,7 @@ casino-offers-demo/
 ## Still Having Issues?
 
 1. Check the browser console for any errors
-2. Look at the "Debug Info" box on the analytics page (development mode only)
+2. Look at the Google Analytics card on the admin dashboard page
 3. Verify the `.env.local` file is not being ignored by your editor
 4. Try adding other `NEXT_PUBLIC_` variables to test if env vars work at all
 5. Check Next.js documentation: https://nextjs.org/docs/basic-features/environment-variables

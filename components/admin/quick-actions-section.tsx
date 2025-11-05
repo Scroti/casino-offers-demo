@@ -54,14 +54,6 @@ const quickActions: QuickAction[] = [
     color: 'bg-purple-500 hover:bg-purple-600'
   },
   {
-    id: 'analytics',
-    title: 'Analytics',
-    description: 'View detailed analytics and reports',
-    icon: BarChart3,
-    href: '/admin/analytics',
-    color: 'bg-orange-500 hover:bg-orange-600'
-  },
-  {
     id: 'content',
     title: 'Content Management',
     description: 'Manage casino listings and content',
