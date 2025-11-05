@@ -302,6 +302,22 @@ export function applyBonusFilters(
       if (!bonus.type || !selectedTypes.includes(bonus.type)) return false;
     }
 
+    // Casino
+    if (filters["casino"]?.length > 0) {
+      const selectedCasinos = filters["casino"].map((id) => id.replace("casino-", ""));
+      let bonusCasinoName = '';
+      
+      // Get casino name from populated object or casinoName field
+      if (bonus.casino && typeof bonus.casino === 'object' && bonus.casino !== null) {
+        const casino = bonus.casino as any;
+        bonusCasinoName = casino.name || '';
+      } else if (bonus.casinoName) {
+        bonusCasinoName = bonus.casinoName;
+      }
+      
+      if (!bonusCasinoName || !selectedCasinos.includes(bonusCasinoName)) return false;
+    }
+
     // Safety Index
     if (filters["safety-index"]?.length > 0) {
       const safetyIndex = bonus.safetyIndex || 0;
@@ -332,6 +348,7 @@ export function applyBonusFilters(
     // Features
     if (filters["features"]?.length > 0) {
       if (filters["features"].includes("exclusive") && !bonus.isExclusive) return false;
+      if (filters["features"].includes("has-promo-code") && !bonus.promoCode) return false;
     }
 
     return true;

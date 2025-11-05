@@ -1,46 +1,106 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { TranslatedBonusCard } from "@/components/ui/translated-bonus-card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllBonusesQuery } from "@/app/lib/data-access/configs/bonuses.config";
 import type { Bonus } from "@/app/lib/data-access/models/bonus.model";
-import { Filter, CheckCircle2 } from "lucide-react";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { FilterSection } from "@/components/shared/FilterSection";
+import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  getBonusFilterCategories, 
+  applyBonusFilters,
+  type AdvancedFilterState 
+} from "@/lib/utils/filter-categories";
 import { useI18n } from "@/context/i18n.context";
 
 interface BonusesPageProps {
   filter?: string;
 }
 
-export default function BonusesPage({ filter }: BonusesPageProps) {
+function BonusesPageContent({ filter }: BonusesPageProps) {
   const { t } = useI18n();
   const { data: bonuses = [], isLoading } = useGetAllBonusesQuery();
-  const [selectedFilter, setSelectedFilter] = useState(filter || "all");
   const [sortBy, setSortBy] = useState("recommended");
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilterState>({});
 
-  const filteredByType = (() => {
-    if (selectedFilter === "all" || selectedFilter === "recommended" || selectedFilter === "latest") return bonuses;
-    if (selectedFilter === "no-deposit" || selectedFilter === "deposit" || selectedFilter === "cashback") {
-      return bonuses.filter((b) => b.type === selectedFilter);
+  // Get advanced filter categories
+  const advancedFilterCategories = useMemo(() => {
+    return getBonusFilterCategories(bonuses);
+  }, [bonuses]);
+
+  // Apply advanced filters
+  const filteredBonuses = useMemo(() => {
+    let filtered = bonuses;
+
+    // Apply quick filter if provided
+    if (filter) {
+      if (filter === "no-deposit" || filter === "deposit" || filter === "cashback") {
+        filtered = filtered.filter((b) => b.type === filter);
+      } else if (filter === "exclusive") {
+        filtered = filtered.filter((b) => b.isExclusive);
+      }
     }
-    if (selectedFilter === "exclusive") return bonuses.filter((b) => b.isExclusive);
-    return bonuses;
-  })();
 
-  const filters = [
-    { id: "all", label: `${t('common.all')} (${bonuses.length})`, icon: null },
-    { id: "deposit", label: t('bonuses.deposit'), icon: null },
-    { id: "no-deposit", label: t('bonuses.noDeposit'), icon: null },
-    { id: "cashback", label: t('bonuses.cashback'), icon: null },
-    { id: "recommended", label: t('bonuses.recommended'), icon: CheckCircle2 },
-    { id: "latest", label: t('bonuses.newest'), icon: null },
-    { id: "exclusive", label: t('bonuses.exclusive'), icon: null },
-  ];
+    // Apply advanced filters
+    const hasAdvancedFilters = Object.values(advancedFilters).some(filters => filters.length > 0);
+    if (hasAdvancedFilters) {
+      filtered = applyBonusFilters(filtered, advancedFilters);
+    }
 
-  const activeFilterCount = selectedFilter !== "all" ? 1 : 0;
+    return filtered;
+  }, [bonuses, advancedFilters, filter]);
 
   // Extract casino name from title (assuming format like "200 FREE SPINS on Book of Wealth - SpinBetter")
+  const sortedBonuses = useMemo(() => {
+    const sorted = [...filteredBonuses];
+    
+    switch (sortBy) {
+      case "recommended":
+        return sorted.sort((a, b) => {
+          const ratingDiff = (b.rating || 0) - (a.rating || 0);
+          if (ratingDiff !== 0) return ratingDiff;
+          const safetyDiff = (b.safetyIndex || 0) - (a.safetyIndex || 0);
+          if (safetyDiff !== 0) return safetyDiff;
+          return a.title.localeCompare(b.title);
+        });
+      case "highest":
+        return sorted.sort((a, b) => {
+          const priceA = parseFloat(a.price?.replace(/[^0-9.]/g, '') || '0');
+          const priceB = parseFloat(b.price?.replace(/[^0-9.]/g, '') || '0');
+          return priceB - priceA;
+        });
+      case "lowest":
+        return sorted.sort((a, b) => {
+          const priceA = parseFloat(a.price?.replace(/[^0-9.]/g, '') || '0');
+          const priceB = parseFloat(b.price?.replace(/[^0-9.]/g, '') || '0');
+          return priceA - priceB;
+        });
+      case "newest":
+        return sorted.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+      case "oldest":
+        return sorted.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateA - dateB;
+        });
+      default:
+        return sorted;
+    }
+  }, [filteredBonuses, sortBy]);
+
+  const sortOptions = useMemo(() => [
+    { value: "recommended", label: t('bonuses.recommended') },
+    { value: "highest", label: t('bonuses.highestValue') },
+    { value: "lowest", label: t('bonuses.lowestValue') },
+    { value: "newest", label: t('bonuses.newest') },
+    { value: "oldest", label: t('bonuses.oldest') },
+  ], [t]);
+
   const extractCasinoName = (title: string) => {
     const parts = title.split("-");
     return parts.length > 1 ? parts[parts.length - 1].trim() : "Casino";
@@ -53,105 +113,77 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
   };
 
   return (
-    <div className="container py-5 px-5 mx-auto max-w-7xl">
-      <h1 className="text-4xl font-bold mb-6">{t('bonuses.title')}</h1>
+    <div className="container py-3 px-3 sm:py-5 sm:px-5 mx-auto max-w-7xl">
+      <PageHeader title={t('bonuses.title')} />
 
-      {/* Filter Section */}
-      <div className="mb-6 space-y-4">
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2">
-          {filters.map((filterItem) => {
-            const Icon = filterItem.icon;
-            const isActive = selectedFilter === filterItem.id;
-            
-            return (
-              <Button
-                key={filterItem.id}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedFilter(filterItem.id)}
-                className={isActive ? "bg-primary text-primary-foreground" : ""}
-              >
-                {Icon && <Icon className="h-3 w-3 mr-1" />}
-                {filterItem.label}
-              </Button>
-            );
-          })}
-        </div>
-
-        {/* Results Count & Controls */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            {filteredByType.length} {t('bonuses.title').toLowerCase()} {t('common.found')} {activeFilterCount ? `(1 ${t('common.active')} ${t('common.filter')})` : ""}
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {/* Sort By */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{t('bonuses.sort')}:</span>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder={t('bonuses.recommended')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recommended">{t('bonuses.recommended')}</SelectItem>
-                  <SelectItem value="highest">{t('bonuses.highestValue')}</SelectItem>
-                  <SelectItem value="lowest">{t('bonuses.lowestValue')}</SelectItem>
-                  <SelectItem value="newest">{t('bonuses.newest')}</SelectItem>
-                  <SelectItem value="oldest">{t('bonuses.oldest')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Filter Button */}
-            {activeFilterCount > 0 && (
-              <Button variant="outline" size="sm" className="gap-2">
-                <Filter className="h-4 w-4" />
-                {t('common.filter')} {activeFilterCount}
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+      <FilterSection
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        sortOptions={sortOptions}
+        resultsCount={sortedBonuses.length}
+        filterCategories={advancedFilterCategories}
+        activeFilters={advancedFilters}
+        onFilterChange={setAdvancedFilters}
+      />
 
       {isLoading && (
-        <div className="w-full text-center text-lg py-12">{t('common.loading')} {t('bonuses.title').toLowerCase()}...</div>
-      )}
-      {(!isLoading && filteredByType.length === 0) && (
-        <div className="w-full text-center text-lg py-12">{t('bonuses.noBonuses')}</div>
+        <div className="space-y-6">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-64 w-full" />
+          ))}
+        </div>
       )}
 
-      {/* Stacked bonuses - one under the other */}
-      <div className="flex flex-col gap-6">
-        {filteredByType.map((bonus: Bonus, index) => (
-          <TranslatedBonusCard
-            key={bonus._id || index}
-            bonusType={extractBonusType(bonus.type)}
-            title={bonus.title}
-            description={bonus.description}
-            isExclusive={bonus.isExclusive}
-            casinoName={bonus.casinoName || extractCasinoName(bonus.title)}
-            casinoImage={bonus.casinoImage}
-            safetyIndex={bonus.safetyIndex}
-            countryFlag={bonus.countryFlag}
-            countryCode={bonus.countryCode}
-            promoCode={bonus.promoCode}
-            bonusInstructions={bonus.bonusInstructions}
-            reviewLink={bonus.reviewLink}
-            href={bonus.href}
-            wageringRequirement={bonus.wageringRequirement}
-            bonusValue={bonus.bonusValue}
-            maxBet={bonus.maxBet}
-            expiration={bonus.expiration}
-            claimSpeed={bonus.claimSpeed}
-            termsConditions={bonus.termsConditions}
-            customSections={bonus.customSections}
-            onGetBonus={() => {
-              window.open(bonus.href || "#", "_blank");
-            }}
-          />
-        ))}
-      </div>
+      {!isLoading && sortedBonuses.length === 0 && (
+        <div className="w-full text-center text-lg py-12 text-muted-foreground">
+          {t('bonuses.noBonuses')}
+        </div>
+      )}
+
+      {!isLoading && sortedBonuses.length > 0 && (
+        <div className="flex flex-col gap-6">
+          {sortedBonuses.map((bonus: Bonus, index) => (
+            <TranslatedBonusCard
+              key={bonus._id || index}
+              bonusType={extractBonusType(bonus.type)}
+              title={bonus.title}
+              description={bonus.description}
+              isExclusive={bonus.isExclusive}
+              casinoName={bonus.casinoName || extractCasinoName(bonus.title)}
+              casinoImage={bonus.casinoImage}
+              safetyIndex={bonus.safetyIndex}
+              countryFlag={bonus.countryFlag}
+              countryCode={bonus.countryCode}
+              promoCode={bonus.promoCode}
+              bonusInstructions={bonus.bonusInstructions}
+              reviewLink={bonus.reviewLink}
+              href={bonus.href}
+              wageringRequirement={bonus.wageringRequirement}
+              bonusValue={bonus.bonusValue}
+              maxBet={bonus.maxBet}
+              expiration={bonus.expiration}
+              claimSpeed={bonus.claimSpeed}
+              termsConditions={bonus.termsConditions}
+              customSections={bonus.customSections}
+              onGetBonus={() => {
+                window.open(bonus.href || "#", "_blank");
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function BonusesPage({ filter }: BonusesPageProps) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <p>Loading bonuses...</p>
+      </div>
+    }>
+      <BonusesPageContent filter={filter} />
+    </Suspense>
   );
 }
