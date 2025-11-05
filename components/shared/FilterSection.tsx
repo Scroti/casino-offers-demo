@@ -32,6 +32,7 @@ export const FilterSection = memo(function FilterSection({
   activeFilters,
   onFilterChange,
 }: FilterSectionProps) {
+  const { t } = useI18n();
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
   const getTotalFilterCount = () => {
@@ -46,7 +47,7 @@ export const FilterSection = memo(function FilterSection({
       {/* Results Count & Controls */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="text-sm text-muted-foreground">
-          {resultsCount} results found {filterCount > 0 ? `(${filterCount} active filter${filterCount > 1 ? 's' : ''})` : ""}
+          {resultsCount} {t('common.results')} {t('common.found')} {filterCount > 0 ? `(${filterCount} ${filterCount > 1 ? t('common.activeFilters') : t('common.activeFilter')})` : ""}
         </div>
         
         {sortBy && onSortChange && sortOptions && (
@@ -60,17 +61,17 @@ export const FilterSection = memo(function FilterSection({
                 onClick={() => setFilterModalOpen(true)}
               >
                 <Filter className="h-4 w-4" />
-                Filter
+                {t('common.filter')}
                 {filterCount > 0 && ` (${filterCount})`}
               </Button>
             )}
 
             {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Sort by:</span>
+              <span className="text-sm text-muted-foreground">{t('common.sortBy')}:</span>
               <Select value={sortBy} onValueChange={onSortChange}>
                 <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Recommended" />
+                  <SelectValue placeholder={t('bonuses.recommended')} />
                 </SelectTrigger>
                 <SelectContent>
                   {sortOptions.map((option) => (

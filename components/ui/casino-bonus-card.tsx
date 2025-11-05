@@ -26,6 +26,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { useI18n } from "@/context/i18n.context";
 
 export interface BonusAccordionContent {
   // New flexible shape from backend
@@ -104,38 +105,40 @@ export function CasinoBonusCard({
   href,
 }: CasinoBonusCardProps) {
   // Add icons to accordion content
+  const { t } = useI18n();
+  
   const wageringWithIcon = wageringRequirement && wageringRequirement.value ? {
-    title: `Wagering requirements: ${wageringRequirement.value}`,
+    title: `${t('bonuses.wageringRequirements')}: ${wageringRequirement.value}`,
     subtitle: wageringRequirement.subtitle,
     expandedContent: wageringRequirement.content || '',
     icon: Cog,
   } : null;
   const bonusValueWithIcon = bonusValue && bonusValue.value ? {
-    title: `Value of bonus: ${bonusValue.value}`,
+    title: `${t('bonuses.bonusValue')}: ${bonusValue.value}`,
     subtitle: bonusValue.subtitle,
     expandedContent: bonusValue.content || '',
     icon: Coins,
   } : null;
   const maxBetWithIcon = maxBet && maxBet.value ? {
-    title: `Maximum bet: ${maxBet.value}`,
+    title: `${t('bonuses.maxBet')}: ${maxBet.value}`,
     subtitle: maxBet.subtitle,
     expandedContent: maxBet.content || '',
     icon: Banknote,
   } : null;
   const expirationWithIcon = expiration && expiration.value ? {
-    title: `Bonus expiration: ${expiration.value}`,
+    title: `${t('bonuses.bonusExpiration')}: ${expiration.value}`,
     subtitle: expiration.subtitle,
     expandedContent: expiration.content || '',
     icon: Calendar,
   } : null;
   const claimSpeedWithIcon = claimSpeed && claimSpeed.value ? {
-    title: `Claim speed: ${claimSpeed.value}`,
+    title: `${t('bonuses.claimSpeed')}: ${claimSpeed.value}`,
     subtitle: claimSpeed.subtitle,
     expandedContent: claimSpeed.content || '',
     icon: Clock,
   } : null;
-  const termsWithIcon = termsConditions && (termsConditions.value || termsConditions.content) ? {
-    title: 'Terms & Conditions',
+const termsWithIcon = termsConditions && (termsConditions.value || termsConditions.content) ? {
+    title: t('bonuses.terms'),
     subtitle: termsConditions.subtitle,
     expandedContent: termsConditions.content || '',
     icon: Info,
@@ -322,7 +325,7 @@ export function CasinoBonusCard({
                 {bonusInstructions && (
                   <div className="border border-dashed border-border p-3 rounded-lg space-y-2 mb-4">
                     <div className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                      HOW TO GET BONUS?
+                      {t('bonuses.howToGetBonus')}
                     </div>
                     <div className="text-sm text-foreground">{bonusInstructions}</div>
                     {promoCode && (
@@ -546,7 +549,7 @@ export function CasinoBonusCard({
                 {bonusInstructions && (
                   <div className="border border-dashed border-border p-3 rounded-lg space-y-2">
                     <div className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                      HOW TO GET BONUS?
+                      {t('bonuses.howToGetBonus')}
                     </div>
                     <div className="text-sm text-foreground">{bonusInstructions}</div>
                     {promoCode && (

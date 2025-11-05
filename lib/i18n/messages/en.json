@@ -49,7 +49,15 @@
     "continue": "Continue",
     "skip": "Skip",
     "found": "found",
-    "active": "active"
+    "active": "active",
+    "gambling": "Gambling",
+    "complaints": "Complaints",
+    "reviews": "Reviews",
+    "forum": "Forum",
+    "sortBy": "Sort by:",
+    "filter": "Filter",
+    "results": "results",
+    "loadingBonuses": "Loading bonuses..."
   },
   "hero": {
     "title": "Helping you find",
@@ -87,7 +95,16 @@
     "welcomeBonus": "Welcome Bonus",
     "reloadBonus": "Reload Bonus",
     "cashback": "Cashback",
-    "freeSpins": "Free Spins"
+    "freeSpins": "Free Spins",
+    "getBonus": "Get Bonus",
+    "copyCode": "Copy Code",
+    "wageringRequirements": "Wagering requirements",
+    "bonusExpiration": "Bonus expiration",
+    "howToGetBonus": "HOW TO GET BONUS?",
+    "loading": "Loading bonuses...",
+    "resultsFound": "results found",
+    "activeFilter": "active filter",
+    "activeFilters": "active filters"
   },
   "casinos": {
     "title": "Online Casinos",
@@ -123,7 +140,8 @@
     "withdrawFees": "Withdraw Fees",
     "workingHours": "Working Hours",
     "contactInfo": "Contact Info",
-    "averageContactTime": "Average Contact Time"
+    "averageContactTime": "Average Contact Time",
+    "noCasinos": "No casinos found."
   },
   "games": {
     "title": "Games",
@@ -135,7 +153,13 @@
     "plays": "Plays",
     "freeGames": "Free Games",
     "allGames": "All Games",
-    "seeAll": "See All Free Casino Games"
+    "seeAll": "See All Free Casino Games",
+    "freeCasinoGames": "Free casino games",
+    "gameProviders": "Game providers",
+    "realMoneyPlay": "Real money play",
+    "casinoReviews": "Casino reviews",
+    "latestNews": "Latest news",
+    "realMoneyCasinos": "Real money casinos"
   },
   "guides": {
     "title": "Guides",
@@ -148,7 +172,8 @@
     "author": "Author",
     "tags": "Tags",
     "categories": "Categories",
-    "relatedGuides": "Related Guides"
+    "relatedGuides": "Related Guides",
+    "filterByTitle": "Filter guides by title..."
   },
   "news": {
     "title": "News",
@@ -157,7 +182,8 @@
     "published": "Published",
     "source": "Source",
     "category": "Category",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "filterGames": "Filter games..."
   },
   "auth": {
     "login": {
@@ -316,5 +342,35 @@
     "passwordMatch": "Passwords must match",
     "url": "Please enter a valid URL",
     "number": "Please enter a valid number"
+  },
+  "homepage": {
+    "whyUse": "Why use",
+    "whyUseTitle": "Why use {appName}?",
+    "helpingPlayers": "Helping players for 30 years",
+    "helpingPlayersDesc": "With three decades of experience, we've perfected our processes and built a reputation as the most trusted source on online gambling.",
+    "expertWriters": "Real expert writers",
+    "expertWritersDesc": "The Casino.org team boasts experienced content editors, published authors, data analysts, historians, and game strategists.",
+    "reviewProcess": "Rigorous 25-step review process",
+    "reviewProcessDesc": "Don't just take our word for it. Our methodical, data-driven approach reviews your whole casino experience, from sign-up to withdrawal.",
+    "trustedByPlayers": "Trusted by players worldwide",
+    "playersPerWeek": "players per week",
+    "countriesServed": "countries served top-quality content",
+    "winningsClaimed": "winnings claimed by our readers",
+    "starRating": "star user rating on Trustpilot",
+    "recognizeUs": "You might recognize us",
+    "from": "from...",
+    "featuredPublications": "We're proud to have featured in many trusted publications around the world.",
+    "featuredInTrusted": "Featured in trusted publications"
+  },
+  "admin": {
+    "newsletterSubscriptions": "Newsletter Subscriptions",
+    "userManagement": "User Management",
+    "campaignManagement": "Campaign Management",
+    "bonusesManagement": "Bonuses Management",
+    "casinosManagement": "Casinos Management",
+    "ticketManagement": "Ticket Management",
+    "guidesConfiguration": "Guides Configuration",
+    "gamesManagement": "Games Management",
+    "userLogs": "User Logs"
   }
 }

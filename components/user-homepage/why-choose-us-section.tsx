@@ -15,44 +15,46 @@ import {
   Star as StarIcon
 } from 'lucide-react';
 import { appConfig } from '@/components/configs/appConfig';
+import { useI18n } from '@/context/i18n.context';
 
 export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
+  const { t } = useI18n();
   const appName = appConfig.branding.AppName;
 
   const features = [
     {
       icon: Award,
-      title: 'Helping players for 30 years',
-      description: 'With three decades of experience, we\'ve perfected our processes and built a reputation as the most trusted source on online gambling.',
+      title: t('homepage.helpingPlayers'),
+      description: t('homepage.helpingPlayersDesc'),
     },
     {
       icon: FileText,
-      title: 'Real expert writers',
-      description: 'The Casino.org team boasts experienced content editors, published authors, data analysts, historians, and game strategists.',
+      title: t('homepage.expertWriters'),
+      description: t('homepage.expertWritersDesc'),
     },
     {
       icon: Smartphone,
-      title: 'Rigorous 25-step review process',
-      description: 'Don\'t just take our word for it. Our methodical, data-driven approach reviews your whole casino experience, from sign-up to withdrawal.',
+      title: t('homepage.reviewProcess'),
+      description: t('homepage.reviewProcessDesc'),
     },
   ];
 
   const stats = [
     {
       value: '1m+',
-      label: 'players per week',
+      label: t('homepage.playersPerWeek'),
     },
     {
       value: '100+',
-      label: 'countries served top-quality content',
+      label: t('homepage.countriesServed'),
     },
     {
       value: '$37m+',
-      label: 'winnings claimed by our readers',
+      label: t('homepage.winningsClaimed'),
     },
     {
       value: '4.4',
-      label: 'star user rating on Trustpilot',
+      label: t('homepage.starRating'),
     },
   ];
 
@@ -62,7 +64,7 @@ export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
         {/* Why Choose Us Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6 sm:mb-8">
-            Why use <span className="text-primary">{appName}</span>?
+            {t('homepage.whyUse')} <span className="text-primary">{appName}</span>?
           </h2>
           
           {/* Feature Cards */}
@@ -84,7 +86,7 @@ export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
         {/* Trusted by Players Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 lg:mb-12">
-            Trusted by players worldwide
+            {t('homepage.trustedByPlayers')}
           </h2>
           
           {/* Stats Cards */}
@@ -103,15 +105,15 @@ export const WhyChooseUsSection = memo(function WhyChooseUsSection() {
         {/* Recognition Section */}
         <div className="text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-            You might recognize us <span className="text-primary">from...</span>
+            {t('homepage.recognizeUs')} <span className="text-primary">{t('homepage.from')}</span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto">
-            We're proud to have featured in many trusted publications around the world.
+            {t('homepage.featuredPublications')}
           </p>
           
           {/* Placeholder for logos */}
           <div className="flex items-center justify-center space-x-8 opacity-50">
-            <div className="text-muted-foreground text-sm">Featured in trusted publications</div>
+            <div className="text-muted-foreground text-sm">{t('homepage.featuredInTrusted')}</div>
           </div>
         </div>
       </div>

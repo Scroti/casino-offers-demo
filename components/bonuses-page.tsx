@@ -180,7 +180,7 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-64">
-        <p>Loading bonuses...</p>
+        <p>{t('bonuses.loading')}</p>
       </div>
     }>
       <BonusesPageContent filter={filter} />

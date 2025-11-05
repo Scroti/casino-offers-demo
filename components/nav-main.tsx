@@ -62,6 +62,7 @@ export function NavMain({
     items?: { title: string; url: string }[];
   }[];
 }) {
+  const { t } = useI18n();
   const pathname = usePathname();
   const { isOpen, toggleMenu } = usePersistentMenus();
   const { state, isMobile } = useSidebar();
@@ -70,7 +71,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Gambling</SidebarGroupLabel>
+      <SidebarGroupLabel>{t('common.gambling')}</SidebarGroupLabel>
       <SidebarMenu>
         <TooltipProvider delayDuration={0}>
           {items.map((item) => {

@@ -98,72 +98,86 @@ export const userAppConfig = {
   ],
 };
 
-export const adminAppConfig = {
-  // appName: {
-  //   name: "Casino Offers",
-  //   logo: GalleryVerticalEnd,
-  // },
+export function getAdminAppConfig(t: (key: string) => string) {
+  return {
+    navMain: [
+      {
+        title: t('common.home'),
+        url: "/admin",
+        isActive: true,
+        icon: GalleryVerticalEnd,
+      },
+      {
+        title: t('admin.newsletterSubscriptions'),
+        url: "/admin/newsletter",
+        icon: Newspaper,
+      },
+      {
+        title: t('admin.userManagement'),
+        url: "/admin/user-management",
+        icon: UserCog,
+      },
+      {
+        title: t('admin.campaignManagement'),
+        url: "/admin/campaigns-management",
+        icon: Gift,
+      },
+      {
+        title: t('admin.bonusesManagement'),
+        url: '/admin/bonuses-management',
+        icon: SquareChartGantt,
+      },
+      {
+        title: t('admin.casinosManagement'),
+        url: '/admin/casinos-management',
+        icon: Building2,
+      },
+      {
+        title: t('admin.ticketManagement'),
+        url: "/admin/contact-management",
+        icon: Ticket,
+      },
+      {
+        title: t('admin.guidesConfiguration'),
+        url: "/admin/guides-management",
+        icon: FileText,
+      },
+      {
+        title: t('admin.gamesManagement'),
+        url: "/admin/games-management",
+        icon: DicesIcon,
+      },
+    ],
+    
+    navSecondary: [
+      {
+        title: t('admin.userLogs'),
+        url: "/admin/user-logs",
+        icon: UserCheck,
+      },
+      {
+        title: t('common.forum'),
+        url: "#",
+        icon: Users2,
+      },
+    ],
+  };
+}
 
-  navMain: [
-    {
-      title: "Home",
-      url: "/admin",
-      isActive: true,
-      icon: GalleryVerticalEnd,
-    },
-    {
-      title: "Newsletter Subscriptions",
-      url: "/admin/newsletter",
-      icon: Newspaper,
-    },
-    {
-      title: "User Management",
-      url: "/admin/user-management",
-      icon: UserCog,
-      // No nested bonus-type links; types are filtered within Bonuses page
-    },
-    {
-      title: "Campaign Management",
-      url: "/admin/campaigns-management",
-      icon: Gift,
-    },
-    {
-      title: "Bonuses Management",
-      url: '/admin/bonuses-management',
-      icon: SquareChartGantt,
-    },
-    {
-      title: "Casinos Management",
-      url: '/admin/casinos-management',
-      icon: Building2,
-    },
-    {
-      title: "Ticket Management",
-      url: "/admin/contact-management",
-      icon: Ticket,
-    },
-    {
-      title: "Guides Configuration",
-      url: "/admin/guides-management",
-      icon: FileText,
-    },
-    {
-      title: "Games Management",
-      url: "/admin/games-management",
-      icon: DicesIcon,
-    },
-  ],
-  
-  navSecondary: [
-    {
-      title: "User Logs",
-      url: "/admin/user-logs",
-      icon: UserCheck,
-    },
-    {
-      title: "Forum",
-      url: "#",
-      icon: Users2,
-    },
-  ],
-};
+// Default admin config (fallback)
+export const adminAppConfig = getAdminAppConfig((key: string) => {
+  const translations: Record<string, string> = {
+    'common.home': 'Home',
+    'admin.newsletterSubscriptions': 'Newsletter Subscriptions',
+    'admin.userManagement': 'User Management',
+    'admin.campaignManagement': 'Campaign Management',
+    'admin.bonusesManagement': 'Bonuses Management',
+    'admin.casinosManagement': 'Casinos Management',
+    'admin.ticketManagement': 'Ticket Management',
+    'admin.guidesConfiguration': 'Guides Configuration',
+    'admin.gamesManagement': 'Games Management',
+    'admin.userLogs': 'User Logs',
+    'common.forum': 'Forum',
+  };
+  return translations[key] || key;
+});
