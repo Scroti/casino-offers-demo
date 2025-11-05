@@ -12,7 +12,6 @@ import {
   UserCheck,
   UserCog,
   SquareChartGantt,
-  ChartCandlestick,
   MessageSquare,
   Ticket,
   Building2,
