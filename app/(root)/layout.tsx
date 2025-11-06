@@ -31,7 +31,7 @@ function LayoutContentWithCampaign({ children }: { children: React.ReactNode }) 
       return {
         ...config,
         navMain: config.navMain.filter(
-          (item) => item.title !== t('bonuses.title')
+          (item: { title: string; url: string; icon?: any; items?: any[] }) => item.title !== t('bonuses.title')
         ),
       };
     }
