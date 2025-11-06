@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Filter } from "lucide-react";
 import { AdvancedFilterModal } from "./AdvancedFilterModal";
 import type { AdvancedFilterState, FilterCategory } from "./AdvancedFilterModal";
+import { useI18n } from "@/context/i18n.context";
 
 interface SortOption {
   value: string;
