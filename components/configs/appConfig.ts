@@ -24,79 +24,104 @@ export const appConfig = {
   },
 };
 
-export const userAppConfig = {
-  navMain: [
-    {
-      title: "Home",
-      url: "/",
-      isActive: true,
-      icon: GalleryVerticalEnd,
-    },
-    {
-      title: "Online Casinos",
-      url: "/casinos",
-      icon: Coins,
-    },
-    {
-      title: "Bonuses",
-      url: "/bonuses",
-      icon: Gift,
-    },
-    {
-      title: "Games",
-      url: "/games",
-      icon: DicesIcon,
-      items: [
-        {
-          title: "Free casino games",
-          url: "/games",
-        },
-        {
-          title: "Game providers",
-          url: "#",
-        },
-        {
-          title: "Real money play",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Guides",
-      url: "/guides",
-      icon: BookOpen,
-    },
-  ],
-  projects: [
-    {
-      name: "Complaints",
-      url: "/complaints",
-      icon: Gavel,
-    },
-    {
-      name: "Reviews",
-      url: "/reviews",
-      icon: Star,
-    },
-    {
-      name: "News",
-      url: "/news",
-      icon: Newspaper,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "/support",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Forum",
-      url: "#",
-      icon: Users2,
-    },
-  ],
-};
+// Helper function to get translated menu config
+// This will be called with useI18n hook in components
+export function getUserAppConfig(t: (key: string) => string) {
+  return {
+    navMain: [
+      {
+        title: t('common.home'),
+        url: "/",
+        isActive: true,
+        icon: GalleryVerticalEnd,
+      },
+      {
+        title: t('casinos.title'),
+        url: "/casinos",
+        icon: Coins,
+      },
+      {
+        title: t('bonuses.title'),
+        url: "/bonuses",
+        icon: Gift,
+      },
+      {
+        title: t('games.title'),
+        url: "/games",
+        icon: DicesIcon,
+        items: [
+          {
+            title: t('games.freeCasinoGames'),
+            url: "/games",
+          },
+          {
+            title: t('games.gameProviders'),
+            url: "#",
+          },
+          {
+            title: t('games.realMoneyPlay'),
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: t('guides.title'),
+        url: "/guides",
+        icon: BookOpen,
+      },
+    ],
+    projects: [
+      {
+        name: t('common.complaints'),
+        url: "/complaints",
+        icon: Gavel,
+      },
+      {
+        name: t('common.reviews'),
+        url: "/reviews",
+        icon: Star,
+      },
+      {
+        name: t('news.title'),
+        url: "/news",
+        icon: Newspaper,
+      },
+    ],
+    navSecondary: [
+      {
+        title: t('common.support'),
+        url: "/support",
+        icon: LifeBuoy,
+      },
+      {
+        title: t('common.forum'),
+        url: "#",
+        icon: Users2,
+      },
+    ],
+  };
+}
+
+// Default config (fallback)
+export const userAppConfig = getUserAppConfig((key: string) => {
+  // Fallback to key if translation not found
+  const translations: Record<string, string> = {
+    'common.home': 'Home',
+    'casinos.title': 'Online Casinos',
+    'bonuses.title': 'Bonuses',
+    'games.title': 'Games',
+    'games.freeCasinoGames': 'Free casino games',
+    'games.gameProviders': 'Game providers',
+    'games.realMoneyPlay': 'Real money play',
+    'guides.title': 'Guides',
+    'common.complaints': 'Complaints',
+    'common.reviews': 'Reviews',
+    'news.title': 'News',
+    'common.support': 'Support',
+    'common.forum': 'Forum',
+  };
+  return translations[key] || key;
+});
 
 export function getAdminAppConfig(t: (key: string) => string) {
   return {
