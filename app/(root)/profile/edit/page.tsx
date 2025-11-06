@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth.context";
 import { useMeQuery, useUpdateProfileMutation } from "@/app/lib/data-access/configs/auth.config";
+import { useI18n } from "@/context/i18n.context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,8 +22,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/context/i18n.context";
 
 function EditProfilePageContent() {
+  const { t } = useI18n();
   const router = useRouter();
   const { user: authUser, accessToken, hydrated } = useAuth();
   const { data: userProfile, isLoading: isLoadingProfile, refetch } = useMeQuery();
@@ -81,14 +84,14 @@ function EditProfilePageContent() {
       }
 
       await updateProfile(updateData).unwrap();
-      setSuccess("Profile updated successfully!");
+      setSuccess(t('profile.success'));
       refetch(); // Refresh user data
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       console.error("Failed to update profile:", err);
-      setError(err?.data?.message || "Failed to update profile. Please try again.");
+      setError(err?.data?.message || t('profile.failedToUpdate'));
     }
   };
 
@@ -129,19 +132,19 @@ function EditProfilePageContent() {
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+          {t('profile.back')}
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Edit Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('profile.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Update your profile information and demographic details.
+          {t('profile.subtitle')}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
+          <CardTitle>{t('profile.profileInformation')}</CardTitle>
           <CardDescription>
-            Update your personal information and preferences.
+            {t('profile.profileDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -156,9 +159,9 @@ function EditProfilePageContent() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">Profile Picture</p>
+                  <p className="text-sm font-medium">{t('profile.profilePicture')}</p>
                   <p className="text-xs text-muted-foreground">
-                    Update your profile image URL
+                    {t('profile.updateProfileImage')}
                   </p>
                 </div>
               </div>
@@ -166,13 +169,13 @@ function EditProfilePageContent() {
 
             {/* Name Field */}
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('profile.name')}</Label>
               <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder={t('profile.namePlaceholder')}
                 required
               />
             </div>
@@ -180,7 +183,7 @@ function EditProfilePageContent() {
             {/* Email (Read-only) */}
             {userProfile?.email && (
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('profile.email')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -189,69 +192,69 @@ function EditProfilePageContent() {
                   className="bg-muted"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Email cannot be changed. Contact support if you need to update it.
+                  {t('profile.emailCannotChange')}
                 </p>
               </div>
             )}
 
             {/* Profile Image URL */}
             <div className="space-y-2">
-              <Label htmlFor="profileImageUrl">Profile Image URL</Label>
+              <Label htmlFor="profileImageUrl">{t('profile.profileImageUrl')}</Label>
               <Input
                 id="profileImageUrl"
                 type="url"
                 value={profileImageUrl}
                 onChange={(e) => setProfileImageUrl(e.target.value)}
-                placeholder="https://example.com/your-image.jpg"
+                placeholder={t('profile.imageUrlPlaceholder')}
               />
               <p className="text-xs text-muted-foreground">
-                Enter a URL to your profile picture
+                {t('profile.enterImageUrl')}
               </p>
             </div>
 
             {/* Gender Selection */}
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender">{t('profile.gender')}</Label>
               <Select
                 value={gender}
                 onValueChange={(value) => setGender(value as any)}
               >
                 <SelectTrigger id="gender">
-                  <SelectValue placeholder="Select gender" />
+                  <SelectValue placeholder={t('profile.selectGender')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                  <SelectItem value="male">{t('profile.male')}</SelectItem>
+                  <SelectItem value="female">{t('profile.female')}</SelectItem>
+                  <SelectItem value="prefer-not-to-say">{t('profile.preferNotToSay')}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                This helps us provide better personalized content
+                {t('profile.genderHelp')}
               </p>
             </div>
 
             {/* Age Range Selection */}
             <div className="space-y-2">
-              <Label htmlFor="ageRange">Age Range</Label>
+              <Label htmlFor="ageRange">{t('profile.ageRange')}</Label>
               <Select
                 value={ageRange}
                 onValueChange={(value) => setAgeRange(value as any)}
               >
                 <SelectTrigger id="ageRange">
-                  <SelectValue placeholder="Select age range" />
+                  <SelectValue placeholder={t('profile.selectAgeRange')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="18-24">18-24</SelectItem>
-                  <SelectItem value="25-34">25-34</SelectItem>
-                  <SelectItem value="35-44">35-44</SelectItem>
-                  <SelectItem value="45-54">45-54</SelectItem>
-                  <SelectItem value="55-64">55-64</SelectItem>
-                  <SelectItem value="65+">65+</SelectItem>
-                  <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                  <SelectItem value="18-24">{t('profile.age18_24')}</SelectItem>
+                  <SelectItem value="25-34">{t('profile.age25_34')}</SelectItem>
+                  <SelectItem value="35-44">{t('profile.age35_44')}</SelectItem>
+                  <SelectItem value="45-54">{t('profile.age45_54')}</SelectItem>
+                  <SelectItem value="55-64">{t('profile.age55_64')}</SelectItem>
+                  <SelectItem value="65+">{t('profile.age65Plus')}</SelectItem>
+                  <SelectItem value="prefer-not-to-say">{t('profile.preferNotToSay')}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                This helps us understand our user demographics
+                {t('profile.ageRangeHelp')}
               </p>
             </div>
 
@@ -276,10 +279,10 @@ function EditProfilePageContent() {
                 variant="outline"
                 onClick={() => router.back()}
               >
-                Cancel
+                {t('profile.cancel')}
               </Button>
               <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? "Saving..." : "Save Changes"}
+                {isUpdating ? t('profile.saving') : t('profile.save')}
               </Button>
             </div>
           </form>
@@ -290,10 +293,12 @@ function EditProfilePageContent() {
 }
 
 export default function EditProfilePage() {
+  const { t } = useI18n();
+  
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-64">
-        <p>Loading profile...</p>
+        <p>{t('profile.loadingProfile')}</p>
       </div>
     }>
       <EditProfilePageContent />

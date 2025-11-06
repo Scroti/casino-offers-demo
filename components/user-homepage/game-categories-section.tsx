@@ -16,59 +16,61 @@ import {
   Trophy,
   Coins
 } from 'lucide-react';
+import { useI18n } from '@/context/i18n.context';
 
 export const GameCategoriesSection = memo(function GameCategoriesSection() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('casino-games');
 
   const tabs = [
-    { id: 'casino-games', label: 'Casino games', icon: Zap },
-    { id: 'live-games', label: 'Live games', icon: Target },
-    { id: 'payment-methods', label: 'Payment methods', icon: Coins },
-    { id: 'bonuses', label: 'Bonuses', icon: Trophy },
+    { id: 'casino-games', label: t('games.casinoGames'), icon: Zap },
+    { id: 'live-games', label: t('games.liveGames'), icon: Target },
+    { id: 'payment-methods', label: t('games.paymentMethods'), icon: Coins },
+    { id: 'bonuses', label: t('bonuses.title'), icon: Trophy },
   ];
 
   const gameCategories = [
     {
-      name: 'Slots',
+      name: t('games.slots'),
       icon: Zap,
-      description: 'Spin the reels and win big',
-      games: '500+ Games',
-      popularity: 'Most Popular',
+      description: t('games.spinTheReels'),
+      games: '500+ ' + t('games.games'),
+      popularity: t('games.mostPopular'),
     },
     {
-      name: 'Roulette',
+      name: t('games.roulette'),
       icon: Target,
-      description: 'Bet on your lucky number',
-      games: '50+ Variants',
-      popularity: 'Classic',
+      description: t('games.betOnLuckyNumber'),
+      games: '50+ ' + t('games.variants'),
+      popularity: t('games.classic'),
     },
     {
-      name: 'Blackjack',
+      name: t('games.blackjack'),
       icon: Heart,
-      description: 'Beat the dealer to 21',
-      games: '30+ Tables',
-      popularity: 'Strategic',
+      description: t('games.beatTheDealer'),
+      games: '30+ ' + t('games.tables'),
+      popularity: t('games.strategic'),
     },
     {
-      name: 'Poker',
+      name: t('games.poker'),
       icon: Crown,
-      description: 'Master the art of poker',
-      games: '100+ Variants',
-      popularity: 'Skill-Based',
+      description: t('games.masterPoker'),
+      games: '100+ ' + t('games.variants'),
+      popularity: t('games.skillBased'),
     },
     {
-      name: 'Baccarat',
+      name: t('games.baccarat'),
       icon: Gem,
-      description: 'Simple yet elegant',
-      games: '20+ Tables',
-      popularity: 'Elegant',
+      description: t('games.simpleYetElegant'),
+      games: '20+ ' + t('games.tables'),
+      popularity: t('games.elegant'),
     },
     {
-      name: 'Sic Bo',
+      name: t('games.sicBo'),
       icon: Sparkles,
-      description: 'Roll the dice and win',
-      games: '15+ Variants',
-      popularity: 'Exciting',
+      description: t('games.rollTheDice'),
+      games: '15+ ' + t('games.variants'),
+      popularity: t('games.exciting'),
     },
   ];
 
@@ -80,21 +82,20 @@ export const GameCategoriesSection = memo(function GameCategoriesSection() {
           <div>
             <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
               <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>Explore by Category</span>
+              <span>{t('games.exploreByCategory')}</span>
             </div>
             
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
-              Discover Your Perfect <span className="text-primary">Gaming Experience</span>
+              {t('games.discoverGamingExperience')} <span className="text-primary">{t('games.gamingExperience')}</span>
             </h2>
             
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl">
-              Whether you're looking for the best casino games, thrilling live dealer experiences, 
-              trusted payment methods, or the biggest bonuses, we've got you covered.
+              {t('games.gameCategoryDescription')}
             </p>
           </div>
           
           <Button variant="link" className="text-primary text-sm sm:text-base">
-            See all casino games
+            {t('games.seeAllCasinoGames')}
             <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </div>
@@ -121,7 +122,7 @@ export const GameCategoriesSection = memo(function GameCategoriesSection() {
         {/* Main Content - Game Categories */}
         <div className="mb-6 sm:mb-8">
           <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">
-            Find safe places to play <span className="text-primary">games you'll love</span>
+            {t('games.findSafePlaces')} <span className="text-primary">{t('games.gamesYoullLove')}</span>
           </h3>
           
           {/* Game Categories Grid */}
@@ -160,7 +161,7 @@ export const GameCategoriesSection = memo(function GameCategoriesSection() {
             className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 rounded-lg"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            Explore All Casino Games
+            {t('games.exploreAllCasinoGames')}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

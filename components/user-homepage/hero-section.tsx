@@ -15,6 +15,7 @@ import {
 
 export const HeroSection = memo(function HeroSection() {
   const { t } = useI18n();
+  // Note: These words are part of the animated text, may need translation later
   const words = ['safe', 'trusted', 'best', 'reliable', 'top-rated', 'casinos'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -44,22 +45,22 @@ export const HeroSection = memo(function HeroSection() {
     {
       icon: Dices,
       label: 'FREE',
-      title: 'Free casino games',
+      title: t('games.freeCasinoGames'),
       href: '/games/free',
     },
     {
       icon: Star,
-      title: 'Casino reviews',
+      title: t('games.casinoReviews'),
       href: '/bonuses',
     },
     {
       icon: Newspaper,
-      title: 'Latest news',
+      title: t('games.latestNews'),
       href: '/news',
     },
     {
       icon: Coins,
-      title: 'Real money casinos',
+      title: t('games.realMoneyCasinos'),
       href: '/casinos',
     },
   ];

@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { X } from "lucide-react";
+import { useI18n } from "@/context/i18n.context";
 
 export interface FilterCategory {
   id: string;
@@ -57,6 +58,7 @@ export const AdvancedFilterModal = memo(function AdvancedFilterModal({
   onApply,
   onClear,
 }: AdvancedFilterModalProps) {
+  const { t } = useI18n();
   const [localFilters, setLocalFilters] = useState<AdvancedFilterState>(activeFilters);
 
   // Sync local filters when modal opens or activeFilters change
@@ -114,7 +116,7 @@ export const AdvancedFilterModal = memo(function AdvancedFilterModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Advanced Filters</DialogTitle>
+          <DialogTitle>{t('bonuses.advancedFilters')}</DialogTitle>
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto pr-4 max-h-[60vh]">
@@ -136,7 +138,7 @@ export const AdvancedFilterModal = memo(function AdvancedFilterModal({
                         className="w-full justify-between"
                       >
                         <span>
-                          {count > 0 ? `${count} selected` : "Select options"}
+                          {count > 0 ? `${count} ${t('bonuses.selected')}` : t('bonuses.selectOptions')}
                         </span>
                         {count > 0 && (
                           <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
@@ -159,7 +161,7 @@ export const AdvancedFilterModal = memo(function AdvancedFilterModal({
                             }}
                           >
                             <X className="h-3 w-3 mr-1" />
-                            Clear
+                            {t('common.clear')}
                           </Button>
                         )}
                       </div>
@@ -194,15 +196,15 @@ export const AdvancedFilterModal = memo(function AdvancedFilterModal({
         <DialogFooter className="flex items-center justify-between sm:justify-end gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             {getActiveFilterCount() > 0 && (
-              <span>{getActiveFilterCount()} filter(s) selected</span>
+              <span>{getActiveFilterCount()} {t('bonuses.filtersSelected')}</span>
             )}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleClear} disabled={getActiveFilterCount() === 0}>
-              Clear All
+              {t('bonuses.clearAll')}
             </Button>
             <Button onClick={handleApply}>
-              Apply Filters
+              {t('bonuses.applyFilters')}
             </Button>
           </div>
         </DialogFooter>

@@ -27,8 +27,10 @@ import { useDispatch } from "react-redux";
 
 import { UserProfile } from "@/app/lib/data-access/models/user-profile.model";
 import { useRouter } from "next/navigation";
+import { useI18n } from "@/context/i18n.context";
 
 export function NavUser({ user }: { user: UserProfile | null }) {
+  const { t } = useI18n();
   const { isMobile } = useSidebar();
   const [logoutApi, { isLoading }] = useLogoutMutation();
   const { logoutUser } = useAuth();
@@ -97,7 +99,7 @@ export function NavUser({ user }: { user: UserProfile | null }) {
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push('/profile/edit')}>
                 <User />
-                Edit Profile
+                {t('common.editProfile')}
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -105,7 +107,7 @@ export function NavUser({ user }: { user: UserProfile | null }) {
 
             <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
               <LogOut />
-              Log out
+              {t('common.logOut')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
