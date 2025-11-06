@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useI18n } from "@/context/i18n.context";
 
 // --- Persistent open state helper ---
 function usePersistentMenus(key = "sidebar_menus") {
