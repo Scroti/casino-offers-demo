@@ -176,7 +176,9 @@ function BonusesPageContent({ filter }: BonusesPageProps) {
   );
 }
 
-export default function BonusesPage({ filter }: BonusesPageProps) {
+function BonusesPageWrapper({ filter }: BonusesPageProps) {
+  const { t } = useI18n();
+  
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-64">
@@ -187,3 +189,5 @@ export default function BonusesPage({ filter }: BonusesPageProps) {
     </Suspense>
   );
 }
+
+export default BonusesPageWrapper;
