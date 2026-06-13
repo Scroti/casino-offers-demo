@@ -29,6 +29,27 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+debug.log
+*.log
+
+# credentials & secrets
+base64.txt
+*.pem
+*.p12
+*.key
+*service-account*.json
+*credentials*.json
+
+# binary installers & local artifacts
+*.msi
+*.exe
+*.dmg
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
 
 # env files (can opt-in for committing if needed)
 .env*
