@@ -1,41 +1,47 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+interface JwtPayload {
+  role?: string;
+  exp?: number;
+}
+
+function decodeJwtPayload(token: string): JwtPayload | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    return JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+  } catch {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  console.log('🔍 Middleware for:', pathname);
+  if (!pathname.startsWith('/admin')) return NextResponse.next();
 
-  if (pathname.startsWith('/admin')) {
-    const accessToken = request.cookies.get('accessToken')?.value;
+  const accessToken = request.cookies.get('accessToken')?.value;
+  if (!accessToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-    console.log('🍪 Token exists:', !!accessToken);
+  const payload = decodeJwtPayload(accessToken);
 
-    if (!accessToken) {
-      console.log('❌ No token');
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  if (!payload) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
-    try {
-      const payload = JSON.parse(
-        Buffer.from(accessToken.split('.')[1], 'base64').toString()
-      );
+  if (payload.exp && payload.exp * 1000 < Date.now()) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-      console.log('👤 Full payload:', payload);
-      console.log('🔑 Role:', payload.role);
-
-      if (payload.role !== 'admin') {
-        console.log('⛔ Not admin');
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-
-      console.log('✅ Admin access granted');
-    } catch (error) {
-      console.log('💥 Error:', error);
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+  if (payload.role !== 'admin') {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();

@@ -21,7 +21,7 @@ export const ENV = {
     ACCESS_TOKEN_EXPIRES: 1 / 24, // 1 hour
     REFRESH_TOKEN_EXPIRES: 7, // 7 days
     SAME_SITE: 'strict' as const,
-    SECURE: false, // Set to true in production with HTTPS
+    SECURE: process.env.NODE_ENV === 'production',
     PATH: '/',
   },
 } as const;

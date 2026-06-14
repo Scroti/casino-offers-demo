@@ -1,6 +1,6 @@
-import { createApi, fetchBaseQuery, BaseQueryApi, FetchArgs } from '@reduxjs/toolkit/query/react';
-import { authSlice } from '../slices/auth.slice';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { ENV } from '@/lib/constants/env';
+import { createAuthBaseQuery, createBaseQueryWithReauth } from '../api-base';
 
 // Define the User type for frontend use
 export type User = {
@@ -60,67 +60,9 @@ export type BulkChangeStatusDto = {
   status: 'active' | 'inactive' | 'banned' | 'pending';
 };
 
-const baseUrl = ENV.API_URL;
-
-const baseQuery = fetchBaseQuery({
-  baseUrl,
-  credentials: 'include', // Required for CORS with credentials
-  prepareHeaders(headers, { getState }) {
-    const token = (getState() as any).auth.accessToken;
-    if (token) headers.set('Authorization', `Bearer ${token}`);
-    return headers;
-  },
-});
-
-type RefreshResponse = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-const baseQueryWithReauth = async (
-  args: string | FetchArgs,
-  api: BaseQueryApi,
-  extraOptions: {}
-) => {
-  let result = await baseQuery(args, api, extraOptions);
-
-  if (result.error && result.error.status === 401) {
-    // try to get a new token
-    const refreshToken = (api.getState() as any).auth.refreshToken;
-
-    if (refreshToken) {
-      const refreshResult = await baseQuery(
-        {
-          url: 'auth/refresh',
-          method: 'POST',
-          body: { refreshToken },
-        },
-        api,
-        extraOptions
-      );
-
-      const refreshData = refreshResult.data as RefreshResponse | undefined;
-
-      if (refreshData) {
-        // save new tokens
-        api.dispatch(
-          authSlice.actions.setCredentials({
-            accessToken: refreshData.accessToken,
-            refreshToken: refreshData.refreshToken,
-          })
-        );
-
-        // retry the original query with new access token
-        result = await baseQuery(args, api, extraOptions);
-      } else {
-        api.dispatch(authSlice.actions.logout());
-      }
-    } else {
-      api.dispatch(authSlice.actions.logout());
-    }
-  }
-  return result;
-};
+const baseQueryWithReauth = createBaseQueryWithReauth(
+  createAuthBaseQuery(ENV.API_URL)
+);
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',

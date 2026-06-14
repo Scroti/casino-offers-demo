@@ -31,79 +31,54 @@ type AuthContextValue = {
   logoutUser: () => void;
 };
 
+const COOKIE_OPTIONS = {
+  sameSite: ENV.COOKIE_CONFIG.SAME_SITE,
+  secure: ENV.COOKIE_CONFIG.SECURE,
+  path: ENV.COOKIE_CONFIG.PATH,
+} as const;
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-  const refreshToken = useSelector(
-    (state: RootState) => state.auth.refreshToken
-  );
+  const refreshToken = useSelector((state: RootState) => state.auth.refreshToken);
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate Redux state from cookies on mount
   useEffect(() => {
     const savedAccessToken = Cookies.get("accessToken");
     const savedRefreshToken = Cookies.get("refreshToken");
 
     if (savedAccessToken && savedRefreshToken) {
-      dispatch(
-        setCredentials({
-          accessToken: savedAccessToken,
-          refreshToken: savedRefreshToken,
-        })
-      );
+      dispatch(setCredentials({
+        accessToken: savedAccessToken,
+        refreshToken: savedRefreshToken,
+      }));
     }
     setHydrated(true);
   }, [dispatch]);
 
-  // Use RTK Query me endpoint to fetch user data
   const { data: user, isSuccess } = useMeQuery(undefined, {
-    skip: !accessToken, // Skip if no token
+    skip: !accessToken,
   });
 
-  // Save tokens to cookies when they change and are non-null
   useEffect(() => {
-    if (accessToken && refreshToken) {
+    if (!accessToken || !refreshToken) return;
 
-      // Set access token cookie
-      Cookies.set("accessToken", accessToken, {
-        expires: ENV.COOKIE_CONFIG.ACCESS_TOKEN_EXPIRES,
-        sameSite: ENV.COOKIE_CONFIG.SAME_SITE,
-        secure: ENV.COOKIE_CONFIG.SECURE,
-        path: ENV.COOKIE_CONFIG.PATH,
-      });
-
-      // Set refresh token cookie
-      Cookies.set("refreshToken", refreshToken, {
-        expires: ENV.COOKIE_CONFIG.REFRESH_TOKEN_EXPIRES,
-        sameSite: ENV.COOKIE_CONFIG.SAME_SITE,
-        secure: ENV.COOKIE_CONFIG.SECURE,
-        path: ENV.COOKIE_CONFIG.PATH,
-      });
-
-      // Verify cookies were set
-     
-
-      // Also keep in localStorage as backup
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-    }
+    Cookies.set("accessToken", accessToken, {
+      expires: ENV.COOKIE_CONFIG.ACCESS_TOKEN_EXPIRES,
+      ...COOKIE_OPTIONS,
+    });
+    Cookies.set("refreshToken", refreshToken, {
+      expires: ENV.COOKIE_CONFIG.REFRESH_TOKEN_EXPIRES,
+      ...COOKIE_OPTIONS,
+    });
   }, [accessToken, refreshToken]);
 
   const logoutUser = () => {
-    
     dispatch(logout());
-
-    // Remove from localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-
-    // Remove from cookies with same options used to set them
     Cookies.remove("accessToken", { path: "/" });
     Cookies.remove("refreshToken", { path: "/" });
-
-
   };
 
   const contextValue = useMemo<AuthContextValue>(
@@ -111,14 +86,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       accessToken,
       refreshToken,
       hydrated,
-      user: accessToken && isSuccess ? user ?? null : null,
+      user: accessToken && isSuccess ? (user ?? null) : null,
       login: (newAccessToken: string, newRefreshToken: string) => {
-        dispatch(
-          setCredentials({
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken,
-          })
-        );
+        dispatch(setCredentials({ accessToken: newAccessToken, refreshToken: newRefreshToken }));
       },
       logoutUser,
     }),

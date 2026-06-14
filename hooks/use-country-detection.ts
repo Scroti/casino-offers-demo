@@ -3,38 +3,51 @@
 import { useState, useEffect } from "react";
 
 interface CountryData {
-  country: string;
-  countryName?: string;
+  country: string | null;
+  countryName: string | null;
+}
+
+let cachedResult: CountryData | null = null;
+let pendingRequest: Promise<CountryData> | null = null;
+
+async function detectCountry(): Promise<CountryData> {
+  if (cachedResult) return cachedResult;
+
+  if (!pendingRequest) {
+    pendingRequest = fetch('https://ipinfo.io/json')
+      .then((res) => res.json())
+      .then((data) => {
+        const result: CountryData = {
+          country: data.country ?? null,
+          countryName: data.country_name ?? null,
+        };
+        cachedResult = result;
+        pendingRequest = null;
+        return result;
+      })
+      .catch(() => {
+        pendingRequest = null;
+        return { country: null, countryName: null };
+      });
+  }
+
+  return pendingRequest;
 }
 
 export function useCountryDetection() {
-  const [userCountry, setUserCountry] = useState<string | null>(null);
-  const [countryName, setCountryName] = useState<string | null>(null);
-  const [isDetecting, setIsDetecting] = useState(true);
+  const [userCountry, setUserCountry] = useState<string | null>(cachedResult?.country ?? null);
+  const [countryName, setCountryName] = useState<string | null>(cachedResult?.countryName ?? null);
+  const [isDetecting, setIsDetecting] = useState(!cachedResult);
 
   useEffect(() => {
-    const detectCountry = async () => {
-      try {
-        const res = await fetch('https://ipinfo.io/json');
-        const data = await res.json();
-        if (data.country) {
-          setUserCountry(data.country);
-          setCountryName(data.country_name || null);
-        }
-      } catch (error) {
-        console.error('Failed to detect country:', error);
-      } finally {
-        setIsDetecting(false);
-      }
-    };
+    if (cachedResult) return;
 
-    detectCountry();
+    detectCountry().then((data) => {
+      setUserCountry(data.country);
+      setCountryName(data.countryName);
+      setIsDetecting(false);
+    });
   }, []);
 
-  return {
-    userCountry,
-    countryName,
-    isDetecting,
-  };
+  return { userCountry, countryName, isDetecting };
 }
-

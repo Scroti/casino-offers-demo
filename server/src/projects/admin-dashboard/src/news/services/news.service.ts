@@ -13,11 +13,18 @@ export interface NewsArticle {
   source?: string;
 }
 
+interface CacheEntry {
+  data: NewsArticle[];
+  expiresAt: number;
+}
+
 @Injectable()
 export class NewsService {
   private readonly parser: InstanceType<typeof Parser.default>;
   private readonly rssFeeds: string[];
   private readonly newsApiKey: string;
+  private readonly cache = new Map<string, CacheEntry>();
+  private static readonly CACHE_TTL_MS = 15 * 60 * 1000;
 
   constructor(private configService: ConfigService) {
     this.parser = new Parser.default({
@@ -63,11 +70,10 @@ export class NewsService {
 
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data.articles);
 
       if (data.status === 'ok' && data.articles) {
         return data.articles
-          .filter((article: any) => article.title && article.url) // Filter out invalid articles
+          .filter((article: any) => article.title && article.url)
           .map((article: any) => ({
             title: article.title || 'Untitled',
             link: article.url || '',
@@ -88,6 +94,12 @@ export class NewsService {
   }
 
   async fetchNews(limit: number = 20, country?: string): Promise<NewsArticle[]> {
+    const cacheKey = `${country ?? 'global'}_${limit}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.data;
+    }
+
     const allArticles: NewsArticle[] = [];
 
     try {
@@ -160,8 +172,9 @@ export class NewsService {
       // Remove duplicates based on title and link
       const uniqueArticles = this.removeDuplicates(allArticles);
 
-      // Limit results
-      return uniqueArticles.slice(0, limit);
+      const result = uniqueArticles.slice(0, limit);
+      this.cache.set(cacheKey, { data: result, expiresAt: Date.now() + NewsService.CACHE_TTL_MS });
+      return result;
     } catch (error) {
       console.error('Error fetching news:', error);
       throw error;
