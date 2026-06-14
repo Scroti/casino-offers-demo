@@ -3,7 +3,7 @@
 /tmp/
 *.exe
 *.out
-api
+/api
 
 # Env
 .env
