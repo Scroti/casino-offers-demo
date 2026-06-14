@@ -1,6 +1,6 @@
-# 🚀 AWS Deployment Guide
+﻿# 🚀 AWS Deployment Guide
 
-Complete guide to deploy Casino Offers application on AWS using ECS (Elastic Container Service) with Fargate.
+Complete guide to deploy Playwise Guru application on AWS using ECS (Elastic Container Service) with Fargate.
 
 ## 📋 Table of Contents
 
@@ -130,7 +130,7 @@ aws ecr create-repository \
   --region $REGION
 
 aws ecr create-repository \
-  --repository-name casino-backend \
+  --repository-name playwise-backend \
   --region $REGION
 
 # Get login command
@@ -146,13 +146,13 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 cd server
 
 # Build image
-docker build -t casino-backend:latest .
+docker build -t playwise-backend:latest .
 
 # Tag for ECR
-docker tag casino-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/casino-backend:latest
+docker tag playwise-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/playwise-backend:latest
 
 # Push to ECR
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/casino-backend:latest
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/playwise-backend:latest
 
 cd ..
 ```
@@ -178,7 +178,7 @@ VPC_ID=$(aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query 'Vpc.VpcId' --outpu
 echo "VPC ID: $VPC_ID"
 
 # Tag VPC with name
-aws ec2 create-tags --resources $VPC_ID --tags Key=Name,Value=casino-offers-vpc
+aws ec2 create-tags --resources $VPC_ID --tags Key=Name,Value=playwise-guru-vpc
 
 # Enable DNS
 aws ec2 modify-vpc-attribute --vpc-id $VPC_ID --enable-dns-hostnames
@@ -316,7 +316,7 @@ echo "Task Role: $TASK_ROLE_ARN"
 ### Step 6: Create CloudWatch Log Groups
 
 ```bash
-aws logs create-log-group --log-group-name /ecs/casino-backend
+aws logs create-log-group --log-group-name /ecs/playwise-backend
 aws logs create-log-group --log-group-name /ecs/casino-frontend
 ```
 
@@ -327,7 +327,7 @@ aws logs create-log-group --log-group-name /ecs/casino-frontend
 aws ssm put-parameter --name "/casino/mongodb/user" --value "your-mongo-user" --type "SecureString"
 aws ssm put-parameter --name "/casino/mongodb/password" --value "your-mongo-password" --type "SecureString"
 aws ssm put-parameter --name "/casino/mongodb/server" --value "your-cluster.mongodb.net" --type "String"
-aws ssm put-parameter --name "/casino/mongodb/name" --value "casino_offers" --type "String"
+aws ssm put-parameter --name "/casino/mongodb/name" --value "playwise_guru" --type "String"
 
 # Store JWT secrets
 aws ssm put-parameter --name "/casino/jwt/secret" --value "your-super-secret-jwt-key" --type "SecureString"
@@ -341,7 +341,7 @@ aws ssm put-parameter --name "/casino/jwt/refresh-secret" --value "your-super-se
 ```bash
 cat > task-definition-backend.json <<EOF
 {
-  "family": "casino-backend",
+  "family": "playwise-backend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "1024",
@@ -350,8 +350,8 @@ cat > task-definition-backend.json <<EOF
   "taskRoleArn": "$TASK_ROLE_ARN",
   "containerDefinitions": [
     {
-      "name": "casino-backend",
-      "image": "$AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/casino-backend:latest",
+      "name": "playwise-backend",
+      "image": "$AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/playwise-backend:latest",
       "portMappings": [
         {
           "containerPort": 3000,
@@ -401,7 +401,7 @@ cat > task-definition-backend.json <<EOF
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/casino-backend",
+          "awslogs-group": "/ecs/playwise-backend",
           "awslogs-region": "$REGION",
           "awslogs-stream-prefix": "ecs"
         }
@@ -483,7 +483,7 @@ aws ecs register-task-definition --cli-input-json file://task-definition-fronten
 ### Step 9: Create ECS Cluster
 
 ```bash
-aws ecs create-cluster --cluster-name casino-offers-cluster --capacity-providers FARGATE FARGATE_SPOT
+aws ecs create-cluster --cluster-name playwise-guru-cluster --capacity-providers FARGATE FARGATE_SPOT
 ```
 
 ### Step 10: Create Application Load Balancer
@@ -495,7 +495,7 @@ SUBNET_2="subnet-yyyyy"
 
 # Create target groups
 BACKEND_TG=$(aws elbv2 create-target-group \
-  --name casino-backend-tg \
+  --name playwise-backend-tg \
   --protocol HTTP \
   --port 3000 \
   --vpc-id $VPC_ID \
@@ -520,7 +520,7 @@ FRONTEND_TG=$(aws elbv2 create-target-group \
 
 # Create ALB
 ALB_ARN=$(aws elbv2 create-load-balancer \
-  --name casino-offers-alb \
+  --name playwise-guru-alb \
   --subnets $SUBNET_1 $SUBNET_2 \
   --security-groups $ALB_SG \
   --query 'LoadBalancers[0].LoadBalancerArn' \
@@ -548,13 +548,13 @@ aws elbv2 describe-load-balancers --load-balancer-arns $ALB_ARN --query 'LoadBal
 
 ```bash
 aws ecs create-service \
-  --cluster casino-offers-cluster \
-  --service-name casino-backend-service \
-  --task-definition casino-backend \
+  --cluster playwise-guru-cluster \
+  --service-name playwise-backend-service \
+  --task-definition playwise-backend \
   --desired-count 2 \
   --launch-type FARGATE \
   --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_1,$SUBNET_2],securityGroups=[$ECS_SG],assignPublicIp=ENABLED}" \
-  --load-balancers "targetGroupArn=$BACKEND_TG,containerName=casino-backend,containerPort=3000" \
+  --load-balancers "targetGroupArn=$BACKEND_TG,containerName=playwise-backend,containerPort=3000" \
   --health-check-grace-period-seconds 60
 ```
 
@@ -562,7 +562,7 @@ aws ecs create-service \
 
 ```bash
 aws ecs create-service \
-  --cluster casino-offers-cluster \
+  --cluster playwise-guru-cluster \
   --service-name casino-frontend-service \
   --task-definition casino-frontend \
   --desired-count 2 \
@@ -607,11 +607,11 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY_BACKEND: casino-backend
+  ECR_REPOSITORY_BACKEND: playwise-backend
   ECR_REPOSITORY_FRONTEND: casino-frontend
-  ECS_SERVICE_BACKEND: casino-backend-service
+  ECS_SERVICE_BACKEND: playwise-backend-service
   ECS_SERVICE_FRONTEND: casino-frontend-service
-  ECS_CLUSTER: casino-offers-cluster
+  ECS_CLUSTER: playwise-guru-cluster
 
 jobs:
   deploy-backend:
@@ -663,7 +663,7 @@ jobs:
       - name: Get Backend URL
         id: backend
         run: |
-          BACKEND_URL=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='casino-offers-alb'].DNSName" --output text)
+          BACKEND_URL=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='playwise-guru-alb'].DNSName" --output text)
           echo "url=$BACKEND_URL" >> $GITHUB_OUTPUT
 
       - name: Build, tag, and push frontend image
@@ -711,7 +711,7 @@ chmod +x /usr/local/bin/docker-compose
 # Pull and run containers
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
 
-docker pull $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/casino-backend:latest
+docker pull $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/playwise-backend:latest
 docker pull $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/casino-frontend:latest
 
 # Run with docker-compose (create compose file)
@@ -737,19 +737,19 @@ With reserved capacity and savings plans, you can reduce costs by 30-50%.
 
 ```bash
 # View backend logs
-aws logs tail /ecs/casino-backend --follow
+aws logs tail /ecs/playwise-backend --follow
 
 # View frontend logs
 aws logs tail /ecs/casino-frontend --follow
 
 # Check service status
-aws ecs describe-services --cluster casino-offers-cluster --services casino-backend-service casino-frontend-service
+aws ecs describe-services --cluster playwise-guru-cluster --services playwise-backend-service casino-frontend-service
 
 # Get task IDs
-aws ecs list-tasks --cluster casino-offers-cluster
+aws ecs list-tasks --cluster playwise-guru-cluster
 
 # Describe specific task
-aws ecs describe-tasks --cluster casino-offers-cluster --tasks TASK_ARN
+aws ecs describe-tasks --cluster playwise-guru-cluster --tasks TASK_ARN
 ```
 
 ## 🐛 Troubleshooting
@@ -757,13 +757,13 @@ aws ecs describe-tasks --cluster casino-offers-cluster --tasks TASK_ARN
 **Issue**: Tasks failing to start
 ```bash
 # Check logs
-aws logs tail /ecs/casino-backend --follow
+aws logs tail /ecs/playwise-backend --follow
 
 # Check task definition
-aws ecs describe-task-definition --task-definition casino-backend
+aws ecs describe-task-definition --task-definition playwise-backend
 
 # Check service events
-aws ecs describe-services --cluster casino-offers-cluster --services casino-backend-service
+aws ecs describe-services --cluster playwise-guru-cluster --services playwise-backend-service
 ```
 
 **Issue**: Cannot pull images
@@ -781,7 +781,7 @@ aws ecr describe-repositories
 aws elbv2 describe-target-health --target-group-arn $BACKEND_TG
 
 # Test health endpoint from container
-aws ecs execute-command --cluster casino-offers-cluster --task TASK_ARN --container casino-backend --interactive --command "/bin/sh"
+aws ecs execute-command --cluster playwise-guru-cluster --task TASK_ARN --container playwise-backend --interactive --command "/bin/sh"
 ```
 
 **Issue**: Network connectivity

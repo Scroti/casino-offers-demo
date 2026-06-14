@@ -1,7 +1,7 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # ============================================
-# AWS Deployment Script for Casino Offers
+# AWS Deployment Script for Playwise Guru
 # Simplifies the deployment process
 # ============================================
 
@@ -15,8 +15,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 REGION="us-east-1"
-CLUSTER_NAME="casino-offers-cluster"
-SERVICE_BACKEND="casino-backend-service"
+CLUSTER_NAME="playwise-guru-cluster"
+SERVICE_BACKEND="playwise-backend-service"
 SERVICE_FRONTEND="casino-frontend-service"
 VPC_CIDR="10.0.0.0/16"
 
@@ -71,11 +71,11 @@ create_ecr_repositories() {
     log_info "Creating ECR repositories..."
     
     # Create backend repository if it doesn't exist
-    if ! aws ecr describe-repositories --repository-names casino-backend --region $REGION &>/dev/null; then
-        aws ecr create-repository --repository-name casino-backend --region $REGION
-        log_info "Created casino-backend repository ✓"
+    if ! aws ecr describe-repositories --repository-names playwise-backend --region $REGION &>/dev/null; then
+        aws ecr create-repository --repository-name playwise-backend --region $REGION
+        log_info "Created playwise-backend repository ✓"
     else
-        log_warn "Repository casino-backend already exists"
+        log_warn "Repository playwise-backend already exists"
     fi
     
     # Create frontend repository if it doesn't exist
@@ -93,11 +93,11 @@ build_and_push_backend() {
     cd server
     
     # Build image
-    docker build -t casino-backend:latest .
+    docker build -t playwise-backend:latest .
     
     # Tag and push
-    docker tag casino-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/casino-backend:latest
-    docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/casino-backend:latest
+    docker tag playwise-backend:latest $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/playwise-backend:latest
+    docker push $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/playwise-backend:latest
     
     cd ..
     
@@ -108,7 +108,7 @@ build_and_push_frontend() {
     log_info "Building and pushing frontend image..."
     
     # Check if ALB exists to get backend URL
-    ALB_DNS=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='casino-offers-alb'].DNSName" --output text 2>/dev/null || echo "")
+    ALB_DNS=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='playwise-guru-alb'].DNSName" --output text 2>/dev/null || echo "")
     
     if [ -z "$ALB_DNS" ]; then
         log_warn "ALB not found. Using placeholder URL. You'll need to rebuild after ALB is created."
@@ -180,7 +180,7 @@ deploy_services() {
 show_urls() {
     log_info "Fetching service URLs..."
     
-    ALB_DNS=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='casino-offers-alb'].DNSName" --output text 2>/dev/null || echo "")
+    ALB_DNS=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='playwise-guru-alb'].DNSName" --output text 2>/dev/null || echo "")
     
     if [ -z "$ALB_DNS" ]; then
         log_warn "ALB not found"
@@ -225,7 +225,7 @@ main() {
     echo ""
     echo -e "${GREEN}"
     echo "=========================================="
-    echo "  Casino Offers - AWS Deployment Tool"
+    echo "  Playwise Guru - AWS Deployment Tool"
     echo "=========================================="
     echo -e "${NC}"
     echo ""

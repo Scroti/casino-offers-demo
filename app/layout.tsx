@@ -6,8 +6,8 @@ import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { generateMetadata as genMeta } from "@/lib/utils/seo";
 
 export const metadata: Metadata = genMeta({
-  title: "Best Online Casino Bonuses & Reviews",
-  description: "Discover the best online casino bonuses, reviews, and free games. Trusted guides for safe and secure online gambling.",
+  title: "Playwise Guru – Best Online Casino Bonuses & Reviews",
+  description: "Playwise Guru: Discover the best online casino bonuses, reviews, and free games. Trusted guides for safe and secure online gambling.",
   url: "/",
 });
 

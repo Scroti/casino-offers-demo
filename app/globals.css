@@ -117,23 +117,84 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+  html {
     @apply bg-background text-foreground;
   }
+  body {
+    @apply bg-background text-foreground;
+    /* `clip` prevents horizontal scroll without creating a new scroll
+       container — `hidden` would, breaking sticky positioning. */
+    overflow-x: clip;
+  }
 }
 
+/* ── Premium design utilities ─────────────────────────────── */
+
+.gradient-text {
+  @apply bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent;
+}
+
+.gradient-text-subtle {
+  @apply bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent;
+}
+
+.card-glow {
+  box-shadow: 0 0 0 1px oklch(0.637 0.237 25.331 / 0.15),
+              0 4px 24px oklch(0.637 0.237 25.331 / 0.08);
+}
+.card-glow:hover {
+  box-shadow: 0 0 0 1px oklch(0.637 0.237 25.331 / 0.35),
+              0 8px 32px oklch(0.637 0.237 25.331 / 0.18);
+}
+
+.glass {
+  @apply bg-card/60 backdrop-blur-md border border-white/10;
+}
+
+.section-label {
+  @apply inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary;
+}
+
+/* ── Shimmer skeleton ─────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.9 0.004 286.32) 25%,
+    oklch(0.95 0.002 286.375) 50%,
+    oklch(0.9 0.004 286.32) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+.dark .skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.21 0.006 285.885) 25%,
+    oklch(0.26 0.006 285.885) 50%,
+    oklch(0.21 0.006 285.885) 75%
+  );
+  background-size: 800px 100%;
+}
+
+/* ── Grayscale pulse (legacy) ─────────────────────────────── */
 @keyframes grayscalePulse {
-  0% {
-    filter: grayscale(100%);
-  }
-  50% {
-    filter: grayscale(0%);
-  }
-  100% {
-    filter: grayscale(100%);
-  }
+  0%   { filter: grayscale(100%); }
+  50%  { filter: grayscale(0%); }
+  100% { filter: grayscale(100%); }
 }
-
 .animate-grayscalePulse {
   animation: grayscalePulse 1.2s ease-in-out infinite;
+}
+
+/* ── Subtle floating glow orb ─────────────────────────────── */
+@keyframes float-glow {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50%       { transform: translateY(-12px) scale(1.05); opacity: 1; }
+}
+.animate-float-glow {
+  animation: float-glow 6s ease-in-out infinite;
 }

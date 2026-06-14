@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules
 npm-debug.log*
 package-lock.json
@@ -68,6 +68,6 @@ dev.sh
 deploy.sh
 *.pdf
 base64.txt
-casino-offers-*-*.json
+playwise-guru-*-*.json
 public/config
 

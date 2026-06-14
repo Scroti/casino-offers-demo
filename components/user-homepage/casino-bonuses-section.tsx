@@ -1,185 +1,155 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useGetAllCasinosQuery } from '@/app/lib/data-access/configs/casinos.config';
-import { useGetAllBonusesQuery, useGetBonusesByCasinoQuery } from '@/app/lib/data-access/configs/bonuses.config';
+import { useGetAllBonusesQuery } from '@/app/lib/data-access/configs/bonuses.config';
 import type { Casino } from '@/app/lib/data-access/models/casino.model';
 import type { Bonus } from '@/app/lib/data-access/models/bonus.model';
-import { TranslatedBonusCard } from '@/components/ui/translated-bonus-card';
 import { useI18n } from '@/context/i18n.context';
+import { Section } from '@/components/shared/section';
+import { SectionHeader } from '@/components/shared/section-header';
+import { PremiumCard } from '@/components/shared/premium-card';
+import { SafeImage } from '@/components/shared/safe-image';
+
+const MAX_CARDS = 4;
+
+interface CasinoBonusPair {
+  casino: Casino;
+  bonus: Bonus | undefined;
+}
+
+function bonusBelongsToCasino(bonus: Bonus, casinoId?: string): boolean {
+  if (!casinoId) return false;
+  const ref = bonus.casino;
+  if (ref && typeof ref === 'object') return (ref as { _id?: string })._id === casinoId;
+  return ref === casinoId;
+}
+
+function pickBonusFor(casino: Casino, bonuses: Bonus[]): Bonus | undefined {
+  const matches = bonuses.filter((b) => bonusBelongsToCasino(b, casino._id));
+  if (matches.length === 0) return undefined;
+  return matches[Math.floor(Math.random() * matches.length)];
+}
 
 export const CasinoBonusesSection = memo(function CasinoBonusesSection() {
   const { t } = useI18n();
-  const { data: casinos = [], isLoading: casinosLoading } = useGetAllCasinosQuery();
-  const { data: allBonuses = [] } = useGetAllBonusesQuery();
+  const { data: casinos = [], isLoading } = useGetAllCasinosQuery();
+  const { data: bonuses = [] } = useGetAllBonusesQuery();
 
-  // Get one random bonus per casino
-  const casinoBonuses = useMemo(() => {
-    if (casinosLoading || casinos.length === 0) return [];
-
-    const variants: Array<'light' | 'primary' | 'secondary'> = ['light', 'primary', 'secondary'];
-    const result: Array<{
-      casino: Casino;
-      bonus: Bonus;
-      variant: 'light' | 'primary' | 'secondary';
-    }> = [];
-
-    // Get unique casinos (only those with bonuses)
-    const casinosWithBonuses = casinos.filter(casino => {
-      const casinoBonuses = allBonuses.filter(bonus => {
-        if (typeof bonus.casino === 'object' && bonus.casino !== null) {
-          return (bonus.casino as any)._id === casino._id;
-        }
-        return bonus.casino === casino._id;
-      });
-      return casinoBonuses.length > 0;
-    });
-
-    // Limit to 4 casinos for the homepage
-    const selectedCasinos = casinosWithBonuses.slice(0, 4);
-
-    selectedCasinos.forEach((casino, index) => {
-      // Get all bonuses for this casino
-      const casinoBonuses = allBonuses.filter(bonus => {
-        if (typeof bonus.casino === 'object' && bonus.casino !== null) {
-          return (bonus.casino as any)._id === casino._id;
-        }
-        return bonus.casino === casino._id;
-      });
-
-      if (casinoBonuses.length > 0) {
-        // Pick a random bonus
-        const randomBonus = casinoBonuses[Math.floor(Math.random() * casinoBonuses.length)];
-        const variant = variants[index % variants.length];
-
-        result.push({
-          casino,
-          bonus: randomBonus,
-          variant,
-        });
-      }
-    });
-
-    return result;
-  }, [casinos, allBonuses, casinosLoading]);
-
-  const getCardStyles = (variant: 'light' | 'primary' | 'secondary') => {
-    switch (variant) {
-      case 'primary':
-        return {
-          cardClass: 'bg-primary text-primary-foreground',
-          titleClass: 'text-primary-foreground',
-          subtitleClass: 'text-primary-foreground/80',
-          buttonClass: 'bg-background text-foreground hover:bg-background/90',
-        };
-      case 'secondary':
-        return {
-          cardClass: 'bg-secondary text-secondary-foreground',
-          titleClass: 'text-secondary-foreground',
-          subtitleClass: 'text-secondary-foreground/80',
-          buttonClass: 'bg-background text-foreground hover:bg-background/90',
-        };
-      case 'light':
-      default:
-        return {
-          cardClass: 'bg-muted',
-          titleClass: 'text-foreground',
-          subtitleClass: 'text-muted-foreground',
-          buttonClass: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        };
-    }
-  };
+  const pairs = useMemo<CasinoBonusPair[]>(() => {
+    if (isLoading || casinos.length === 0) return [];
+    return casinos
+      .map((casino) => ({ casino, bonus: pickBonusFor(casino, bonuses) }))
+      .filter((p) => p.bonus)
+      .slice(0, MAX_CARDS);
+  }, [casinos, bonuses, isLoading]);
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 px-4 bg-background">
-      <div className="container mx-auto max-w-7xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-              {t('hero.title')} {t('hero.casinos')}
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base">{t('hero.subtitle')}</p>
-          </div>
-          <Button variant="link" className="text-primary text-sm sm:text-base" asChild>
-            <Link href="/bonuses">
-              {t('common.view')} {t('common.all')} {t('bonuses.title').toLowerCase()}
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
-        </div>
+    <Section background="muted">
+      <SectionHeader
+        eyebrow={{ icon: Sparkles, text: t('common.topPicks') }}
+        title={
+          <>
+            <span className="gradient-text-subtle">{t('casinos.title')}</span>{' '}
+            <span className="gradient-text">{t('bonuses.title')}</span>
+          </>
+        }
+        cta={{ label: t('common.viewAll'), href: '/bonuses' }}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {casinosLoading ? (
-            // Loading state
-            Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} className="border-0 overflow-hidden">
-                <CardContent className="p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-lg animate-pulse" />
-                  <div className="w-full space-y-2">
-                    <div className="h-4 bg-muted rounded animate-pulse" />
-                    <div className="h-3 bg-muted rounded animate-pulse w-3/4 mx-auto" />
-                  </div>
-                  <div className="w-full h-8 bg-muted rounded animate-pulse" />
-                </CardContent>
-              </Card>
-            ))
-          ) : casinoBonuses.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-muted-foreground">
-              {t('bonuses.noBonuses')}
-            </div>
-          ) : (
-            casinoBonuses.map((item, index) => {
-              const styles = getCardStyles(item.variant);
-              const casino = item.casino;
-              const bonus = item.bonus;
-              const bonusTitle = bonus.title || 'Bonus';
-              const casinoName = casino.name || 'Casino';
-              const casinoLogo = casino.logo || casino.image || '/assets/images/logo.png';
-              const reviewLink = casino.reviewUrl || (casino._id ? `/casinos/${casino._id}/review` : '#');
-              
-              return (
-                <Card
-                  key={casino._id || index}
-                  className={`${styles.cardClass} border-0 overflow-hidden hover:shadow-xl transition-shadow`}
-                >
-                  <CardContent className="p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-background rounded-lg flex items-center justify-center shadow-sm">
-                      <img
-                        src={casinoLogo}
-                        alt={casinoName}
-                        width={110}
-                        height={110}
-                        className="object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h3 className={`font-semibold text-xs sm:text-sm mb-1 sm:mb-2 ${styles.titleClass} line-clamp-2`}>
-                        {bonusTitle}
-                      </h3>
-                      <p className={`text-xs ${styles.subtitleClass}`}>
-                        {casinoName}
-                      </p>
-                    </div>
-                    <Button 
-                      className={`w-full text-xs sm:text-sm ${styles.buttonClass}`}
-                      asChild
-                    >
-                      <Link href={reviewLink}>
-                        {t('casinos.visit')}
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {isLoading
+          ? Array.from({ length: MAX_CARDS }).map((_, i) => <SkeletonCard key={i} />)
+          : pairs.length === 0
+            ? <EmptyState message={t('bonuses.noBonuses')} />
+            : pairs.map(({ casino, bonus }) => (
+                <BonusCard
+                  key={casino._id}
+                  casino={casino}
+                  bonus={bonus}
+                  fallbackBonusTitle={t('bonuses.welcomeBonus')}
+                  ctaLabel={t('common.claimBonus')}
+                />
+              ))}
       </div>
-    </section>
+    </Section>
   );
 });
+
+function BonusCard({
+  casino,
+  bonus,
+  fallbackBonusTitle,
+  ctaLabel,
+}: {
+  casino: Casino;
+  bonus: Bonus | undefined;
+  fallbackBonusTitle: string;
+  ctaLabel: string;
+}) {
+  const logo = casino.logo || casino.image;
+  const reviewLink = casino.reviewUrl || (casino._id ? `/casinos/${casino._id}/review` : '#');
+
+  return (
+    <PremiumCard className="p-5 flex flex-col items-center text-center gap-4">
+      <CasinoLogo src={logo} alt={casino.name} />
+
+      <div className="flex-1 space-y-1">
+        <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">
+          {casino.name}
+        </p>
+        <h3 className="font-semibold text-sm leading-snug line-clamp-2 text-foreground">
+          {bonus?.title || fallbackBonusTitle}
+        </h3>
+        {bonus?.price && (
+          <p className="text-primary font-bold text-base">{bonus.price}</p>
+        )}
+      </div>
+
+      <Button
+        className="w-full text-xs sm:text-sm bg-primary/10 text-primary border border-primary/25
+                   hover:bg-primary hover:text-primary-foreground hover:border-primary
+                   transition-all duration-200"
+        asChild
+      >
+        <Link href={reviewLink}>{ctaLabel}</Link>
+      </Button>
+    </PremiumCard>
+  );
+}
+
+function CasinoLogo({ src, alt }: { src?: string; alt: string }) {
+  return (
+    <div className="relative mt-1">
+      <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl border border-border/60 bg-background
+                      flex items-center justify-center shadow-sm overflow-hidden p-2">
+        <SafeImage src={src} alt={alt} className="w-full h-full object-contain" />
+      </div>
+      <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-background" />
+    </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="rounded-2xl border border-border/50 bg-card p-5 space-y-4">
+      <div className="w-16 h-16 rounded-xl skeleton mx-auto" />
+      <div className="space-y-2">
+        <div className="h-3 skeleton rounded w-3/4 mx-auto" />
+        <div className="h-3 skeleton rounded w-1/2 mx-auto" />
+      </div>
+      <div className="h-9 skeleton rounded-lg" />
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="col-span-full text-center py-12 text-muted-foreground">
+      {message}
+    </div>
+  );
+}

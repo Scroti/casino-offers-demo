@@ -48,15 +48,30 @@
     "confirm": "Confirm",
     "continue": "Continue",
     "skip": "Skip",
-    "found": "found",
-    "active": "active"
+    "found": "găsite",
+    "active": "active",
+    "getStarted": "Începe acum",
+    "explore": "Explorează",
+    "topPicks": "Recomandări",
+    "viewAll": "Vezi toate",
+    "claimBonus": "Revendică bonus",
+    "exclusive": "Exclusiv",
+    "new": "Nou",
+    "hot": "Hot",
+    "view": "Vezi"
   },
   "hero": {
     "title": "Te ajutăm să găsești",
-    "casinos": "cazinouri;",
+    "casinos": "cazinouri",
     "subtitle": "Din 1995, ajutăm jucătorii să-și găsească cazinourile perfecte. Explorează recenziile experților noștri, instrumentele inteligente și ghidurile de încredere și joacă-te cu încredere.",
-    "cta": "Get Started",
-    "learnMore": "Learn More"
+    "cta": "Începe acum",
+    "learnMore": "Află mai multe",
+    "trustedBadge": "Recomandat de peste 1M de jucători",
+    "viewBonuses": "Vezi bonusurile",
+    "phraseSafe": "cazinouri sigure",
+    "phraseTrusted": "cazinouri de încredere",
+    "phraseBest": "cele mai bune cazinouri",
+    "phraseTopRated": "cazinouri de top"
   },
   "bonuses": {
     "title": "Bonusuri",

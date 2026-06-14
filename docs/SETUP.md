@@ -1,4 +1,4 @@
-# Setup Guide - How to Run the Project
+﻿# Setup Guide - How to Run the Project
 
 ## ✅ Everything is Working!
 
@@ -93,8 +93,8 @@ npm run start:dev
 
 ## What Changed?
 
-✅ Frontend files moved from `casino-demo/` to root  
-✅ Backend files moved from `casino-demo-be/` to `server/`  
+✅ Frontend files moved from `playwise-guru/` to root  
+✅ Backend files moved from `playwise-guru-be/` to `server/`  
 ✅ All imports and configurations remain intact  
 ✅ GitHub Actions workflows configured  
 ✅ Everything pushed to GitHub  

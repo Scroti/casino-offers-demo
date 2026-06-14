@@ -1,23 +1,23 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   # MongoDB Database
   mongodb:
     image: mongo:7.0
-    container_name: casino-mongodb
+    container_name: playwise-mongodb
     restart: unless-stopped
     ports:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin123
-      MONGO_INITDB_DATABASE: casino_offers
+      MONGO_INITDB_DATABASE: playwise_guru
     volumes:
       - mongodb_data:/data/db
     networks:
-      - casino-network
+      - playwise-network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/casino_offers --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/playwise_guru --quiet
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,7 +27,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: casino-backend
+    container_name: playwise-backend
     restart: unless-stopped
     ports:
       - "3003:3000"
@@ -41,7 +41,7 @@ services:
       MONGO_DB_USER: admin
       MONGO_DB_PASSWORD: admin123
       MONGO_DB_SERVER: mongodb:27017
-      MONGO_DB_NAME: casino_offers
+      MONGO_DB_NAME: playwise_guru
       
       # JWT Configuration
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
@@ -50,9 +50,9 @@ services:
       JWT_REFRESH_EXPIRES: 7d
       
       # App Configuration
-      APP_NAME: Casino Offers API
+      APP_NAME: Playwise Guru API
       APP_ENVIRONMENT: production
-      APP_SWAGGER_TAG: Casino Offers API
+      APP_SWAGGER_TAG: Playwise Guru API
       APP_SWAGGER_VERSION: 1.0.0
       APP_SWAGGER_SERVER: http://localhost:3003
       
@@ -66,7 +66,7 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - casino-network
+      - playwise-network
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
@@ -95,10 +95,10 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - casino-network
+      - playwise-network
 
 networks:
-  casino-network:
+  playwise-network:
     driver: bridge
 
 volumes:

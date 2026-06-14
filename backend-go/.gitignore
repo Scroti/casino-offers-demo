@@ -1,0 +1,18 @@
+# Binaries
+/bin/
+/tmp/
+*.exe
+*.out
+api
+
+# Env
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

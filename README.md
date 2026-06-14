@@ -1,4 +1,4 @@
-# Casino Offers - Full Stack Application
+﻿# Playwise Guru - Full Stack Application
 
 This repository contains the full-stack casino offers application with frontend and backend services.
 
@@ -55,11 +55,11 @@ chmod +x deploy.sh
 ```bash
 # Backend
 cd server
-gcloud run deploy casino-offers-backend --source . --region us-central1
+gcloud run deploy playwise-guru-backend --source . --region us-central1
 
 # Frontend
-BACKEND_URL=$(gcloud run services describe casino-offers-backend --region us-central1 --format 'value(status.url)')
-gcloud run deploy casino-offers-frontend --source . --region us-central1 --set-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL/api/v1"
+BACKEND_URL=$(gcloud run services describe playwise-guru-backend --region us-central1 --format 'value(status.url)')
+gcloud run deploy playwise-guru-frontend --source . --region us-central1 --set-env-vars="NEXT_PUBLIC_API_URL=$BACKEND_URL/api/v1"
 ```
 
 ### GitHub Actions

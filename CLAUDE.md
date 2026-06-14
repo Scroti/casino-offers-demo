@@ -1,4 +1,4 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -87,7 +87,7 @@ NestJS app with URI versioning (`/api/v1/` prefix).
 
 **Module layout:**
 - `projects/admin-dashboard/` — Admin modules: bonuses, casinos, games, guides, campaigns, contact, newsletter.
-- `projects/casino-offers/` — Main user-facing modules.
+- `projects/playwise-guru/` — Main user-facing modules.
 - `projects/health/` — Health check endpoint at `/api/v1/health`.
 - `shared/` — Auth strategies (Local, JWT, Google OAuth, Apple OAuth), guards, Swagger config.
 

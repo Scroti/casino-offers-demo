@@ -1,4 +1,4 @@
-{
+﻿{
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
@@ -18,7 +18,7 @@
       "@offers/commons": ["src/shared/commons/src"],
       "@offers/auth": ["src/shared/auth"],
       "offers/health-check":["src/projects/health/src"],
-      "offers/newsletter":["src/projects/casino-offers/newsletter/src"],
+      "offers/newsletter":["src/projects/playwise-guru/newsletter/src"],
       "offers/admin-dashboard":["src/projects/admin-dashboard/src"]
       
     }

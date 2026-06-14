@@ -44,10 +44,9 @@ function LayoutContentWithCampaign({ children }: { children: React.ReactNode }) 
       <div className="flex flex-col min-h-screen w-full">
         <AppHeader />
 
-        <div className="flex flex-1 w-full overflow-hidden">
+        <div className="flex flex-1 w-full">
           <AppSidebar config={sidebarConfig} />
-
-          <main className="flex-1 overflow-y-auto ">{children}</main>
+          <main className="flex-1 min-w-0 overflow-x-clip">{children}</main>
         </div>
       </div>
     </SidebarProvider>

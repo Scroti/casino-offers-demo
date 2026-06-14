@@ -1,0 +1,40 @@
+# /etc/systemd/system/playwise-api.service
+# Manages the Go API as a system service. Restart-on-failure + journald logs.
+
+[Unit]
+Description=Playwise Guru API
+Documentation=https://playwise.guru
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=playwise
+Group=playwise
+WorkingDirectory=/opt/playwise
+EnvironmentFile=/opt/playwise/.env
+ExecStart=/opt/playwise/api
+Restart=on-failure
+RestartSec=5s
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/playwise
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=playwise-api
+
+[Install]
+WantedBy=multi-user.target

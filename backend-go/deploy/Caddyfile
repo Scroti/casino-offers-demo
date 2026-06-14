@@ -1,0 +1,30 @@
+# /etc/caddy/Caddyfile
+# Caddy auto-provisions a Let's Encrypt cert for api.playwise.guru.
+# All HTTPS termination + HTTP→HTTPS redirect is handled here.
+
+api.playwise.guru {
+    encode zstd gzip
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # Reverse proxy → Go API
+    reverse_proxy 127.0.0.1:8080 {
+        # Pass the real client IP through (chi reads X-Forwarded-For).
+        header_up X-Real-IP {remote_host}
+    }
+
+    # Access log
+    log {
+        output file /var/log/caddy/api.access.log {
+            roll_size 50mb
+            roll_keep 10
+        }
+        format json
+    }
+}

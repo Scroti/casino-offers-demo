@@ -1,6 +1,6 @@
-# ⚡ Quick Start: Deploy Casino Offers to AWS
+﻿# ⚡ Quick Start: Deploy Playwise Guru to AWS
 
-The fastest way to deploy your Casino Offers application to AWS.
+The fastest way to deploy your Playwise Guru application to AWS.
 
 ## 🎯 Your Stack
 
@@ -57,7 +57,7 @@ docker --version
 aws ssm put-parameter --name "/casino/mongodb/user" --value "casino_admin" --type "String"
 aws ssm put-parameter --name "/casino/mongodb/password" --value "YOUR_PASSWORD" --type "SecureString"
 aws ssm put-parameter --name "/casino/mongodb/server" --value "cluster0.xxxxx.mongodb.net" --type "String"
-aws ssm put-parameter --name "/casino/mongodb/name" --value "casino_offers" --type "String"
+aws ssm put-parameter --name "/casino/mongodb/name" --value "playwise_guru" --type "String"
 
 # JWT secrets
 aws ssm put-parameter --name "/casino/jwt/secret" --value "$(openssl rand -hex 32)" --type "SecureString"
@@ -102,7 +102,7 @@ The script will:
 
 ```bash
 # Backend
-aws logs tail /ecs/casino-backend --follow
+aws logs tail /ecs/playwise-backend --follow
 
 # Frontend
 aws logs tail /ecs/casino-frontend --follow
@@ -123,7 +123,7 @@ aws logs tail /ecs/casino-frontend --follow
 ```bash
 # Get ALB DNS
 aws elbv2 describe-load-balancers \
-  --query "LoadBalancers[?LoadBalancerName=='casino-offers-alb'].DNSName" \
+  --query "LoadBalancers[?LoadBalancerName=='playwise-guru-alb'].DNSName" \
   --output text
 ```
 
@@ -131,8 +131,8 @@ aws elbv2 describe-load-balancers \
 
 ```bash
 aws ecs describe-services \
-  --cluster casino-offers-cluster \
-  --services casino-backend-service casino-frontend-service \
+  --cluster playwise-guru-cluster \
+  --services playwise-backend-service casino-frontend-service \
   --query 'services[*].{Name:serviceName,Status:status,Desired:desiredCount,Running:runningCount}'
 ```
 
@@ -165,18 +165,18 @@ Your Google Sheets integration **works as-is** - no changes needed!
 **Issue:** Can't connect to MongoDB
 - Check Atlas network access (add 0.0.0.0/0 for testing)
 - Verify credentials in Parameter Store
-- Check logs: `aws logs tail /ecs/casino-backend`
+- Check logs: `aws logs tail /ecs/playwise-backend`
 
 **Issue:** Container failing to start
-- View logs: `aws logs tail /ecs/casino-backend --follow`
-- Check task definition: `aws ecs describe-task-definition --task-definition casino-backend`
+- View logs: `aws logs tail /ecs/playwise-backend --follow`
+- Check task definition: `aws ecs describe-task-definition --task-definition playwise-backend`
 - Verify secrets: `aws ssm get-parameters --names /casino/mongodb/user /casino/mongodb/password --with-decryption`
 
 **Issue:** Health checks failing
 ```bash
 # Check target group
 aws elbv2 describe-target-health \
-  --target-group-arn $(aws elbv2 describe-target-groups --names casino-backend-tg --query 'TargetGroups[0].TargetGroupArn' --output text)
+  --target-group-arn $(aws elbv2 describe-target-groups --names playwise-backend-tg --query 'TargetGroups[0].TargetGroupArn' --output text)
 ```
 
 ## ✅ You're Done!

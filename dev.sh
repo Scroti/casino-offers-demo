@@ -1,9 +1,9 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# Casino Offers - Parallel Development Script
+# Playwise Guru - Parallel Development Script
 # This script runs both frontend and backend simultaneously
 
-echo "🚀 Starting Casino Offers Development Environment..."
+echo "🚀 Starting Playwise Guru Development Environment..."
 echo ""
 
 # Function to cleanup background processes on exit

@@ -60,14 +60,28 @@
     "sortBy": "Sort by:",
     "filter": "Filter",
     "results": "results",
-    "loadingBonuses": "Loading bonuses..."
+    "loadingBonuses": "Loading bonuses...",
+    "getStarted": "Get Started",
+    "explore": "Explore",
+    "topPicks": "Top Picks",
+    "viewAll": "View All",
+    "claimBonus": "Claim Bonus",
+    "exclusive": "Exclusive",
+    "new": "New",
+    "hot": "Hot"
   },
   "hero": {
     "title": "Helping you find",
     "casinos": "casinos",
     "subtitle": "Since 1995, we've been helping players find their perfect casinos. Explore our expert reviews, smart tools, and trusted guides, and play with confidence.",
     "cta": "Get Started",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "trustedBadge": "Trusted by 1M+ Players Worldwide",
+    "viewBonuses": "View Bonuses",
+    "phraseSafe": "safe casinos",
+    "phraseTrusted": "trusted casinos",
+    "phraseBest": "the best casinos",
+    "phraseTopRated": "top-rated casinos"
   },
   "bonuses": {
     "title": "Bonuses",
@@ -402,7 +416,7 @@
     "helpingPlayers": "Helping players for 30 years",
     "helpingPlayersDesc": "With three decades of experience, we've perfected our processes and built a reputation as the most trusted source on online gambling.",
     "expertWriters": "Real expert writers",
-    "expertWritersDesc": "The Casino.org team boasts experienced content editors, published authors, data analysts, historians, and game strategists.",
+    "expertWritersDesc": "The Playwise Guru team brings together experienced content editors, published authors, data analysts, historians, and game strategists.",
     "reviewProcess": "Rigorous 25-step review process",
     "reviewProcessDesc": "Don't just take our word for it. Our methodical, data-driven approach reviews your whole casino experience, from sign-up to withdrawal.",
     "trustedByPlayers": "Trusted by players worldwide",

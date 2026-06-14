@@ -1,6 +1,6 @@
-# 🚀 Deployment Guide - GCP Cloud Run
+﻿# 🚀 Deployment Guide - GCP Cloud Run
 
-This guide covers deploying the Casino Offers application to Google Cloud Platform using Docker containers.
+This guide covers deploying the Playwise Guru application to Google Cloud Platform using Docker containers.
 
 ## 📋 Prerequisites
 
@@ -61,7 +61,7 @@ APP_VERSIONING_DEFAULT_VERSION=1
 MONGO_DB_USER=your_mongodb_user
 MONGO_DB_PASSWORD=your_mongodb_password
 MONGO_DB_SERVER=your-cluster.mongodb.net
-MONGO_DB_NAME=casino_offers
+MONGO_DB_NAME=playwise_guru
 
 # JWT Configuration
 JWT_SECRET=your-super-secure-jwt-secret-key-minimum-32-chars
@@ -80,9 +80,9 @@ GOOGLE_SHEETS_SPREADSHEET_SHEET_NAME=Sheet1
 GOOGLE_SHEETS_SYNC_ENABLED=true
 
 # Swagger/API Documentation
-APP_NAME=Casino Offers API
+APP_NAME=Playwise Guru API
 APP_ENVIRONMENT=production
-APP_SWAGGER_TAG=Casino Offers API
+APP_SWAGGER_TAG=Playwise Guru API
 APP_SWAGGER_VERSION=1.0.0
 APP_SWAGGER_SERVER=https://your-backend-url.com
 ```
@@ -117,10 +117,10 @@ docker push gcr.io/YOUR_PROJECT_ID/casino-frontend:latest
 cd server
 
 # Build the image
-docker build -t gcr.io/YOUR_PROJECT_ID/casino-backend:latest .
+docker build -t gcr.io/YOUR_PROJECT_ID/playwise-backend:latest .
 
 # Push to Google Container Registry
-docker push gcr.io/YOUR_PROJECT_ID/casino-backend:latest
+docker push gcr.io/YOUR_PROJECT_ID/playwise-backend:latest
 
 # Return to root
 cd ..
@@ -129,8 +129,8 @@ cd ..
 ### Step 2: Deploy Backend to Cloud Run
 
 ```bash
-gcloud run deploy casino-backend \
-  --image gcr.io/YOUR_PROJECT_ID/casino-backend:latest \
+gcloud run deploy playwise-backend \
+  --image gcr.io/YOUR_PROJECT_ID/playwise-backend:latest \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
@@ -142,10 +142,10 @@ gcloud run deploy casino-backend \
   --timeout 300 \
   --concurrency 80 \
   --set-env-vars="NODE_ENV=production,PORT=3000" \
-  --set-env-vars="MONGO_DB_USER=YOUR_MONGO_USER,MONGO_DB_PASSWORD=YOUR_MONGO_PASSWORD,MONGO_DB_SERVER=YOUR_MONGO_CLUSTER.mongodb.net,MONGO_DB_NAME=casino_offers" \
+  --set-env-vars="MONGO_DB_USER=YOUR_MONGO_USER,MONGO_DB_PASSWORD=YOUR_MONGO_PASSWORD,MONGO_DB_SERVER=YOUR_MONGO_CLUSTER.mongodb.net,MONGO_DB_NAME=playwise_guru" \
   --set-env-vars="JWT_SECRET=YOUR_JWT_SECRET,JWT_REFRESH_SECRET=YOUR_JWT_REFRESH_SECRET,JWT_EXPIRES=15m,JWT_REFRESH_EXPIRES=7d" \
   --set-env-vars="CORS_ORIGINS=https://your-frontend-url.com" \
-  --set-env-vars="APP_NAME=Casino Offers API,APP_ENVIRONMENT=production,APP_SWAGGER_TAG=Casino Offers API,APP_SWAGGER_VERSION=1.0.0"
+  --set-env-vars="APP_NAME=Playwise Guru API,APP_ENVIRONMENT=production,APP_SWAGGER_TAG=Playwise Guru API,APP_SWAGGER_VERSION=1.0.0"
 ```
 
 **Note**: Get the backend URL from the output, you'll need it for the frontend deployment.
@@ -154,7 +154,7 @@ gcloud run deploy casino-backend \
 
 ```bash
 # Get backend URL
-BACKEND_URL=$(gcloud run services describe casino-backend --region us-central1 --format 'value(status.url)')
+BACKEND_URL=$(gcloud run services describe playwise-backend --region us-central1 --format 'value(status.url)')
 
 # Deploy frontend
 gcloud run deploy casino-frontend \
@@ -179,7 +179,7 @@ gcloud run deploy casino-frontend \
 gcloud run services describe casino-frontend --region us-central1 --format 'value(status.url)'
 
 # Get backend URL
-gcloud run services describe casino-backend --region us-central1 --format 'value(status.url)'
+gcloud run services describe playwise-backend --region us-central1 --format 'value(status.url)'
 ```
 
 ## 🔄 Alternative: Using Cloud Build
@@ -193,27 +193,27 @@ Create a `cloudbuild.yaml` for automated builds:
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/casino-backend:$COMMIT_SHA', './server']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/playwise-backend:$COMMIT_SHA', './server']
 
   # Push the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/casino-backend:$COMMIT_SHA']
+    args: ['push', 'gcr.io/$PROJECT_ID/playwise-backend:$COMMIT_SHA']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'run'
       - 'deploy'
-      - 'casino-backend'
+      - 'playwise-backend'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/casino-backend:$COMMIT_SHA'
+      - 'gcr.io/$PROJECT_ID/playwise-backend:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
 
 images:
-  - 'gcr.io/$PROJECT_ID/casino-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/playwise-backend:$COMMIT_SHA'
 ```
 
 ### Frontend Cloud Build Config
@@ -228,7 +228,7 @@ steps:
       - '-t'
       - 'gcr.io/$PROJECT_ID/casino-frontend:$COMMIT_SHA'
       - '--build-arg'
-      - 'NEXT_PUBLIC_API_URL=https://casino-backend-XXXXX-uc.a.run.app/api/v1'
+      - 'NEXT_PUBLIC_API_URL=https://playwise-backend-XXXXX-uc.a.run.app/api/v1'
       - '.'
 
   # Push the container image
@@ -295,7 +295,7 @@ Access:
 
 ```bash
 # Backend logs
-gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=casino-backend" --limit 50
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=playwise-backend" --limit 50
 
 # Frontend logs
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=casino-frontend" --limit 50
@@ -305,7 +305,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 
 ```bash
 # Backend
-gcloud run services describe casino-backend --region us-central1
+gcloud run services describe playwise-backend --region us-central1
 
 # Frontend
 gcloud run services describe casino-frontend --region us-central1
@@ -328,7 +328,7 @@ curl https://YOUR_BACKEND_URL/api/v1/health
 echo -n "your-jwt-secret" | gcloud secrets create jwt-secret --data-file=-
 
 # Reference in Cloud Run
-gcloud run services update casino-backend \
+gcloud run services update playwise-backend \
   --update-secrets=JWT_SECRET=jwt-secret:latest
 ```
 
@@ -341,7 +341,7 @@ gcloud compute networks vpc-access connectors create mongodb-connector \
   --subnet default
 
 # Attach to service
-gcloud run services update casino-backend \
+gcloud run services update playwise-backend \
   --vpc-connector mongodb-connector
 ```
 
@@ -371,7 +371,7 @@ gcloud run services update casino-backend \
 ### Update Scaling
 
 ```bash
-gcloud run services update casino-backend \
+gcloud run services update playwise-backend \
   --min-instances 1 \
   --max-instances 20 \
   --memory 2Gi \
@@ -398,25 +398,25 @@ Save this as `deploy.sh`:
 PROJECT_ID="YOUR_PROJECT_ID"
 REGION="us-central1"
 
-echo "🚀 Deploying Casino Offers to GCP Cloud Run..."
+echo "🚀 Deploying Playwise Guru to GCP Cloud Run..."
 
 # Build and push backend
 echo "📦 Building backend..."
 cd server
-docker build -t gcr.io/${PROJECT_ID}/casino-backend:latest .
-docker push gcr.io/${PROJECT_ID}/casino-backend:latest
+docker build -t gcr.io/${PROJECT_ID}/playwise-backend:latest .
+docker push gcr.io/${PROJECT_ID}/playwise-backend:latest
 cd ..
 
 # Deploy backend
 echo "🚢 Deploying backend..."
-gcloud run deploy casino-backend \
-  --image gcr.io/${PROJECT_ID}/casino-backend:latest \
+gcloud run deploy playwise-backend \
+  --image gcr.io/${PROJECT_ID}/playwise-backend:latest \
   --platform managed \
   --region ${REGION} \
   --allow-unauthenticated
 
 # Get backend URL
-BACKEND_URL=$(gcloud run services describe casino-backend --region ${REGION} --format 'value(status.url)')
+BACKEND_URL=$(gcloud run services describe playwise-backend --region ${REGION} --format 'value(status.url)')
 echo "✅ Backend deployed at: $BACKEND_URL"
 
 # Build and push frontend

@@ -1,4 +1,4 @@
-# Environment Variables Setup Guide
+﻿# Environment Variables Setup Guide
 
 ## Quick Fix for Google Analytics
 
@@ -74,7 +74,7 @@ After restarting, refresh your browser page (or do a hard refresh with `Ctrl+Shi
 Your project structure should look like this:
 
 ```
-casino-offers-demo/
+playwise-guru-demo/
 ├── .env.local          ← Create this file here
 ├── .gitignore         ← Should ignore .env.local
 ├── package.json

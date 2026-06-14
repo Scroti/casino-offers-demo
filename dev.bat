@@ -1,8 +1,8 @@
-@echo off
-REM Casino Offers - Parallel Development Script (Windows)
+﻿@echo off
+REM Playwise Guru - Parallel Development Script (Windows)
 REM This script runs both frontend and backend simultaneously
 
-echo 🚀 Starting Casino Offers Development Environment...
+echo 🚀 Starting Playwise Guru Development Environment...
 echo.
 
 REM Check if we're in the right directory

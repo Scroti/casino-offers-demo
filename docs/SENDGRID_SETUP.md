@@ -1,4 +1,4 @@
-# SendGrid Setup Guide - Step by Step
+﻿# SendGrid Setup Guide - Step by Step
 
 ## 📋 Overview
 
@@ -26,7 +26,7 @@ SendGrid is a cloud-based email service that works perfectly with production pla
 1. Once logged in, go to **Settings** → **API Keys** (or visit https://app.sendgrid.com/settings/api_keys)
 2. Click **"Create API Key"**
 3. Choose **"Full Access"** (or "Restricted Access" with "Mail Send" permission)
-4. Give it a name like: `Casino Offers Production`
+4. Give it a name like: `Playwise Guru Production`
 5. Click **"Create & View"**
 6. **⚠️ IMPORTANT**: Copy the API key immediately - you'll only see it once!
    - It will look like: `SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`

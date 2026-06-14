@@ -1,6 +1,6 @@
-# 🚀 Quick Start: Deploy to AWS
+﻿# 🚀 Quick Start: Deploy to AWS
 
-Quick reference guide for deploying Casino Offers to AWS.
+Quick reference guide for deploying Playwise Guru to AWS.
 
 ## 📋 Prerequisites
 
@@ -43,7 +43,7 @@ chmod +x deploy-aws.sh
 aws ssm put-parameter --name "/casino/mongodb/user" --value "your-mongo-user" --type "SecureString"
 aws ssm put-parameter --name "/casino/mongodb/password" --value "your-mongo-password" --type "SecureString"
 aws ssm put-parameter --name "/casino/mongodb/server" --value "your-cluster.mongodb.net" --type "String"
-aws ssm put-parameter --name "/casino/mongodb/name" --value "casino_offers" --type "String"
+aws ssm put-parameter --name "/casino/mongodb/name" --value "playwise_guru" --type "String"
 aws ssm put-parameter --name "/casino/jwt/secret" --value "your-jwt-secret-32-chars" --type "SecureString"
 ```
 
@@ -73,7 +73,7 @@ AWS ECS Fargate
 │
 └── Backend (NestJS)
     ├── Port: 3000
-    ├── Image: casino-backend
+    ├── Image: playwise-backend
     ├── MongoDB Atlas (external)
     ├── Google Sheets API (external)
     └── Health: /api/v1/health
@@ -115,14 +115,14 @@ Application Load Balancer (ALB)
 
 ```bash
 # View logs
-aws logs tail /ecs/casino-backend --follow
+aws logs tail /ecs/playwise-backend --follow
 aws logs tail /ecs/casino-frontend --follow
 
 # Check service status
-aws ecs describe-services --cluster casino-offers-cluster --services casino-backend-service casino-frontend-service
+aws ecs describe-services --cluster playwise-guru-cluster --services playwise-backend-service casino-frontend-service
 
 # Get ALB URL
-aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='casino-offers-alb'].DNSName" --output text
+aws elbv2 describe-load-balancers --query "LoadBalancers[?LoadBalancerName=='playwise-guru-alb'].DNSName" --output text
 
 # Update service
 ./deploy-aws.sh --deploy-only
@@ -142,16 +142,16 @@ aws ecr get-login-password --region us-east-1 | docker login --username AWS --pa
 **Issue:** Tasks failing to start
 ```bash
 # Check logs
-aws logs tail /ecs/casino-backend --follow
+aws logs tail /ecs/playwise-backend --follow
 
 # Check task definition
-aws ecs describe-task-definition --task-definition casino-backend
+aws ecs describe-task-definition --task-definition playwise-backend
 ```
 
 **Issue:** Health checks failing
 ```bash
 # Check target group health
-BACKEND_TG=$(aws elbv2 describe-target-groups --names casino-backend-tg --query 'TargetGroups[0].TargetGroupArn' --output text)
+BACKEND_TG=$(aws elbv2 describe-target-groups --names playwise-backend-tg --query 'TargetGroups[0].TargetGroupArn' --output text)
 aws elbv2 describe-target-health --target-group-arn $BACKEND_TG
 ```
 

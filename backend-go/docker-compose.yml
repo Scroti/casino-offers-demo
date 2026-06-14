@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: playwise-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: playwise
+      POSTGRES_PASSWORD: playwise
+      POSTGRES_DB: playwise_guru
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U playwise -d playwise_guru"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    container_name: playwise-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://playwise:playwise@postgres:5432/playwise_guru?sslmode=disable
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

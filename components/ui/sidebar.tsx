@@ -48,7 +48,8 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
-const HEADER_HEIGHT_CLASS = "top-14";
+// Must match the AppHeader height (h-16 mobile, h-20 sm+).
+const HEADER_HEIGHT_CLASS = "top-16 sm:top-20";
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -237,7 +238,7 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "mt-14",
+          "mt-16 sm:mt-20",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -249,8 +250,9 @@ function Sidebar({
         data-slot="sidebar-container"
         className={cn(
           // was: "fixed inset-y-0 ..."
-          "fixed bottom-0 z-10 hidden h-[calc(100vh-56px)] w-(--sidebar-width) md:flex", // 56px = header
-          HEADER_HEIGHT_CLASS, // 👈 equals top-14
+          "fixed bottom-0 z-10 hidden w-(--sidebar-width) md:flex",
+          "h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)]", // matches header height
+          HEADER_HEIGHT_CLASS,
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -395,7 +397,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
