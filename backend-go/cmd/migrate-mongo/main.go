@@ -58,6 +58,16 @@ func main() {
 
 	db := mongoClient.Database(c.MongoDBName)
 
+	// Print which collections actually exist + their counts. Helps debug
+	// when migration runs find non-empty collections that we didn't expect
+	// (Mongoose pluralization sometimes produces singular collection names).
+	if names, err := db.ListCollectionNames(ctx, bson.M{}); err == nil {
+		for _, n := range names {
+			count, _ := db.Collection(n).CountDocuments(ctx, bson.M{})
+			slog.Info("mongo collection", "name", n, "count", count)
+		}
+	}
+
 	slog.Info("starting migration", "mongoDb", c.MongoDBName)
 
 	migrateUsers(ctx, db, pg)
@@ -70,6 +80,26 @@ func main() {
 	migrateNewsletter(ctx, db, pg)
 
 	slog.Info("migration complete")
+}
+
+// pickCollection returns a cursor over the first collection (in order) that
+// exists and has documents. Handles Mongoose pluralization quirks where some
+// collections end up singular (e.g. "bonus" instead of "bonuses").
+func pickCollection(ctx context.Context, db *mongo.Database, candidates ...string) (*mongo.Cursor, string, error) {
+	for _, name := range candidates {
+		count, err := db.Collection(name).CountDocuments(ctx, bson.M{})
+		if err != nil || count == 0 {
+			continue
+		}
+		cur, err := db.Collection(name).Find(ctx, bson.M{})
+		if err != nil {
+			continue
+		}
+		return cur, name, nil
+	}
+	// Fall back to the first candidate even if empty so callers don't crash.
+	cur, err := db.Collection(candidates[0]).Find(ctx, bson.M{})
+	return cur, candidates[0], err
 }
 
 // objectIDToUUID derives a deterministic UUID from a Mongo ObjectID so we can
@@ -101,12 +131,13 @@ func anyToUUID(v any) (uuid.UUID, bool) {
 // ── USERS ────────────────────────────────────────────────────────────────────
 
 func migrateUsers(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("users").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "users", "user")
 	if err != nil {
 		slog.Warn("users collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("users source", "collection", name)
 
 	count := 0
 	for cur.Next(ctx) {
@@ -144,12 +175,13 @@ ON CONFLICT (email) DO UPDATE SET
 // ── CASINOS ──────────────────────────────────────────────────────────────────
 
 func migrateCasinos(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("casinos").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "casinos", "casino")
 	if err != nil {
 		slog.Warn("casinos collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("casinos source", "collection", name)
 
 	count := 0
 	for cur.Next(ctx) {
@@ -217,12 +249,13 @@ INSERT INTO casinos (
 // ── BONUSES ──────────────────────────────────────────────────────────────────
 
 func migrateBonuses(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("bonuses").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "bonuses", "bonus")
 	if err != nil {
 		slog.Warn("bonuses collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("bonuses source", "collection", name)
 
 	count := 0
 	for cur.Next(ctx) {
@@ -272,12 +305,13 @@ ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, updated_at = NOW()`,
 // ── GAMES / GUIDES / CAMPAIGNS / CONTACT / NEWSLETTER ────────────────────────
 
 func migrateGames(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("games").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "games", "game")
 	if err != nil {
 		slog.Warn("games collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("games source", "collection", name)
 	count := 0
 	for cur.Next(ctx) {
 		var d bson.M
@@ -307,12 +341,13 @@ ON CONFLICT (game_id) DO UPDATE SET title = EXCLUDED.title, updated_at = NOW()`,
 }
 
 func migrateGuides(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("guides").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "guides", "guide")
 	if err != nil {
 		slog.Warn("guides collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("guides source", "collection", name)
 	count := 0
 	for cur.Next(ctx) {
 		var d bson.M
@@ -345,12 +380,13 @@ ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, content = EXCLUDED.cont
 }
 
 func migrateCampaigns(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("campaigns").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "campaigns", "campaign")
 	if err != nil {
 		slog.Warn("campaigns collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("campaigns source", "collection", name)
 	count := 0
 	for cur.Next(ctx) {
 		var d bson.M
@@ -380,12 +416,13 @@ ON CONFLICT (token) DO UPDATE SET name = EXCLUDED.name, updated_at = NOW()`,
 }
 
 func migrateContacts(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("contacts").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "contacts", "contact", "contactmessages")
 	if err != nil {
 		slog.Warn("contacts collection", "err", err)
 		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("contacts source", "collection", name)
 	count := 0
 	for cur.Next(ctx) {
 		var d bson.M
@@ -418,16 +455,13 @@ ON CONFLICT (id) DO NOTHING`,
 }
 
 func migrateNewsletter(ctx context.Context, db *mongo.Database, pg *pgxpool.Pool) {
-	cur, err := db.Collection("newslettersubscriptions").Find(ctx, bson.M{})
+	cur, name, err := pickCollection(ctx, db, "newslettersubscriptions", "newsletter_subscriptions", "newsletters", "newsletter")
 	if err != nil {
-		// fallback collection name
-		cur, err = db.Collection("newsletter_subscriptions").Find(ctx, bson.M{})
-		if err != nil {
-			slog.Warn("newsletter collection", "err", err)
-			return
-		}
+		slog.Warn("newsletter collection", "err", err)
+		return
 	}
 	defer cur.Close(ctx)
+	slog.Info("newsletter source", "collection", name)
 	count := 0
 	for cur.Next(ctx) {
 		var d bson.M
